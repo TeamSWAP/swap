@@ -1,4 +1,4 @@
-swap
+Star Wars Analyzer & Parser
 ====
 
-SWAP
+A SWTOR parser made in Python
