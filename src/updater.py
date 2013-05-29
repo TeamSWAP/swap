@@ -1,0 +1,207 @@
+#
+# Copyright 2013 TeamSWAP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+import wx, time, subprocess, json, os, traceback
+from zipfile import ZipFile
+from threading import Thread
+from urllib2 import urlopen, HTTPError
+from constants import *
+import logging
+
+class UpdaterFrame(wx.Frame):
+	def __init__(self):
+		wx.Frame.__init__(self, None, title="SWAP Updater", size=(400, 150), style=wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX)
+
+		panel = wx.Panel(self)
+		box = wx.BoxSizer(wx.VERTICAL)
+
+		self.title = wx.StaticText(panel, -1, "SWAP")
+		self.title.SetFont(wx.Font(18, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.title.SetSize(self.title.GetBestSize())
+		box.Add(self.title, 0, wx.ALL & ~wx.BOTTOM, 10)
+
+		self.status = wx.StaticText(panel, -1, "Contacting server...")
+		self.status.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.NORMAL))
+		self.status.SetSize(self.status.GetBestSize())
+		box.Add(self.status, 0, wx.ALL & ~wx.TOP, 10)
+
+		self.progress = wx.Gauge(panel, -1, 100)
+		self.progress.Pulse()
+		box.Add(self.progress, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
+
+		panel.SetSizer(box)
+		panel.Layout()
+
+		Thread(target=checkForUpdates, args=[self]).start()
+
+	def launch(self):
+		self.Destroy()
+
+		print
+		print "Launching SWAP..."
+		print "-"*20
+
+		if IS_COMPILED:
+			subprocess.Popen(["swap.exe"])
+		else:
+			subprocess.Popen(["python", "swap.py"])
+
+	def informUpdate(self, version):
+		self.title.SetLabel("Updating to v%s"%version)
+		self.status.SetLabel("Downloading...")
+
+	def informApplying(self):
+		self.status.SetLabel("Extracting update...")
+		self.progress.SetValue(0)
+
+	def setProgress(self, progress):
+		self.progress.SetValue(progress * 100)
+
+	def updateComplete(self, info):
+		self.Hide()
+
+		version = info['version']
+		changelog = info['changelog']
+
+		dialog = wx.MessageDialog(self, changelog, "What's New in v%s"%version, wx.OK)
+		dialog.ShowModal()
+		dialog.Destroy()
+
+		self.launch()
+
+def checkForUpdates(frame):
+	print "Checking for updates..."
+
+	try:
+		url = urlopen(URL_CHECK)
+		data = url.read()
+		url.close()
+		info = json.loads(data)
+		#print info
+	except HTTPError, e:
+		print "ERROR:", e.reason
+		wx.CallAfter(frame.launch)
+		return
+
+	print "Latest version is %s, running %s"%(info['version'], VERSION)
+
+	if info['versionInt'] > VERSION_INT:
+		newVersion = info['versionInt']
+		print "New version!"
+
+		wx.CallAfter(frame.informUpdate, info['version'])
+
+		if IS_COMPILED:
+			downloadUpdate(frame, info)
+		else:
+			print "Not downloading update because not SWAP is not compiled."
+	else:
+		wx.CallAfter(frame.launch)
+
+def downloadUpdate(frame, info):
+	url = info['url']
+	print "Downloading update from", url
+
+	conn = None
+	outputFile = None
+	try:
+		conn = urlopen(url)
+		meta = conn.info()
+		fileSize = int(meta.getheaders("Content-Length")[0])
+		total = "%0.2f KiB"%(fileSize / 1024.0)
+
+		# Start downloading the file
+		blockSize = 8196
+		bytesReceived = 0
+		outputFile = open("tmp.zip", "wb")
+		while True:
+			buffer = conn.read(blockSize)
+			if not buffer:
+				break
+
+			bytesReceived += len(buffer)
+			outputFile.write(buffer)
+
+			current = "%0.2f KiB"%(bytesReceived / 1024.0)
+
+			print "Downloaded %s out of %s"%(current, total), " "*10, "\r",
+
+			wx.CallAfter(frame.setProgress, float(bytesReceived) / float(fileSize))
+
+		outputFile.close()
+		conn.close()
+
+		print # clear return
+		print "Download complete!"
+
+		wx.CallAfter(frame.informApplying)
+
+		applyUpdate(frame, info)
+	except HTTPError, e:
+		if conn != None:
+			conn.close()
+		if outputFile != None:
+			outputFile.close()
+		print "ERROR:", e.reason
+		wx.CallAfter(frame.launch)
+		return
+
+def applyUpdate(frame, info):
+	z = None
+	try:
+		z = ZipFile("tmp.zip")
+		nameList = z.namelist()
+		current = 0
+		total = len(nameList)
+		for f in nameList:
+			print "Extracting", f
+			if f.endswith('/'):
+				if not os.path.isdir(f):
+					os.mkdir(f)
+				continue
+			if f in ('updater.py', 'updater.exe'):
+				z.extract(f, "pending")
+				continue
+			if os.path.exists(f):
+				os.rename(f, f + '.old')
+			z.extract(f)
+			current += 1
+			wx.CallAfter(frame.setProgress, float(current) / float(total))
+		z.close()
+	except Exception, e:
+		print traceback.format_exc()
+		if z != None:
+			z.close()
+		os.remove("tmp.zip")
+		wx.CallAfter(frame.launch)
+		return
+
+	if not IS_COMPILED:
+		print "Cleaning out .pyc"
+
+		pycList = [f for f in os.listdir(".") if f.endswith(".pyc")]
+		for f in pycList:
+			os.remove(f)
+	os.remove("tmp.zip")
+
+	wx.CallAfter(frame.updateComplete, info)
+
+logging.SetupLogging("updater")
+
+app = wx.App()
+frame = UpdaterFrame()
+frame.Show()
+app.MainLoop()
