@@ -102,11 +102,11 @@ def checkForUpdates(frame):
 		newVersion = info['versionInt']
 		print "New version!"
 
-		wx.CallAfter(frame.informUpdate, info['version'])
-
 		if IS_COMPILED:
+			wx.CallAfter(frame.informUpdate, info['version'])
 			downloadUpdate(frame, info)
 		else:
+			wx.CallAfter(frame.launch)
 			print "Not downloading update because not SWAP is not compiled."
 	else:
 		wx.CallAfter(frame.launch)
