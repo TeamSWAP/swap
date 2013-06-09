@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-import wx, os
+import wx, os, sys
 
 VERSION = "1.0"
 VERSION_INT = 1
 URL_CHECK = "http://faultexception.com/torbot/check.php"
-IS_COMPILED = "swap.exe" in os.listdir(".")
+IS_COMPILED = 'frozen' in dir(sys)
 
 # Static Messages
 MSG_CLOSE_CONFIRM_TEXT = "Are you sure you want to close SWAP? This will end your parsing session."
