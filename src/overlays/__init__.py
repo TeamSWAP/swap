@@ -87,6 +87,19 @@ def KillOverlay(name):
 	overlay.Destroy()
 	del openOverlays[name]
 
+def KillAllOverlays():
+	print "Closing overlays..."
+	global openOverlays
+	for name, overlay in openOverlays.iteritems():
+		overlay.Destroy()
+	openOverlays = {}
+
+def IsOverlayOpen(targetName):
+	for name, overlay in openOverlays.iteritems():
+		if name == targetName:
+			return True
+	return False
+
 def ToggleOverlay(name):
 	global openOverlays
 	if name in openOverlays.keys():
@@ -115,3 +128,9 @@ def SetOverlayBeingDragged(val):
 def IsOverlayBeingDragged():
 	global isOverlayBeingDragged
 	return isOverlayBeingDragged
+
+def ResetOverlays():
+	print "Resetting overlays..."
+	for overlay in overlayList:
+		config.Remove("overlay_%s_pos"%overlay['class'].__name__)
+		config.Remove("overlay_%s_size"%overlay['class'].__name__)

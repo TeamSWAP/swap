@@ -50,6 +50,7 @@ class MainFrame(wx.Frame):
 			categoryMenus[name] = subMenu = wx.Menu()
 			menu.AppendSubMenu(subMenu, title, "")
 
+		self.m_overlays = {}
 		for overlay in overlays.GetOverlayList():
 			if overlay == '-':
 				menu.AppendSeparator()
@@ -58,13 +59,19 @@ class MainFrame(wx.Frame):
 			targetMenu = menu
 			if overlay['category'] != None:
 				targetMenu = categoryMenus[overlay['category']]
-			targetMenu.AppendCheckItem(id, overlay['title'], MENU_TIP_OVERLAY_SELECT)
+			self.m_overlays[id] = targetMenu.AppendCheckItem(id, overlay['title'], MENU_TIP_OVERLAY_SELECT)
 			self.Bind(wx.EVT_MENU, (lambda n: lambda e: overlays.ToggleOverlay(n))(overlay['name']), id=id)
 
 		menu.AppendSeparator()
 		m_dark = menu.AppendCheckItem(MENU_ID_OVERLAY_DARK, MENU_TITLE_OVERLAY_DARK, MENU_TIP_OVERLAY_DARK)
 		m_dark.Check(overlays.IsDarkTheme())
 		self.Bind(wx.EVT_MENU, lambda e: overlays.ToggleDarkTheme(), id=MENU_ID_OVERLAY_DARK)
+
+		m_reset = menu.Append(MENU_ID_OVERLAY_RESET, MENU_TITLE_OVERLAY_RESET, MENU_TIP_OVERLAY_RESET)
+		self.Bind(wx.EVT_MENU, self.OnResetOverlays, id=MENU_ID_OVERLAY_RESET)
+
+		m_close = menu.Append(MENU_ID_OVERLAY_CLOSE, MENU_TITLE_OVERLAY_CLOSE, MENU_TIP_OVERLAY_CLOSE)
+		self.Bind(wx.EVT_MENU, self.OnCloseOverlays, id=MENU_ID_OVERLAY_CLOSE)
 
 		# UI
 		panel = wx.Panel(self)
@@ -87,6 +94,23 @@ class MainFrame(wx.Frame):
 		if result == wx.ID_OK:
 			# TODO: End parsing now
 			self.Destroy()
+
+	def OnResetOverlays(self, event):
+		overlays.ResetOverlays()
+		overlays.KillAllOverlays()
+		self.updateOverlayList()
+
+	def OnCloseOverlays(self, event):
+		overlays.KillAllOverlays()
+		self.updateOverlayList()
+
+	def updateOverlayList(self):
+		for name, item in self.m_overlays.iteritems():
+			if overlays.IsOverlayOpen(name):
+				item.Check(True)
+			else:
+				item.Check(False)
+
 
 logging.SetupLogging("swap")
 config.Load()

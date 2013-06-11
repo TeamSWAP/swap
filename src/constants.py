@@ -29,14 +29,20 @@ MSG_CLOSE_CONFIRM_TITLE = "Confirm Exit"
 MENU_ID_EXIT = wx.NewId()
 MENU_ID_PREFERENCES = wx.NewId()
 MENU_ID_OVERLAY_DARK = wx.NewId()
+MENU_ID_OVERLAY_RESET = wx.NewId()
+MENU_ID_OVERLAY_CLOSE = wx.NewId()
 
 # Menu Title
 MENU_TITLE_EXIT = "Exit"
 MENU_TITLE_PREFERENCES = "Preferences"
 MENU_TITLE_OVERLAY_DARK = "Dark Overlays"
+MENU_TITLE_OVERLAY_RESET = "Reset Overlays"
+MENU_TITLE_OVERLAY_CLOSE = "Close Overlays"
 
 # Menu Tip
 MENU_TIP_EXIT = "Exits the program."
 MENU_TIP_PREFERENCES = "Change program settings"
 MENU_TIP_OVERLAY_DARK = "Toggles dark theme for overlays"
+MENU_TIP_OVERLAY_RESET = "Reset all overlays' position and size"
+MENU_TIP_OVERLAY_CLOSE = "Close all open overlays"
 MENU_TIP_OVERLAY_SELECT = "Toggle selected overlay"

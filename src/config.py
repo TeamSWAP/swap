@@ -56,3 +56,8 @@ def Get(name):
 
 def Set(name, value):
 	settings[name] = value
+
+def Remove(name):
+	global settings
+	if name in settings.keys():
+		del settings[name]
