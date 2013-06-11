@@ -42,7 +42,6 @@ class LogRedirector:
 
 def SetupLogging(tag):
 	if not IS_COMPILED:
-		print "Disabled log redirection because you're running .py"
 		return
 	
 	redirector = LogRedirector(tag)
