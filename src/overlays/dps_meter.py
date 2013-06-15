@@ -35,5 +35,4 @@ class DPSMeterOverlay(BaseOverlay):
 
 	def OnAnalyzerTick(self, analyzer):
 		self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
-		self.title.SetLabel("AVG. DPS [%s]"%util.FormatDuration(analyzer.combatDuration))
 

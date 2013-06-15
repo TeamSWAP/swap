@@ -20,6 +20,7 @@ import config
 # Import overlay classes
 from dps_meter import DPSMeterOverlay
 from damage_dealt import DamageDealtOverlay
+from timer import FightTimerOverlay
 
 overlayCategories = [
 	{
@@ -45,6 +46,12 @@ overlayList = [
 		'title': 'Damage Dealt',
 		'category': 'self',
 		'class': DamageDealtOverlay
+	},
+	{
+		'name': 'fight_timer',
+		'title': 'Fight Timer',
+		'category': 'self',
+		'class': FightTimerOverlay
 	},
 # Raid-wide
 ]

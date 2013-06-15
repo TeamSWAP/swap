@@ -71,8 +71,14 @@ class AnalyzerThread(threading.Thread):
 
 				self.totalDamage = totalDamage
 				self.combatDuration = combatDuration
+				if len(events) > 0 and events[-1].inCombat:
+					self.combatDurationLinear = time.time() - combatStartTime
+					if self.combatDurationLinear < 0:
+						self.combatDurationLinear = combatDuration
+				else:
+					self.combatDurationLinear = combatDuration
 				if combatDuration > 0:
-					self.avgDps = totalDamage / (combatDuration / 1000.0)
+					self.avgDps = totalDamage / combatDuration
 				else:
 					self.avgDps = 0
 				self.notifyFrames()

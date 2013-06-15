@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-def FormatDuration(ms):
-	if ms < 1000:
-		return "%d ms"%ms
-	elif ms < 60000:
-		return "%02ds"%(ms / 1000)
-	elif ms < 3600000:
-		return "%02dm %02ds"%(ms / 60000, (ms%60000) / 1000)
+def FormatDuration(s):
+	if s < 1:
+		return "%.1fs"%s
+	elif s < 60:
+		return "%02ds"%s
+	elif s < 3600:
+		return "%02dm %02ds"%(s / 60, s%60)
 	else:
-		return "%dh %02dm %02ds"%((ms / 3600000), (ms%3600000) / 60000, (ms%60000) / 1000)
+		return "%dh %02dm %02ds"%((s / 3600), (s%3600) / 60, s%60)

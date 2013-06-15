@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import os, time
+import os, time, datetime
 import ctypes
 import re
 import threading
@@ -82,8 +82,6 @@ class Parser:
 			log = open(self.logLocation + "\\" + logFile, 'r')
 
 			inCombat = False
-			runningTime = 0
-			lastTime = 0
 			self.events = []
 
 			prnt("Parser: Began parsing %s"%logFile)
@@ -101,8 +99,6 @@ class Parser:
 
 						# Reset vars
 						inCombat = False
-						runningTime = 0
-						lastTime = 0
 						self.events = []
 
 						# Ensure we determine who "we" are again.
@@ -127,16 +123,9 @@ class Parser:
 					actionType = res.group('actiontype')
 					actionTypeId = res.group('actiontypeid')
 					result = res.group('result')
-					actionTime = (hour * 3600000) + (minute * 60000) + (second * 1000) + ms
 
-					# If previous event is "after" this event, we must have passed midnight,
-					# update running time.
-					if actionTime < lastTime:
-						runningTime = lastTime
-					if runningTime != 0:
-						actionTime += runningTime
-
-					lastTime = actionTime
+					today = time.mktime(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timetuple())
+					actionTime = today + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
 
 					# Serious introspection here, man
 					if self.me == None and actor == target:
