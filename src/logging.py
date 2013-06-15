@@ -16,10 +16,17 @@
 
 import sys, atexit
 from constants import *
+from threading import Lock
+
+threadLock = Lock()
+redirector = None
 
 class LogRedirector:
 	def __init__(self, tag):
-		self.fileOut = open('debug-%s.log'%tag, 'w')
+		if IS_COMPILED:
+			self.fileOut = open('debug-%s.log'%tag, 'w')
+		else:
+			self.fileOut = None
 		self.stdOut = sys.stdout
 		self.stdErr = sys.stderr
 		sys.stdout = self
@@ -27,13 +34,15 @@ class LogRedirector:
 		self.closed = False
 
 	def write(self, text):
-		self.fileOut.write(text)
+		if self.fileOut:
+			self.fileOut.write(text)
 		self.stdOut.write(text)
 
 	def close(self):
 		sys.stdout = self.stdOut
 		sys.stderr = self.stdErr
-		self.fileOut.close()
+		if self.fileOut:
+			self.fileOut.close()
 		self.closed = True
 
 	def __del__(self):
@@ -41,8 +50,10 @@ class LogRedirector:
 			self.close()
 
 def SetupLogging(tag):
-	if not IS_COMPILED:
-		return
-	
+	global redirector
 	redirector = LogRedirector(tag)
 	atexit.register(redirector.close)
+
+def prnt(text):
+	with threadLock:
+		redirector.write(str(text) + '\n')

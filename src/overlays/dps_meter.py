@@ -14,36 +14,26 @@
 # limitations under the License.
 #
 
-import wx, random, time
+import wx, random, time, locale, util
+import log_analyzer
 from threading import Thread, Event
 from base import BaseOverlay
+from logging import prnt
 
 class DPSMeterOverlay(BaseOverlay):
 	def __init__(self):
-		BaseOverlay.__init__(self, title="DPS meter")
-
-		self.updaterThread = DPSMeterOverlay.UpdaterThread(self)
-		self.updaterThread.start()
+		BaseOverlay.__init__(self, title="AVG. DPS")
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
+		analyzer = log_analyzer.Get()
+		analyzer.registerFrame(self)
+		self.OnAnalyzerTick(analyzer)
+
 	def OnClose(self, event):
-		self.updaterThread.stop()
+		log_analyzer.Get().unregisterFrame(self)
 
-	def update(self, number):
-		self.dps.SetLabel(number)
+	def OnAnalyzerTick(self, analyzer):
+		self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
+		self.title.SetLabel("AVG. DPS [%s]"%util.FormatDuration(analyzer.combatDuration))
 
-	class UpdaterThread(Thread):
-		def __init__(self, frame):
-			Thread.__init__(self)
-
-			self.frame = frame
-			self.threadStopping = Event()
-
-		def stop(self):
-			self.threadStopping.set()
-
-		def run(self):
-			while not self.threadStopping.isSet():
-				wx.CallAfter(self.frame.update, str(random.randint(100,3400)))
-				time.sleep(1)

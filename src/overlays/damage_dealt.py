@@ -17,37 +17,21 @@
 import wx, random, time, locale
 from threading import Thread, Event
 from base import BaseOverlay
+import log_analyzer
 
 class DamageDealtOverlay(BaseOverlay):
 	def __init__(self):
 		BaseOverlay.__init__(self, title="Damage Dealt")
-		self.dps.SetLabel("1,750,600")
-
-		self.updaterThread = DamageDealtOverlay.UpdaterThread(self)
-		self.updaterThread.start()
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
+		analyzer = log_analyzer.Get()
+		analyzer.registerFrame(self)
+		self.OnAnalyzerTick(analyzer)
+
 	def OnClose(self, event):
-		self.updaterThread.stop()
+		log_analyzer.Get().unregisterFrame(self)
 
-	def update(self, number):
-		self.dps.SetLabel(number)
+	def OnAnalyzerTick(self, analyzer):
+		self.dps.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
 
-	class UpdaterThread(Thread):
-		damageDone = 0
-
-		def __init__(self, frame):
-			Thread.__init__(self)
-
-			self.frame = frame
-			self.threadStopping = Event()
-
-		def stop(self):
-			self.threadStopping.set()
-
-		def run(self):
-			while not self.threadStopping.isSet():
-				self.damageDone += random.randint(100,3400)
-				wx.CallAfter(self.frame.update, locale.format("%d", self.damageDone, grouping=True))
-				time.sleep(1)

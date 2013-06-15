@@ -20,6 +20,7 @@ from threading import Thread
 from urllib2 import urlopen, HTTPError
 from constants import *
 import logging
+from logging import prnt
 
 class UpdaterFrame(wx.Frame):
 	def __init__(self):
@@ -50,9 +51,9 @@ class UpdaterFrame(wx.Frame):
 	def launch(self):
 		self.Destroy()
 
-		print
-		print "Launching SWAP..."
-		print "-"*20
+		prnt("")
+		prnt("Launching SWAP...")
+		prnt("-"*20)
 
 		if IS_COMPILED:
 			subprocess.Popen(["swap.exe"])
@@ -83,7 +84,7 @@ class UpdaterFrame(wx.Frame):
 		self.launch()
 
 def checkForUpdates(frame):
-	print "Checking for updates..."
+	prnt("Checking for updates...")
 
 	try:
 		url = urlopen(URL_CHECK)
@@ -92,28 +93,28 @@ def checkForUpdates(frame):
 		info = json.loads(data)
 		#print info
 	except HTTPError, e:
-		print "ERROR:", e.reason
+		prnt("ERROR:", e.reason)
 		wx.CallAfter(frame.launch)
 		return
 
-	print "Latest version is %s, running %s"%(info['version'], VERSION)
+	prnt("Latest version is %s, running %s"%(info['version'], VERSION))
 
 	if info['versionInt'] > VERSION_INT:
 		newVersion = info['versionInt']
-		print "New version!"
+		prnt("New version!")
 
 		if IS_COMPILED:
 			wx.CallAfter(frame.informUpdate, info['version'])
 			downloadUpdate(frame, info)
 		else:
 			wx.CallAfter(frame.launch)
-			print "Not downloading update because not SWAP is not compiled."
+			prnt("Not downloading update because not SWAP is not compiled.")
 	else:
 		wx.CallAfter(frame.launch)
 
 def downloadUpdate(frame, info):
 	url = info['url']
-	print "Downloading update from", url
+	prnt("Downloading update from", url)
 
 	conn = None
 	outputFile = None
@@ -137,15 +138,15 @@ def downloadUpdate(frame, info):
 
 			current = "%0.2f KiB"%(bytesReceived / 1024.0)
 
-			print "Downloaded %s out of %s"%(current, total), " "*10, "\r",
+			prnt("Downloaded %s out of %s              \r"%(current, total))
 
 			wx.CallAfter(frame.setProgress, float(bytesReceived) / float(fileSize))
 
 		outputFile.close()
 		conn.close()
 
-		print # clear return
-		print "Download complete!"
+		prnt() # clear return
+		prnt("Download complete!")
 
 		wx.CallAfter(frame.informApplying)
 
@@ -155,7 +156,7 @@ def downloadUpdate(frame, info):
 			conn.close()
 		if outputFile != None:
 			outputFile.close()
-		print "ERROR:", e.reason
+		prnt("ERROR: %s"%e.reason)
 		wx.CallAfter(frame.launch)
 		return
 
@@ -167,7 +168,7 @@ def applyUpdate(frame, info):
 		current = 0
 		total = len(nameList)
 		for f in nameList:
-			print "Extracting", f
+			prnt("Extracting %s"%f)
 			if f.endswith('/'):
 				if not os.path.isdir(f):
 					os.mkdir(f)
@@ -182,7 +183,7 @@ def applyUpdate(frame, info):
 			wx.CallAfter(frame.setProgress, float(current) / float(total))
 		z.close()
 	except Exception, e:
-		print traceback.format_exc()
+		prnt(traceback.format_exc())
 		if z != None:
 			z.close()
 		os.remove("tmp.zip")
@@ -190,7 +191,7 @@ def applyUpdate(frame, info):
 		return
 
 	if not IS_COMPILED:
-		print "Cleaning out .pyc"
+		prnt("Cleaning out .pyc")
 
 		pycList = [f for f in os.listdir(".") if f.endswith(".pyc")]
 		for f in pycList:

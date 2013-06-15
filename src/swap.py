@@ -19,6 +19,8 @@ from constants import *
 import overlays
 import logging
 import config
+import log_parser, log_analyzer
+from logging import prnt
 
 class MainFrame(wx.Frame):
 	def __init__(self):
@@ -113,12 +115,15 @@ class MainFrame(wx.Frame):
 
 
 logging.SetupLogging("swap")
-config.Load()
 
-print "SWAP v%s booting up..."%VERSION
+prnt("SWAP v%s booting up..."%VERSION)
+
+config.Load()
+log_parser.Start()
+log_analyzer.Start(log_parser.GetThread())
 
 if os.path.isdir("pending"):
-	print "Finalizing update..."
+	prnt("Finalizing update...")
 	
 	for f in os.listdir("pending"):
 		shutil.copyfile("pending/%s"%f, f)
