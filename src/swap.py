@@ -87,6 +87,7 @@ class MainFrame(wx.Frame):
 	def OnClose(self, event):
 		# TODO: Check for parsing session
 		if True:
+			overlays.KillAllOverlays()
 			self.Destroy()
 			return
 		dlg = wx.MessageDialog(self, MSG_CLOSE_CONFIRM_TEXT, MSG_CLOSE_CONFIRM_TITLE)

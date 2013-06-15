@@ -24,7 +24,7 @@ class BaseOverlay(wx.Frame):
 	dragPoint = None
 
 	def __init__(self, title="DPS meter"):
-		wx.Frame.__init__(self, wx.GetApp().GetTopWindow(), title="TB_OVERLAY", size=(300, 100), style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
+		wx.Frame.__init__(self, None, title="TB_OVERLAY", size=(300, 100), style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
 
 		# UI
 		self.panel = wx.Panel(self)
