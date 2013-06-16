@@ -107,6 +107,7 @@ class Parser:
 					lastLogFileCheck = time.time()
 				line = log.readline()
 				if line == "":
+					time.sleep(.001)
 					continue
 			
 				res = self.linePat.match(line)	
