@@ -54,6 +54,6 @@ def SetupLogging(tag):
 	redirector = LogRedirector(tag)
 	atexit.register(redirector.close)
 
-def prnt(text):
+def prnt(text=""):
 	with threadLock:
 		redirector.write(str(text) + '\n')
