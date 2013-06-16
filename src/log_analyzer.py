@@ -65,7 +65,7 @@ class AnalyzerThread(threading.Thread):
 						combatStartTime = ev.time
 						break
 
-					if ev.type == GameEvent.TYPE_DAMAGE:
+					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
 				combatDuration = combatEndTime - combatStartTime
 
