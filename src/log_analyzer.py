@@ -59,7 +59,7 @@ class AnalyzerThread(threading.Thread):
 
 				events = self.parser.events
 				for ev in reversed(events):
-					if ev.type == GameEvent.TYPE_EXIT_COMBAT or (combatEndTime == 0 and events[-1].inCombat):
+					if ev.type == GameEvent.TYPE_EXIT_COMBAT or (combatEndTime == 0 and self.parser.inCombat):
 						combatEndTime = ev.time
 					elif ev.type == GameEvent.TYPE_ENTER_COMBAT:
 						combatStartTime = ev.time
@@ -71,7 +71,7 @@ class AnalyzerThread(threading.Thread):
 
 				self.totalDamage = totalDamage
 				self.combatDuration = combatDuration
-				if len(events) > 0 and events[-1].inCombat:
+				if len(events) > 0 and self.parser.inCombat:
 					self.combatDurationLinear = time.time() - combatStartTime
 					if self.combatDurationLinear < 0:
 						self.combatDurationLinear = combatDuration

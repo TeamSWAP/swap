@@ -37,6 +37,7 @@ class GameEvent:
 	TYPE_ENTER_COMBAT       = 0x6
 	TYPE_EXIT_COMBAT        = 0x7
 	TYPE_DAMAGE             = 0x8
+	TYPE_DEATH              = 0x9
 
 	def __init__(self):
 		self.type = 0x0
@@ -81,7 +82,7 @@ class Parser:
 			logFile = self.getNewestLog()
 			log = open(self.logLocation + "\\" + logFile, 'r')
 
-			inCombat = False
+			self.inCombat = False
 			self.events = []
 
 			prnt("Parser: Began parsing %s"%logFile)
@@ -137,13 +138,13 @@ class Parser:
 					event.actor = actor
 					event.target = target
 					event.ability = abilityId
-					event.inCombat = inCombat
+					event.inCombat = self.inCombat
 					event.time = actionTime
 
 					if event.type == GameEvent.TYPE_ENTER_COMBAT:
-						inCombat = True
+						self.inCombat = True
 					elif event.type == GameEvent.TYPE_EXIT_COMBAT:
-						inCombat = False
+						self.inCombat = False
 
 					if event.type == GameEvent.TYPE_DAMAGE:
 						sp = result.split(' ')
@@ -154,6 +155,14 @@ class Parser:
 							dmg = dmg[:-1]
 						dmg = int(dmg)
 						event.damage = dmg
+
+					# Inject TYPE_EXIT_COMBAT event on death
+					if event.type == GameEvent.TYPE_DEATH and event.target == self.me:
+						ec = GameEvent()
+						ec.type = GameEvent.TYPE_EXIT_COMBAT
+						ec.time = event.time
+						self.events.append(ec)
+						self.inCombat = False
 
 					self.events.append(event)
 				
@@ -179,6 +188,8 @@ class Parser:
 				return GameEvent.TYPE_ENTER_COMBAT
 			elif actionTypeId == '836045448945490':
 				return GameEvent.TYPE_EXIT_COMBAT
+			elif actionTypeId == '836045448945493':
+				return GameEvent.TYPE_DEATH
 		elif actionId == '836045448945477': # ApplyEffect
 			if actionTypeId == '836045448945501':
 				return GameEvent.TYPE_DAMAGE
