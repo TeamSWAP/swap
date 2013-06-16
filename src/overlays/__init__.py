@@ -18,7 +18,7 @@ from base import BaseOverlay
 import config
 
 # Import overlay classes
-from dps_meter import DPSMeterOverlay
+from avg_dps import AverageDPSOverlay
 from damage_dealt import DamageDealtOverlay
 from timer import FightTimerOverlay
 
@@ -36,10 +36,10 @@ overlayCategories = [
 overlayList = [
 # Self
 	{
-		'name': 'dps_meter',
-		'title': 'DPS Meter',
+		'name': 'avg_dps',
+		'title': 'Avg. DPS',
 		'category': 'self',
-		'class': DPSMeterOverlay
+		'class': AverageDPSOverlay
 	},
 	{
 		'name': 'damage_dealt',
