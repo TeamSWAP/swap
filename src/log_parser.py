@@ -81,6 +81,7 @@ class Parser:
 
 			logFile = self.getNewestLog()
 			log = open(self.logLocation + "\\" + logFile, 'r')
+			logCursor = 0
 
 			self.inCombat = False
 			self.events = []
@@ -105,6 +106,7 @@ class Parser:
 						# Ensure we determine who "we" are again.
 						self.me = None
 					lastLogFileCheck = time.time()
+				logCursor = log.tell()
 				line = log.readline()
 				if line == "":
 					time.sleep(.001)
@@ -166,6 +168,11 @@ class Parser:
 						self.inCombat = False
 
 					self.events.append(event)
+				elif line[-1] != '\n' and line[-1] != '\r':
+					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
+					prnt("Parser: Line was '%s'"%line)
+					log.seek(logCursor)
+					time.sleep(0.01)
 				
 				time.sleep(.0001)
 		except Exception:
