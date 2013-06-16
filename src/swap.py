@@ -84,9 +84,12 @@ class MainFrame(wx.Frame):
 		# Events
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
+		log_analyzer.Get().registerFrame(self)
+
 	def OnClose(self, event):
 		# TODO: Check for parsing session
 		if True:
+			log_analyzer.Get().unregisterFrame(self)
 			overlays.KillAllOverlays()
 			self.Destroy()
 			return
@@ -113,6 +116,12 @@ class MainFrame(wx.Frame):
 				item.Check(True)
 			else:
 				item.Check(False)
+
+	def OnAnalyzerTick(self, analyzer):
+		if analyzer.parser.me:
+			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
+		else:
+			self.SetTitle("SWAP v%s"%VERSION)
 
 
 logging.SetupLogging("swap")
