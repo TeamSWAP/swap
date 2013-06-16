@@ -14,12 +14,13 @@
 # limitations under the License.
 #
 
-import wx, os, shutil
+import wx, os, shutil, locale
 from constants import *
 import overlays
 import logging
 import config
 import log_parser, log_analyzer
+import util
 from logging import prnt
 
 class MainFrame(wx.Frame):
@@ -76,10 +77,77 @@ class MainFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnCloseOverlays, id=MENU_ID_OVERLAY_CLOSE)
 
 		# UI
-		panel = wx.Panel(self)
+		self.panel = wx.Panel(self)
 		box = wx.BoxSizer(wx.VERTICAL)
-		panel.SetSizer(box)
-		panel.Layout()
+
+		detailGrid = wx.GridSizer(4, 3, 10, 100)
+
+		self.analyzerUpdaters = []
+
+		#------------------------------------
+		# Detail Block: Combat Duration
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Fight Duration")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(util.FormatDuration(a.combatDurationLinear)))(text))
+
+		#------------------------------------
+		# Detail Block: Damage Dealt
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Damage Dealt")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalDamage, grouping=True)))(text))
+
+		#------------------------------------
+		# Detail Block: Avg. DPS
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Average DPS")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%.2f", a.avgDps, grouping=True)))(text))
+
+		box.Add(detailGrid, 0, wx.EXPAND | wx.ALL, 10)
+
+		self.panel.SetSizer(box)
+		self.panel.Layout()
 
 		# Events
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -122,6 +190,9 @@ class MainFrame(wx.Frame):
 			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
 		else:
 			self.SetTitle("SWAP v%s"%VERSION)
+		for analyzerUpdater in self.analyzerUpdaters:
+			analyzerUpdater(analyzer)
+		self.panel.Layout()
 
 
 logging.SetupLogging("swap")
