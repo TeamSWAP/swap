@@ -281,7 +281,7 @@ if os.path.isdir("pending"):
 		if f.endswith('.old'):
 			os.remove(f)
 
-app = wx.App()
+app = wx.App(redirect=False)
 frame = MainFrame()
 frame.Show()
 app.MainLoop()

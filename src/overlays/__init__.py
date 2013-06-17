@@ -15,6 +15,7 @@
 #
 
 from base import BaseOverlay
+from logging import prnt
 import config
 
 # Import overlay classes
@@ -86,7 +87,7 @@ def SpawnOverlay(name):
 			class_ = overlay['class']
 			break
 	if class_ == None:
-		print "ERROR: No such overlay as '%s'"%name
+		prnt("ERROR: No such overlay as '%s'"%name)
 		return
 	inst = class_()
 	inst.Show()
@@ -95,14 +96,14 @@ def SpawnOverlay(name):
 def KillOverlay(name):
 	global openOverlays
 	if not (name in openOverlays.keys()):
-		print "ERROR: Overlay '%s' not open."%name
+		prnt("ERROR: Overlay '%s' not open."%name)
 		return
 	overlay = openOverlays[name]
 	overlay.Destroy()
 	del openOverlays[name]
 
 def KillAllOverlays():
-	print "Closing overlays..."
+	prnt("Closing overlays...")
 	global openOverlays
 	for name, overlay in openOverlays.iteritems():
 		overlay.Destroy()
@@ -144,7 +145,7 @@ def IsOverlayBeingDragged():
 	return isOverlayBeingDragged
 
 def ResetOverlays():
-	print "Resetting overlays..."
+	prnt("Resetting overlays...")
 	for overlay in overlayList:
 		config.Remove("overlay_%s_pos"%overlay['class'].__name__)
 		config.Remove("overlay_%s_size"%overlay['class'].__name__)
