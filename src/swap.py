@@ -21,6 +21,7 @@ import logging
 import config
 import log_parser, log_analyzer
 import util
+import raid
 from logging import prnt
 
 class MainFrame(wx.Frame):
@@ -80,8 +81,31 @@ class MainFrame(wx.Frame):
 		self.panel = wx.Panel(self)
 		box = wx.BoxSizer(wx.VERTICAL)
 
-		detailGrid = wx.GridSizer(4, 3, 10, 100)
+		#------------------------------------
+		# Header
+		# -----------------------------------
 
+		headerBox = wx.BoxSizer(wx.HORIZONTAL)
+
+		self.keyText = wx.StaticText(self.panel, -1, "Key:")
+		self.keyBox = wx.TextCtrl(self.panel, -1, "", size=(150, -1))
+
+		self.keyGenerateButton = wx.Button(self.panel, -1, "Generate")
+		self.keyGenerateButton.Bind(wx.EVT_BUTTON, self.OnGenerateButton)
+
+		self.keyJoinButton = wx.Button(self.panel, -1, "Join Raid")
+		self.keyJoinButton.Bind(wx.EVT_BUTTON, self.OnJoinRaidButton)
+
+		self.keyStatus = wx.StaticText(self.panel, -1, "")
+
+		headerBox.Add(self.keyText, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		headerBox.Add(self.keyBox, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		headerBox.Add(self.keyGenerateButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		headerBox.Add(self.keyJoinButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
+		box.Add(headerBox, 0, wx.ALL, 10)
+
+		detailGrid = wx.GridSizer(4, 3, 10, 100)
 		self.analyzerUpdaters = []
 
 		#------------------------------------
@@ -177,6 +201,19 @@ class MainFrame(wx.Frame):
 	def OnCloseOverlays(self, event):
 		overlays.KillAllOverlays()
 		self.updateOverlayList()
+
+	def OnGenerateButton(self, event):
+		raid.GenerateKey(self.OnGotKey, self.OnFailedToGetKey)
+
+	def OnGotKey(self, key):
+		self.keyBox.SetValue(key)
+
+	def OnFailedToGetKey(self):
+		# TODO: Make a error dialog here
+		pass
+
+	def OnJoinRaidButton(self, event):
+		raid.JoinRaid(self.keyBox.GetValue())
 
 	def updateOverlayList(self):
 		for name, item in self.m_overlays.iteritems():

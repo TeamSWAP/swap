@@ -19,6 +19,7 @@ import threading
 import traceback
 import atexit
 import wx
+import raid
 from log_parser import GameEvent
 from logging import prnt
 
@@ -52,6 +53,7 @@ class AnalyzerThread(threading.Thread):
 	def analyze(self):
 		prnt("Analyzer: Starting...")
 		try:
+			lastRaidUpdate = time.time()
 			while not self.stopEvent.isSet():
 				combatStartTime = 0
 				combatEndTime = 0
@@ -82,6 +84,11 @@ class AnalyzerThread(threading.Thread):
 				else:
 					self.avgDps = 0
 				self.notifyFrames()
+
+				now = time.time()
+				if now - lastRaidUpdate >= 3 and self.parser.me:
+					lastRaidUpdate = now
+					raid.SendRaidUpdate(lambda:1)
 
 				time.sleep(1) # tick
 		except:
