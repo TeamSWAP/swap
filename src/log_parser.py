@@ -151,12 +151,15 @@ class Parser:
 
 					if event.type == GameEvent.TYPE_DAMAGE:
 						sp = result.split(' ')
-						dmg = sp[0]
-						dmgType = sp[1]
-						dmgTypeId = sp[2]
-						if dmg.endswith('*'):
-							dmg = dmg[:-1]
-						dmg = int(dmg)
+						if len(sp) > 2:
+							dmg = sp[0]
+							dmgType = sp[1]
+							dmgTypeId = sp[2]
+							if dmg.endswith('*'):
+								dmg = dmg[:-1]
+							dmg = int(dmg)
+						else:
+							dmg = 0
 						event.damage = dmg
 
 					# Inject TYPE_EXIT_COMBAT event on death

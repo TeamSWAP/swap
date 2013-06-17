@@ -22,6 +22,7 @@ from constants import *
 # Global variables
 currentKey = None
 playerData = []
+extraTicks = 2
 
 def GenerateKey(successFunc, failureFunc):
 	def thread():
@@ -63,13 +64,23 @@ def JoinRaid(key, successFunc, failureFunc):
 	t.start()
 
 def SendRaidUpdate(updateFunc):
-	if not currentKey:
+	global extraTicks
+	parser = log_parser.GetThread().parser
+
+	# Do two extra ticks after combat ends, to settle numbers.
+	if not parser.inCombat:
+		if extraTicks > 0:
+			extraTicks -= 1
+	else:
+		extraTicks = 2
+
+	if not currentKey or extraTicks == 0:
 		return
 
 	def thread():
 		global playerData
 		
-		me = log_parser.GetThread().parser.me
+		me = parser.me
 		analyzer = log_analyzer.Get()
 
 		info = {
