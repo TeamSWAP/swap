@@ -216,6 +216,8 @@ class MainFrame(wx.Frame):
 	def OnJoinRaidButton(self, event):
 		if not raid.IsInRaid():
 			self.keyStatus.SetLabel("Joining raid...")
+			self.keyBox.Disable()
+			self.keyJoinButton.Disable()
 			raid.JoinRaid(self.keyBox.GetValue(), self.OnJoinedRaid, self.OnFailedToJoinRaid)
 		else:
 			raid.LeaveRaid()
@@ -223,7 +225,8 @@ class MainFrame(wx.Frame):
 
 	def OnJoinedRaid(self):
 		self.keyJoinButton.SetLabel("Leave Raid")
-		self.keyStatus.SetLabel("In raid")
+		self.keyJoinButton.Enable()
+		self.keyStatus.SetLabel("")
 		self.keyBox.Disable()
 		self.keyGenerateButton.Disable()
 
@@ -233,6 +236,8 @@ class MainFrame(wx.Frame):
 		dlg.Destroy()
 		
 		self.keyStatus.SetLabel("")
+		self.keyBox.Enable()
+		self.keyJoinButton.Enable()
 
 	def OnLeftRaid(self):
 		self.keyJoinButton.SetLabel("Join Raid")

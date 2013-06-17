@@ -22,6 +22,7 @@ from constants import *
 # Global variables
 currentKey = None
 playerData = []
+wasInCombat = False
 extraTicks = 2
 
 def GenerateKey(successFunc, failureFunc):
@@ -63,18 +64,41 @@ def JoinRaid(key, successFunc, failureFunc):
 	t = threading.Thread(target=thread)
 	t.start()
 
+def LeaveRaid():
+	global currentKey
+
+	def thread(key):
+		prnt("Leaving raid %s"%key)
+
+		f = urllib2.urlopen(URL_PARSER_SERVER + 'leaveraid?key=' + key)
+		raw = f.read()
+		f.close()
+
+		data = json.loads(raw)
+		if data['success']:
+			prnt("Left raid")
+		else:
+			prnt("Failed to leave raid, oh well")
+
+	t = threading.Thread(target=thread, args=[currentKey])
+	t.start()
+
+	currentKey = None
+
 def SendRaidUpdate(updateFunc):
-	global extraTicks
+	global extraTicks, wasInCombat
 	parser = log_parser.GetThread().parser
 
 	# Do two extra ticks after combat ends, to settle numbers.
 	if not parser.inCombat:
-		if extraTicks > 0:
-			extraTicks -= 1
+		if wasInCombat:
+			if extraTicks > 0:
+				extraTicks -= 1
 	else:
+		wasInCombat = True
 		extraTicks = 2
 
-	if not currentKey or extraTicks == 0:
+	if not currentKey or extraTicks == 0 or not wasInCombat:
 		return
 
 	def thread():
@@ -106,10 +130,6 @@ def SendRaidUpdate(updateFunc):
 
 	t = threading.Thread(target=thread)
 	t.start()
-
-def LeaveRaid():
-	global currentKey
-	currentKey = None
 
 def IsInRaid():
 	return currentKey != None
