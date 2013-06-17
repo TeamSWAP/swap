@@ -21,6 +21,7 @@ import config
 from avg_dps import AverageDPSOverlay
 from damage_dealt import DamageDealtOverlay
 from timer import FightTimerOverlay
+from raid_damage import RaidDamageOverlay
 
 overlayCategories = [
 	{
@@ -54,6 +55,12 @@ overlayList = [
 		'class': FightTimerOverlay
 	},
 # Raid-wide
+	{
+		'name': 'raid_damage',
+		'title': 'Damage',
+		'category': 'raid',
+		'class': RaidDamageOverlay
+	},
 ]
 
 # This variable will be filled with overlay objects keyed to the overlay

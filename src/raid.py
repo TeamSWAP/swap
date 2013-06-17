@@ -38,15 +38,37 @@ def GenerateKey(successFunc, failureFunc):
 	t = threading.Thread(target=thread)
 	t.start()
 
-def JoinRaid(key):
-	global currentKey
-	currentKey = key
+def JoinRaid(key, successFunc, failureFunc):
+	def thread():
+		global currentKey
+
+		prnt("Checking key %s"%key)
+
+		f = urllib2.urlopen(URL_PARSER_SERVER + 'jointest?key=' + key)
+		raw = f.read()
+		f.close()
+
+		data = json.loads(raw)
+		if data['success']:
+			currentKey = key
+			successFunc()
+
+			prnt("Joined raid")
+		else:
+			failureFunc()
+			
+			prnt("Failed to join raid")
+
+	t = threading.Thread(target=thread)
+	t.start()
 
 def SendRaidUpdate(updateFunc):
 	if not currentKey:
 		return
 
 	def thread():
+		global playerData
+		
 		me = log_parser.GetThread().parser.me
 		analyzer = log_analyzer.Get()
 
@@ -56,7 +78,7 @@ def SendRaidUpdate(updateFunc):
 			'totalDamage': analyzer.totalDamage
 		}
 
-		prnt("Sending raid update: %s"%(URL_PARSER_SERVER + 'post?' + urllib.urlencode(info)))
+		prnt("Sending raid update")
 
 		f = urllib2.urlopen(URL_PARSER_SERVER + 'post?' + urllib.urlencode(info))
 		raw = f.read()
@@ -73,3 +95,10 @@ def SendRaidUpdate(updateFunc):
 
 	t = threading.Thread(target=thread)
 	t.start()
+
+def LeaveRaid():
+	global currentKey
+	currentKey = None
+
+def IsInRaid():
+	return currentKey != None

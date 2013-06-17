@@ -209,11 +209,36 @@ class MainFrame(wx.Frame):
 		self.keyBox.SetValue(key)
 
 	def OnFailedToGetKey(self):
-		# TODO: Make a error dialog here
-		pass
+		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
+		result = dlg.ShowModal()
+		dlg.Destroy()
 
 	def OnJoinRaidButton(self, event):
-		raid.JoinRaid(self.keyBox.GetValue())
+		if not raid.IsInRaid():
+			self.keyStatus.SetLabel("Joining raid...")
+			raid.JoinRaid(self.keyBox.GetValue(), self.OnJoinedRaid, self.OnFailedToJoinRaid)
+		else:
+			raid.LeaveRaid()
+			self.OnLeftRaid()
+
+	def OnJoinedRaid(self):
+		self.keyJoinButton.SetLabel("Leave Raid")
+		self.keyStatus.SetLabel("In raid")
+		self.keyBox.Disable()
+		self.keyGenerateButton.Disable()
+
+	def OnFailedToJoinRaid(self):
+		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_JOIN_TEXT, MSG_FAILED_KEY_JOIN_TITLE, wx.OK)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+		
+		self.keyStatus.SetLabel("")
+
+	def OnLeftRaid(self):
+		self.keyJoinButton.SetLabel("Join Raid")
+		self.keyStatus.SetLabel("")
+		self.keyBox.Enable()
+		self.keyGenerateButton.Enable()
 
 	def updateOverlayList(self):
 		for name, item in self.m_overlays.iteritems():

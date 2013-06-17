@@ -30,6 +30,19 @@ class AverageDPSOverlay(BaseOverlay):
 		analyzer.registerFrame(self)
 		self.OnAnalyzerTick(analyzer)
 
+	def createUI(self):
+		BaseOverlay.createUI(self)
+
+		# DPS
+		self.dps = wx.StaticText(self.panel, -1, "2100.35")
+		self.dps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.dps.SetSize(self.dps.GetBestSize())
+		self.box.Add(self.dps, 0, wx.ALL, 10)
+
+	def updateColors(self):
+		self.dps.SetForegroundColour(self.getForegroundColor())
+		BaseOverlay.updateColors(self)
+
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 

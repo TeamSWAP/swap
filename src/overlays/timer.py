@@ -30,9 +30,22 @@ class FightTimerOverlay(BaseOverlay):
 		analyzer.registerFrame(self)
 		self.OnAnalyzerTick(analyzer)
 
+	def createUI(self):
+		BaseOverlay.createUI(self)
+
+		# Timer
+		self.timer = wx.StaticText(self.panel, -1, "")
+		self.timer.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.timer.SetSize(self.timer.GetBestSize())
+		self.box.Add(self.timer, 0, wx.ALL, 10)
+
+	def updateColors(self):
+		self.timer.SetForegroundColour(self.getForegroundColor())
+		BaseOverlay.updateColors(self)
+
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
 	def OnAnalyzerTick(self, analyzer):
-		self.dps.SetLabel(util.FormatDuration(analyzer.combatDurationLinear))
+		self.timer.SetLabel(util.FormatDuration(analyzer.combatDurationLinear))
 

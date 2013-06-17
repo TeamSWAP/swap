@@ -25,6 +25,10 @@ IS_COMPILED = 'frozen' in dir(sys)
 # Static Messages
 MSG_CLOSE_CONFIRM_TEXT = "Are you sure you want to close SWAP? This will end your parsing session."
 MSG_CLOSE_CONFIRM_TITLE = "Confirm Exit"
+MSG_FAILED_KEY_GENERATION_TEXT = "Failed to generate new key! Please report this to the developer."
+MSG_FAILED_KEY_GENERATION_TITLE = "Error"
+MSG_FAILED_KEY_JOIN_TEXT = "No such key was found"
+MSG_FAILED_KEY_JOIN_TITLE = "Error"
 
 # Menu ID
 MENU_ID_EXIT = wx.NewId()

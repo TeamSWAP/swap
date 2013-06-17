@@ -29,9 +29,22 @@ class DamageDealtOverlay(BaseOverlay):
 		analyzer.registerFrame(self)
 		self.OnAnalyzerTick(analyzer)
 
+	def createUI(self):
+		BaseOverlay.createUI(self)
+		
+		# DPS
+		self.damage = wx.StaticText(self.panel, -1, "")
+		self.damage.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.damage.SetSize(self.damage.GetBestSize())
+		self.box.Add(self.damage, 0, wx.ALL, 10)
+
+	def updateColors(self):
+		self.damage.SetForegroundColour(self.getForegroundColor())
+		BaseOverlay.updateColors(self)
+
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
 	def OnAnalyzerTick(self, analyzer):
-		self.dps.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
+		self.damage.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
 

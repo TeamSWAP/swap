@@ -17,30 +17,23 @@
 import wx
 import win32gui, win32api, win32process
 from win32con import *
+from logging import prnt
 import config
 import overlays
 
 class BaseOverlay(wx.Frame):
-	dragPoint = None
+	dragDiff = None
 
-	def __init__(self, title="DPS meter"):
-		wx.Frame.__init__(self, None, title="TB_OVERLAY", size=(300, 100), style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
+	def __init__(self, title="DPS meter", size=(300, 100)):
+		wx.Frame.__init__(self, None, title=title, size=size, style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
+
+		self.title = title
 
 		# UI
 		self.panel = wx.Panel(self)
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
-		# Title
-		self.title = wx.StaticText(self.panel, -1, title)
-		self.title.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.title.SetSize(self.title.GetBestSize())
-		self.box.Add(self.title, 0, wx.ALL & ~wx.BOTTOM, 10)
-
-		# DPS
-		self.dps = wx.StaticText(self.panel, -1, "2100.35")
-		self.dps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.dps.SetSize(self.dps.GetBestSize())
-		self.box.Add(self.dps, 0, wx.ALL, 10)
+		self.createUI()
 
 		self.panel.SetSizer(self.box)
 		self.panel.Layout()
@@ -49,6 +42,10 @@ class BaseOverlay(wx.Frame):
 		self.panel.SetSize(self.GetSize())
 
 		self.panel.Bind(wx.EVT_MOTION, self.OnMouseMove)
+
+		# Bind EVT_MOTION in children and propogate upwards
+		for child in self.box.GetChildren():
+			child.GetWindow().Bind(wx.EVT_MOTION, lambda e: e.ResumePropagation(wx.EVENT_PROPAGATE_MAX) or e.Skip())
 
 		self.topTimer = wx.Timer(self)
 		self.topTimer.Start(250)
@@ -92,14 +89,23 @@ class BaseOverlay(wx.Frame):
 	def GetDerivedName(self):
 		return self.__class__.__name__
 
+	def getBackgroundColor(self):
+		return config.Get("overlayBgColor")
+
 	def getForegroundColor(self):
 		return config.Get("overlayFgColor")
 
 	def updateColors(self):
-		self.panel.SetBackgroundColour(config.Get("overlayBgColor"))
-		self.title.SetForegroundColour(self.getForegroundColor())
-		self.dps.SetForegroundColour(self.getForegroundColor())
+		self.panel.SetBackgroundColour(self.getBackgroundColor())
+		self.titleText.SetForegroundColour(self.getForegroundColor())
 		self.Refresh()
+
+	def createUI(self):
+		# Title
+		self.titleText = wx.StaticText(self.panel, -1, self.title)
+		self.titleText.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.titleText.SetSize(self.titleText.GetBestSize())
+		self.box.Add(self.titleText, 0, wx.ALL & ~wx.BOTTOM, 10)
 
 	def setFocusable(self, isFocusable):
 		style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
@@ -115,9 +121,9 @@ class BaseOverlay(wx.Frame):
 	# Mouse movement event
 	def OnMouseMove(self, event):
 		if not event.Dragging():
-			if self.dragPoint:
+			if self.dragDiff:
 				self.panel.ReleaseMouse()
-				self.dragPoint = None
+				self.dragDiff = None
 				self.sizePoint = None
 				self.dragSize = None
 				config.Set("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
@@ -127,22 +133,21 @@ class BaseOverlay(wx.Frame):
 
 		(sw, sh) = (win32api.GetSystemMetrics(0), win32api.GetSystemMetrics(1))
 
-		pos = event.GetPosition()
-		if not self.dragPoint:
+		x, y = win32gui.GetCursorPos()
+		pos = wx.Point(x, y)
+		if not self.dragDiff:
 			self.panel.CaptureMouse()
-			self.dragPoint = pos
+			self.dragDiff = pos - self.GetPosition()
 			self.sizePoint = pos
 			self.dragSize = self.GetSize()
 			overlays.SetOverlayBeingDragged(True)
 			self.PushToTop()
 
-		diff = pos - self.dragPoint
-		position = self.GetPosition() + diff
+		position = pos - self.dragDiff
 
 		if event.ShiftDown():
 			sdiff = pos - self.sizePoint
 			sz = self.dragSize + (sdiff[0], sdiff[1])
-			self.dragPoint += (diff[0], diff[1])
 			self.SetSize(sz)
 			return
 
