@@ -109,7 +109,7 @@ class Parser:
 				logCursor = log.tell()
 				line = log.readline()
 				if line == "":
-					time.sleep(.001)
+					time.sleep(.25)
 					continue
 			
 				res = self.linePat.match(line)	
