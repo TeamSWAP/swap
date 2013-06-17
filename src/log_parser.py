@@ -175,7 +175,7 @@ class Parser:
 					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
 					prnt("Parser: Line was '%s'"%line)
 					log.seek(logCursor)
-					time.sleep(0.01)
+					time.sleep(0.2)
 				
 				time.sleep(.0001)
 		except Exception:

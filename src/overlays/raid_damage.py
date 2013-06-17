@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import wx, wx.grid, random, time, locale
+import wx, wx.grid, random, time, locale, math
 from threading import Thread, Event
 from base import BaseOverlay
 from logging import prnt
@@ -50,7 +50,7 @@ class RaidDamageOverlay(BaseOverlay):
 		self.grid.SetColLabelValue(1, "Damage")
 		self.grid.SetColLabelValue(2, "%")
 
-		self.box.Add(self.grid, 0, wx.EXPAND | wx.ALL, 10)
+		self.box.Add(self.grid, 1, wx.EXPAND | wx.ALL, 10)
 
 	def updateColors(self):
 		self.grid.SetDefaultCellBackgroundColour(self.getBackgroundColor())
@@ -70,10 +70,26 @@ class RaidDamageOverlay(BaseOverlay):
 			self.grid.AppendRows(count)
 
 		index = 0
+		raidTotalDamage = 0
 		for player in raid.playerData:
+			raidTotalDamage += player['totalDamage']
+
+		for player in raid.playerData:
+			if raidTotalDamage > 0:
+				percent = "%.2f"%((player['totalDamage'] / raidTotalDamage) * 100.0)
+			else:
+				percent = "%.2f"%0
 			self.grid.SetCellValue(index, 0, player['name'][1:])
 			self.grid.SetCellValue(index, 1, locale.format("%d", player['totalDamage'], grouping=True))
+			self.grid.SetCellValue(index, 2, percent + "%")
+
+			# Alignment
+			self.grid.SetCellAlignment(index, 0, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
+			self.grid.SetCellAlignment(index, 1, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
+			#self.grid.SetCellAlignment(index, 2, wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
+
 			index += 1
 		self.grid.AutoSizeColumns()
 		self.grid.EndBatch()
+		self.panel.Layout()
 
