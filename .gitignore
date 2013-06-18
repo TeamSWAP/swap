@@ -2,3 +2,5 @@
 build
 out
 settings.json
+installer/out
+installer/nsis-info.nsh
