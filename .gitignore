@@ -1,6 +1,7 @@
 *.pyc
 build
 out
+dist
 settings.json
 installer/out
 installer/nsis-info.nsh

@@ -93,7 +93,7 @@ def checkForUpdates(frame):
 		info = json.loads(data)
 		#print info
 	except HTTPError, e:
-		prnt("ERROR:", e.reason)
+		prnt("ERROR: %s"%e.reason)
 		wx.CallAfter(frame.launch)
 		return
 
