@@ -17,6 +17,7 @@
 import sys, atexit
 from constants import *
 from threading import Lock
+from datetime import datetime
 
 threadLock = Lock()
 redirector = None
@@ -34,8 +35,15 @@ class LogRedirector:
 		self.closed = False
 
 	def write(self, text):
+		time = datetime.now()
+		timeTxt = "[%02d:%02d:%02d] "%(time.hour, time.minute, time.second)
+		text = timeTxt + text
+		if text.endswith("\n"):
+			text = text[:-1].replace("\n", "\n" + timeTxt) + "\n"
+		else:
+			text = text.replace("\n", "\n" + timeTxt)
 		if self.fileOut:
-			self.fileOut.write(text)
+			self.fileOut.write("%s"%text)
 		self.stdOut.write(text)
 
 	def close(self):

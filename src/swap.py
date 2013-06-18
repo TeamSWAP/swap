@@ -218,6 +218,7 @@ class MainFrame(wx.Frame):
 			self.keyStatus.SetLabel("Joining raid...")
 			self.keyBox.Disable()
 			self.keyJoinButton.Disable()
+			self.keyGenerateButton.Disable()
 			raid.JoinRaid(self.keyBox.GetValue(), self.OnJoinedRaid, self.OnFailedToJoinRaid)
 		else:
 			raid.LeaveRaid()
@@ -228,7 +229,6 @@ class MainFrame(wx.Frame):
 		self.keyJoinButton.Enable()
 		self.keyStatus.SetLabel("")
 		self.keyBox.Disable()
-		self.keyGenerateButton.Disable()
 
 	def OnFailedToJoinRaid(self):
 		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_JOIN_TEXT, MSG_FAILED_KEY_JOIN_TITLE, wx.OK)
@@ -238,6 +238,7 @@ class MainFrame(wx.Frame):
 		self.keyStatus.SetLabel("")
 		self.keyBox.Enable()
 		self.keyJoinButton.Enable()
+		self.keyGenerateButton.Enable()
 
 	def OnLeftRaid(self):
 		self.keyJoinButton.SetLabel("Join Raid")

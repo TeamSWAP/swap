@@ -31,6 +31,9 @@ class RaidDamageOverlay(BaseOverlay):
 		analyzer.registerFrame(self)
 		self.OnAnalyzerTick(analyzer)
 
+		self.Bind(wx.EVT_SIZE, self.OnSize)
+		self.OnSize(None)
+
 	def createUI(self):
 		BaseOverlay.createUI(self)
 
@@ -60,6 +63,20 @@ class RaidDamageOverlay(BaseOverlay):
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
+	def OnSize(self, event):
+		(width, height) = self.GetSize()
+		pos = self.grid.GetPosition()
+		width -= (pos[0] * 2) + 1
+
+		self.grid.BeginBatch()
+		self.grid.SetColSize(0, width * 0.50)
+		self.grid.SetColSize(1, width * 0.35)
+		self.grid.SetColSize(2, width * 0.15)
+		self.grid.EndBatch()
+
+		if event:
+			event.Skip()
+
 	def OnAnalyzerTick(self, analyzer):
 		self.grid.BeginBatch()
 		currentRowCount = self.grid.GetNumberRows()
@@ -74,22 +91,32 @@ class RaidDamageOverlay(BaseOverlay):
 		for player in raid.playerData:
 			raidTotalDamage += player['totalDamage']
 
-		for player in raid.playerData:
+		for player in sorted(raid.playerData, lambda x: x['totalDamage']):
 			if raidTotalDamage > 0:
 				percent = "%.2f"%((player['totalDamage'] / raidTotalDamage) * 100.0)
 			else:
 				percent = "%.2f"%0
+
+			color = self.getForegroundColor()
+			if player['name'] == analyzer.parser.me:
+				color = wx.Colour(30, 173, 255, 255)
+
 			self.grid.SetCellValue(index, 0, player['name'][1:])
 			self.grid.SetCellValue(index, 1, locale.format("%d", player['totalDamage'], grouping=True))
 			self.grid.SetCellValue(index, 2, percent + "%")
 
-			# Alignment
+			# Configure cells
 			self.grid.SetCellAlignment(index, 0, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
 			self.grid.SetCellAlignment(index, 1, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
-			#self.grid.SetCellAlignment(index, 2, wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
+			self.grid.SetCellAlignment(index, 2, wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
+			self.grid.SetCellFont(index, 0, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellFont(index, 1, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellFont(index, 2, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellTextColour(index, 0, color)
+			self.grid.SetCellTextColour(index, 1, color)
+			self.grid.SetCellTextColour(index, 2, color)
 
 			index += 1
-		self.grid.AutoSizeColumns()
 		self.grid.EndBatch()
 		self.panel.Layout()
 

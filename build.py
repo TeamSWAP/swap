@@ -5,7 +5,7 @@ import os, shutil
 #
 
 args = {
-    'opts': '--log-level=INFO -n swap -y --distpath=out --workpath=build',
+    'opts': '--log-level=INFO -n swap -y --distpath=out --workpath=build --upx-dir external/upx',
     'spec': 'swap.spec'
 }
 

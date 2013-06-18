@@ -22,7 +22,7 @@ from constants import *
 # Global variables
 currentKey = None
 playerData = []
-wasInCombat = True
+wasInCombat = False
 extraTicks = 2
 
 def GenerateKey(successFunc, failureFunc):
@@ -84,6 +84,8 @@ def LeaveRaid():
 	t.start()
 
 	currentKey = None
+	wasInCombat = False
+	extraTicks = 0
 
 def SendRaidUpdate(updateFunc):
 	global extraTicks, wasInCombat

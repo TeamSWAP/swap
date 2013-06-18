@@ -83,12 +83,13 @@ class AnalyzerThread(threading.Thread):
 					self.avgDps = totalDamage / combatDuration
 				else:
 					self.avgDps = 0
-				self.notifyFrames()
-
+				
 				now = time.time()
-				if now - lastRaidUpdate >= 3 and self.parser.me:
+				if now - lastRaidUpdate >= 2.5 and self.parser.me:
 					lastRaidUpdate = now
-					raid.SendRaidUpdate(lambda:1)
+					raid.SendRaidUpdate(self.notifyFrames)
+
+				self.notifyFrames()
 
 				time.sleep(1) # tick
 		except:

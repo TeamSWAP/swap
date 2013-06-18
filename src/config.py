@@ -15,6 +15,7 @@
 #
 
 import atexit, json, traceback, os
+from logging import prnt
 
 defaults = {
 	'overlayBgColor': '#000000',
@@ -25,7 +26,7 @@ settings = defaults
 
 def Load():
 	global settings
-	print "Loading settings..."
+	prnt("Loading settings...")
 
 	# Setup a save on exit.
 	atexit.register(Save)
@@ -39,7 +40,7 @@ def Load():
 		data = json.loads(f.read())
 		f.close()
 	except Exception, e:
-		print traceback.format_exc()
+		prnt(traceback.format_exc())
 	if data != None:
 		settings = data
 
