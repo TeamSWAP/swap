@@ -25,9 +25,10 @@ playerData = []
 wasInCombat = False
 extraTicks = 2
 
-def GenerateKey(successFunc, failureFunc):
+def GenerateKey(vanityKey, successFunc, failureFunc):
+	vanityKey = vanityKey if vanityKey else ""
 	def thread():
-		f = urllib2.urlopen(URL_PARSER_SERVER + 'getkey')
+		f = urllib2.urlopen(URL_PARSER_SERVER + 'getkey?vanity=' + vanityKey)
 		raw = f.read()
 		f.close()
 

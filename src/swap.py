@@ -91,18 +91,24 @@ class MainFrame(wx.Frame):
 		self.keyText = wx.StaticText(self.panel, -1, "Key:")
 		self.keyBox = wx.TextCtrl(self.panel, -1, "", size=(150, -1))
 
+		lastRaidKey = config.Get("lastRaidKey")
+		if lastRaidKey:
+			self.keyBox.SetValue(lastRaidKey)
+
 		self.keyGenerateButton = wx.Button(self.panel, -1, "Generate")
 		self.keyGenerateButton.Bind(wx.EVT_BUTTON, self.OnGenerateButton)
 
 		self.keyJoinButton = wx.Button(self.panel, -1, "Join Raid")
 		self.keyJoinButton.Bind(wx.EVT_BUTTON, self.OnJoinRaidButton)
 
+		self.keyVanityCheck = wx.CheckBox(self.panel, -1, "Generate Vanity Key")
 		self.keyStatus = wx.StaticText(self.panel, -1, "")
 
 		headerBox.Add(self.keyText, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyBox, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyGenerateButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		headerBox.Add(self.keyJoinButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		headerBox.Add(self.keyVanityCheck, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
 		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
 		self.box.Add(headerBox, 0, wx.ALL, 10)
 
@@ -139,19 +145,11 @@ class MainFrame(wx.Frame):
 		log_analyzer.Get().registerFrame(self)
 
 	def OnClose(self, event):
-		# TODO: Check for parsing session
-		if True:
-			log_analyzer.Get().unregisterFrame(self)
-			overlays.KillAllOverlays()
-			self.Destroy()
-			return
-		dlg = wx.MessageDialog(self, MSG_CLOSE_CONFIRM_TEXT, MSG_CLOSE_CONFIRM_TITLE)
-		result = dlg.ShowModal()
-		dlg.Destroy()
-
-		if result == wx.ID_OK:
-			# TODO: End parsing now
-			self.Destroy()
+		if raid.IsInRaid():
+			raid.LeaveRaid()
+		log_analyzer.Get().unregisterFrame(self)
+		overlays.KillAllOverlays()
+		self.Destroy()
 
 	def OnResetOverlays(self, event):
 		overlays.ResetOverlays()
@@ -163,10 +161,25 @@ class MainFrame(wx.Frame):
 		self.updateOverlayList()
 
 	def OnGenerateButton(self, event):
-		raid.GenerateKey(self.OnGotKey, self.OnFailedToGetKey)
+		vanityKey = None
+		if self.keyVanityCheck.IsChecked():
+			vanityKey = self.keyBox.GetValue()
+
+		self.keyStatus.SetLabel("Generating key...")
+		self.keyBox.Disable()
+		self.keyJoinButton.Disable()
+		self.keyGenerateButton.Disable()
+		self.keyVanityCheck.Disable()
+
+		raid.GenerateKey(vanityKey, self.OnGotKey, self.OnFailedToGetKey)
 
 	def OnGotKey(self, key):
 		self.keyBox.SetValue(key)
+		self.keyBox.Enable()
+		self.keyStatus.SetLabel("")
+		self.keyJoinButton.Enable()
+		self.keyGenerateButton.Enable()
+		self.keyVanityCheck.Enable()
 
 	def OnFailedToGetKey(self):
 		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
@@ -179,6 +192,7 @@ class MainFrame(wx.Frame):
 			self.keyBox.Disable()
 			self.keyJoinButton.Disable()
 			self.keyGenerateButton.Disable()
+			self.keyVanityCheck.Disable()
 			raid.JoinRaid(self.keyBox.GetValue(), self.OnJoinedRaid, self.OnFailedToJoinRaid)
 		else:
 			raid.LeaveRaid()
@@ -189,6 +203,8 @@ class MainFrame(wx.Frame):
 		self.keyJoinButton.Enable()
 		self.keyStatus.SetLabel("")
 		self.keyBox.Disable()
+
+		config.Set("lastRaidKey", self.keyBox.GetValue())
 
 	def OnFailedToJoinRaid(self, reason):
 		titles = {
@@ -208,12 +224,14 @@ class MainFrame(wx.Frame):
 		self.keyBox.Enable()
 		self.keyJoinButton.Enable()
 		self.keyGenerateButton.Enable()
+		self.keyVanityCheck.Enable()
 
 	def OnLeftRaid(self):
 		self.keyJoinButton.SetLabel("Join Raid")
 		self.keyStatus.SetLabel("")
 		self.keyBox.Enable()
 		self.keyGenerateButton.Enable()
+		self.keyVanityCheck.Enable()
 
 	def createReportView(self, parent=None, panelParent=None):
 		parent = parent if parent else self.box
