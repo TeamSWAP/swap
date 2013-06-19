@@ -16,7 +16,7 @@
 
 import wx, os, sys
 
-VERSION = "1.0"
+VERSION = "0.1"
 VERSION_INT = 1
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
 URL_PARSER_SERVER = "http://swap-server.appspot.com/"
@@ -27,8 +27,10 @@ MSG_CLOSE_CONFIRM_TEXT = "Are you sure you want to close SWAP? This will end you
 MSG_CLOSE_CONFIRM_TITLE = "Confirm Exit"
 MSG_FAILED_KEY_GENERATION_TEXT = "Failed to generate new key! Please report this to the developer."
 MSG_FAILED_KEY_GENERATION_TITLE = "Error"
-MSG_FAILED_KEY_JOIN_TEXT = "No such key was found"
-MSG_FAILED_KEY_JOIN_TITLE = "Error"
+MSG_FAILED_JOIN_INVALID_KEY_TEXT = "No such key was found"
+MSG_FAILED_JOIN_INVALID_KEY_TITLE = "Error"
+MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT = "Your SWAP client is too old! Please close SWAP and run the SWAP shortcut (if installed), or run updater.exe"
+MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE = "Error"
 
 # Menu ID
 MENU_ID_EXIT = wx.NewId()

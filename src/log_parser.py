@@ -38,6 +38,7 @@ class GameEvent:
 	TYPE_EXIT_COMBAT        = 0x7
 	TYPE_DAMAGE             = 0x8
 	TYPE_DEATH              = 0x9
+	TYPE_HEAL               = 0x10
 
 	def __init__(self):
 		self.type = 0x0
@@ -46,6 +47,7 @@ class GameEvent:
 		self.target = None
 		self.ability = None
 		self.damage = 0
+		self.healing = 0
 		self.time = 0
 
 class Parser:
@@ -158,9 +160,22 @@ class Parser:
 							if dmg.endswith('*'):
 								dmg = dmg[:-1]
 							dmg = int(dmg)
+							if len(sp) == 6:
+								fourth = sp[3]
+								fifth = sp[4]
+								sixth = sp[5]
+								if fifth == 'absorbed' and event.target == self.me:
+									absorbAmount = int(fourth[1:])
+									dmg -= absorbAmount
 						else:
 							dmg = 0
 						event.damage = dmg
+
+					if event.type == GameEvent.TYPE_HEAL:
+						heal = result
+						if heal.endswith('*'):
+							heal = heal[:-1]
+						event.healing = int(heal)
 
 					# Inject TYPE_EXIT_COMBAT event on death
 					if event.type == GameEvent.TYPE_DEATH and event.target == self.me:
@@ -204,6 +219,8 @@ class Parser:
 		elif actionId == '836045448945477': # ApplyEffect
 			if actionTypeId == '836045448945501':
 				return GameEvent.TYPE_DAMAGE
+			elif actionTypeId == '836045448945500':
+				return GameEvent.TYPE_HEAL
 		return None
 
 class ParserThread(threading.Thread):

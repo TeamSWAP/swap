@@ -46,7 +46,7 @@ def JoinRaid(key, successFunc, failureFunc):
 
 		prnt("Checking key %s"%key)
 
-		f = urllib2.urlopen(URL_PARSER_SERVER + 'jointest?key=' + key)
+		f = urllib2.urlopen(URL_PARSER_SERVER + 'jointest?key=' + key + '&version=' + str(VERSION_INT))
 		raw = f.read()
 		f.close()
 
@@ -57,7 +57,7 @@ def JoinRaid(key, successFunc, failureFunc):
 
 			prnt("Joined raid")
 		else:
-			failureFunc()
+			failureFunc(data['reason'])
 			
 			prnt("Failed to join raid")
 
@@ -88,7 +88,7 @@ def LeaveRaid():
 	extraTicks = 0
 
 def SendRaidUpdate(updateFunc):
-	global extraTicks, wasInCombat
+	global extraTicks, wasInCombat, playerData
 	parser = log_parser.GetThread().parser
 
 	# Do two extra ticks after combat ends, to settle numbers.
@@ -112,7 +112,10 @@ def SendRaidUpdate(updateFunc):
 		info = {
 			'key': currentKey,
 			'player': me,
-			'totalDamage': analyzer.totalDamage
+			'totalDamage': analyzer.totalDamage,
+			'totalDamageTaken': analyzer.totalDamageTaken,
+			'totalHealing': analyzer.totalHealing,
+			'totalHealingReceived': analyzer.totalHealingReceived
 		}
 
 		prnt("Sending raid update")
@@ -126,8 +129,6 @@ def SendRaidUpdate(updateFunc):
 		data = json.loads(raw)
 		if data['success']:
 			playerData = data['players']
-			for player in playerData:
-				prnt("%s -> %d"%(player['name'], player['totalDamage']))
 			updateFunc()
 
 	t = threading.Thread(target=thread)

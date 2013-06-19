@@ -20,9 +20,14 @@ import config
 
 # Import overlay classes
 from avg_dps import AverageDPSOverlay
+from avg_hps import AverageHPSOverlay
 from damage_dealt import DamageDealtOverlay
+from healing_done import HealingDoneOverlay
 from timer import FightTimerOverlay
 from raid_damage import RaidDamageOverlay
+from raid_damage_taken import RaidDamageTakenOverlay
+from raid_healing import RaidHealingOverlay
+from raid_healing_received import RaidHealingReceivedOverlay
 
 overlayCategories = [
 	{
@@ -38,17 +43,31 @@ overlayCategories = [
 overlayList = [
 # Self
 	{
-		'name': 'avg_dps',
-		'title': 'Avg. DPS',
-		'category': 'self',
-		'class': AverageDPSOverlay
-	},
-	{
 		'name': 'damage_dealt',
 		'title': 'Damage Dealt',
 		'category': 'self',
 		'class': DamageDealtOverlay
 	},
+	{
+		'name': 'avg_dps',
+		'title': 'Avg. DPS',
+		'category': 'self',
+		'class': AverageDPSOverlay
+	},
+	{ 'name': '-', 'category': 'self' },
+	{
+		'name': 'healing_done',
+		'title': 'Healing Done',
+		'category': 'self',
+		'class': HealingDoneOverlay
+	},
+	{
+		'name': 'avg_hps',
+		'title': 'Avg. HPS',
+		'category': 'self',
+		'class': AverageHPSOverlay
+	},
+	{ 'name': '-', 'category': 'self' },
 	{
 		'name': 'fight_timer',
 		'title': 'Fight Timer',
@@ -61,6 +80,25 @@ overlayList = [
 		'title': 'Damage',
 		'category': 'raid',
 		'class': RaidDamageOverlay
+	},
+	{
+		'name': 'raid_damage_taken',
+		'title': 'Damage Taken',
+		'category': 'raid',
+		'class': RaidDamageTakenOverlay
+	},
+	{ 'name': '-', 'category': 'raid' },
+	{
+		'name': 'raid_healing',
+		'title': 'Healing',
+		'category': 'raid',
+		'class': RaidHealingOverlay
+	},
+	{
+		'name': 'raid_healing_received',
+		'title': 'Healing Received',
+		'category': 'raid',
+		'class': RaidHealingReceivedOverlay
 	},
 ]
 
@@ -81,7 +119,7 @@ def SpawnOverlay(name):
 	global overlayList, openOverlays
 	class_ = None
 	for overlay in overlayList:
-		if overlay == '-':
+		if overlay['name'] == '-':
 			continue
 		if overlay['name'] == name:
 			class_ = overlay['class']

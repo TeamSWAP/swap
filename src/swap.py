@@ -56,13 +56,13 @@ class MainFrame(wx.Frame):
 
 		self.m_overlays = {}
 		for overlay in overlays.GetOverlayList():
-			if overlay == '-':
-				menu.AppendSeparator()
-				continue
-			id = wx.NewId()
 			targetMenu = menu
 			if overlay['category'] != None:
 				targetMenu = categoryMenus[overlay['category']]
+			if overlay['name'] == '-':
+				targetMenu.AppendSeparator()
+				continue
+			id = wx.NewId()
 			self.m_overlays[id] = targetMenu.AppendCheckItem(id, overlay['title'], MENU_TIP_OVERLAY_SELECT)
 			self.Bind(wx.EVT_MENU, (lambda n: lambda e: overlays.ToggleOverlay(n))(overlay['name']), id=id)
 
@@ -79,6 +79,7 @@ class MainFrame(wx.Frame):
 
 		# UI
 		self.panel = wx.Panel(self)
+		self.panel.SetDoubleBuffered(True)
 		box = wx.BoxSizer(wx.VERTICAL)
 
 		#------------------------------------
@@ -109,26 +110,6 @@ class MainFrame(wx.Frame):
 		self.analyzerUpdaters = []
 
 		#------------------------------------
-		# Detail Block: Combat Duration
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Fight Duration")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(util.FormatDuration(a.combatDurationLinear)))(text))
-
-		#------------------------------------
 		# Detail Block: Damage Dealt
 		# -----------------------------------
 
@@ -149,6 +130,26 @@ class MainFrame(wx.Frame):
 		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalDamage, grouping=True)))(text))
 
 		#------------------------------------
+		# Detail Block: Damage Taken
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Damage Taken")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalDamageTaken, grouping=True)))(text))
+
+		#------------------------------------
 		# Detail Block: Avg. DPS
 		# -----------------------------------
 
@@ -167,6 +168,86 @@ class MainFrame(wx.Frame):
 		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
 
 		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%.2f", a.avgDps, grouping=True)))(text))
+
+		#------------------------------------
+		# Detail Block: Healing Done
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Healing Done")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalHealing, grouping=True)))(text))
+
+		#------------------------------------
+		# Detail Block: Healing Received
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Healing Received")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalHealingReceived, grouping=True)))(text))
+
+		#------------------------------------
+		# Detail Block: Avg. HPS
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Average HPS")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%.2f", a.avgHps, grouping=True)))(text))
+
+		#------------------------------------
+		# Detail Block: Combat Duration
+		# -----------------------------------
+
+		detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+		header = wx.StaticText(self.panel, -1, "Fight Duration")
+		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+		header.SetSize(header.GetBestSize())
+		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+		text = wx.StaticText(self.panel, -1, "N/A")
+		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		text.SetSize(text.GetBestSize())
+		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(util.FormatDuration(a.combatDurationLinear)))(text))
 
 		box.Add(detailGrid, 0, wx.EXPAND | wx.ALL, 10)
 
@@ -230,8 +311,17 @@ class MainFrame(wx.Frame):
 		self.keyStatus.SetLabel("")
 		self.keyBox.Disable()
 
-	def OnFailedToJoinRaid(self):
-		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_JOIN_TEXT, MSG_FAILED_KEY_JOIN_TITLE, wx.OK)
+	def OnFailedToJoinRaid(self, reason):
+		titles = {
+			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TITLE,
+			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE
+		}
+		texts = {
+			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TEXT,
+			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT
+		}
+
+		dlg = wx.MessageDialog(self, texts[reason], titles[reason], wx.OK)
 		result = dlg.ShowModal()
 		dlg.Destroy()
 		

@@ -54,24 +54,42 @@ class AnalyzerThread(threading.Thread):
 		prnt("Analyzer: Starting...")
 		try:
 			lastRaidUpdate = time.time()
+			stateInCombat = False
 			while not self.stopEvent.isSet():
 				combatStartTime = 0
 				combatEndTime = 0
 				totalDamage = 0
+				totalDamageTaken = 0
+				totalHealing = 0
+				totalHealingReceived = 0
 
 				events = self.parser.events
 				for ev in reversed(events):
-					if ev.type == GameEvent.TYPE_EXIT_COMBAT or (combatEndTime == 0 and self.parser.inCombat):
+					if not stateInCombat and (ev.type == GameEvent.TYPE_EXIT_COMBAT or (combatEndTime == 0 and self.parser.inCombat)):
 						combatEndTime = ev.time
+						stateInCombat = True
 					elif ev.type == GameEvent.TYPE_ENTER_COMBAT:
 						combatStartTime = ev.time
+						stateInCombat = False
 						break
+
+					if not stateInCombat:
+						continue
 
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
+					if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
+						totalDamageTaken += ev.damage
+					if ev.type == GameEvent.TYPE_HEAL and ev.actor == self.parser.me:
+						totalHealing += ev.healing
+					if ev.type == GameEvent.TYPE_HEAL and ev.target == self.parser.me:
+						totalHealingReceived += ev.healing
 				combatDuration = combatEndTime - combatStartTime
 
 				self.totalDamage = totalDamage
+				self.totalDamageTaken = totalDamageTaken
+				self.totalHealing = totalHealing
+				self.totalHealingReceived = totalHealingReceived
 				self.combatDuration = combatDuration
 				if len(events) > 0 and self.parser.inCombat:
 					self.combatDurationLinear = time.time() - combatStartTime
@@ -79,10 +97,10 @@ class AnalyzerThread(threading.Thread):
 						self.combatDurationLinear = combatDuration
 				else:
 					self.combatDurationLinear = combatDuration
-				if combatDuration > 0:
-					self.avgDps = totalDamage / combatDuration
-				else:
-					self.avgDps = 0
+
+				# Avg DPS calculation
+				self.avgDps = (totalDamage / combatDuration) if combatDuration > 0 else 0
+				self.avgHps = (totalHealing / combatDuration) if combatDuration > 0 else 0
 				
 				now = time.time()
 				if now - lastRaidUpdate >= 2.5 and self.parser.me:

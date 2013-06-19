@@ -31,6 +31,7 @@ class BaseOverlay(wx.Frame):
 
 		# UI
 		self.panel = wx.Panel(self)
+		self.panel.SetDoubleBuffered(True)
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
 		self.createUI()
@@ -56,11 +57,11 @@ class BaseOverlay(wx.Frame):
 		self.setAlpha(150)
 		self.updateColors()
 
-		savedPosition = config.Get("overlay_%s_pos"%self.GetDerivedName())
+		savedPosition = config.GetXY("overlay_%s_pos"%self.GetDerivedName())
 		if savedPosition != None:
 			self.SetPosition(savedPosition)
 
-		savedSize = config.Get("overlay_%s_size"%self.GetDerivedName())
+		savedSize = config.GetXY("overlay_%s_size"%self.GetDerivedName())
 		if savedSize != None:
 			self.SetSize(savedSize)
 
@@ -126,8 +127,8 @@ class BaseOverlay(wx.Frame):
 				self.dragDiff = None
 				self.sizePoint = None
 				self.dragSize = None
-				config.Set("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
-				config.Set("overlay_%s_size"%self.GetDerivedName(), self.GetSizeTuple())
+				config.SetXY("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
+				config.SetXY("overlay_%s_size"%self.GetDerivedName(), self.GetSizeTuple())
 				overlays.SetOverlayBeingDragged(False)
 			return
 

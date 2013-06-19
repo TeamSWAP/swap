@@ -55,8 +55,22 @@ def Get(name):
 		return settings[name]
 	return None
 
+def GetXY(name):
+	xy = Get(name)
+	if xy == None:
+		return None
+	x = (xy >> 16) & 0xFFFF
+	y = xy & 0xFFFF
+	return [x, y]
+
 def Set(name, value):
 	settings[name] = value
+
+def SetXY(name, value):
+	x, y = value
+	xy = x
+	xy = (xy << 16) + y
+	Set(name, xy)
 
 def Remove(name):
 	global settings
