@@ -80,9 +80,9 @@ class MainFrame(wx.Frame):
 		# UI
 		self.panel = wx.Panel(self)
 		self.panel.SetDoubleBuffered(True)
-		box = wx.BoxSizer(wx.VERTICAL)
+		self.box = wx.BoxSizer(wx.VERTICAL)
 
-		#------------------------------------
+		# -----------------------------------
 		# Header
 		# -----------------------------------
 
@@ -104,154 +104,33 @@ class MainFrame(wx.Frame):
 		headerBox.Add(self.keyGenerateButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		headerBox.Add(self.keyJoinButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
-		box.Add(headerBox, 0, wx.ALL, 10)
+		self.box.Add(headerBox, 0, wx.ALL, 10)
 
-		detailGrid = wx.GridSizer(4, 3, 10, 100)
-		self.analyzerUpdaters = []
-
-		#------------------------------------
-		# Detail Block: Damage Dealt
+		# -----------------------------------
+		# Tabs
 		# -----------------------------------
 
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
+		self.tabs = wx.Notebook(self.panel)
 
-		header = wx.StaticText(self.panel, -1, "Damage Dealt")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+		# Create Grid tab
+		self.gridPanel = wx.Panel(self.tabs)
+		self.gridSizer = wx.BoxSizer(wx.VERTICAL)
+		self.gridPanel.SetSizer(self.gridSizer)
+		self.gridPanel.Layout()
+		self.createGridView(self.gridSizer, self.gridPanel)
+		self.tabs.AddPage(self.gridPanel, "Grid")
 
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+		# Create Report tab
+		self.reportPanel = wx.Panel(self.tabs)
+		self.reportSizer = wx.BoxSizer(wx.VERTICAL)
+		self.reportPanel.SetSizer(self.reportSizer)
+		self.reportPanel.Layout()
+		self.createReportView(self.reportSizer, self.reportPanel)
+		self.tabs.AddPage(self.reportPanel, "Report")
 
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+		self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalDamage, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Damage Taken
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Damage Taken")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalDamageTaken, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Avg. DPS
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Average DPS")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%.2f", a.avgDps, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Healing Done
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Healing Done")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalHealing, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Healing Received
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Healing Received")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%d", a.totalHealingReceived, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Avg. HPS
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Average HPS")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(locale.format("%.2f", a.avgHps, grouping=True)))(text))
-
-		#------------------------------------
-		# Detail Block: Combat Duration
-		# -----------------------------------
-
-		detailBlock = wx.BoxSizer(wx.VERTICAL)
-
-		header = wx.StaticText(self.panel, -1, "Fight Duration")
-		header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-		header.SetSize(header.GetBestSize())
-		detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
-
-		text = wx.StaticText(self.panel, -1, "N/A")
-		text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		text.SetSize(text.GetBestSize())
-		detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
-
-		detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-		self.analyzerUpdaters.append((lambda t: lambda a: t.SetLabel(util.FormatDuration(a.combatDurationLinear)))(text))
-
-		box.Add(detailGrid, 0, wx.EXPAND | wx.ALL, 10)
-
-		self.panel.SetSizer(box)
+		self.panel.SetSizer(self.box)
 		self.panel.Layout()
 
 		# Events
@@ -336,6 +215,66 @@ class MainFrame(wx.Frame):
 		self.keyBox.Enable()
 		self.keyGenerateButton.Enable()
 
+	def createReportView(self, parent=None, panelParent=None):
+		parent = parent if parent else self.box
+		panelParent = panelParent if panelParent else self.panel
+		
+		self.reportView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+		self.reportView.InsertColumn(0, "Name"); self.reportView.SetColumnWidth(0, 300)
+		self.reportView.InsertColumn(1, "Value"); self.reportView.SetColumnWidth(1, 200)
+
+		self.reportUpdaters = {}
+		def addDetailItem(name, getter):
+			self.reportUpdaters[name] = getter
+
+		addDetailItem("My Damage Dealt", lambda a: locale.format("%d", a.totalDamage, grouping=True))
+		addDetailItem("My Damage Taken", lambda a: locale.format("%d", a.totalDamageTaken, grouping=True))
+		addDetailItem("My Average DPS", lambda a: locale.format("%.2f", a.avgDps, grouping=True))
+		addDetailItem("My Healing Done", lambda a: locale.format("%d", a.totalHealing, grouping=True))
+		addDetailItem("My Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
+		addDetailItem("My Average HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
+		addDetailItem("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+
+		index = 0
+		for name in self.reportUpdaters.keys():
+			self.reportView.InsertStringItem(index, name)
+			index += 1
+
+		parent.Add(self.reportView, 1, wx.EXPAND, 0)
+
+	def createGridView(self, parent=None, panelParent=None):
+		parent = parent if parent else self.box
+		panelParent = panelParent if panelParent else self.panel
+		self.detailGrid = wx.GridSizer(4, 3, 10, 100)
+		self.gridUpdaters = []
+
+		def createDetailBlock(name, getter):
+			detailBlock = wx.BoxSizer(wx.VERTICAL)
+
+			header = wx.StaticText(panelParent, -1, name)
+			header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+			header.SetSize(header.GetBestSize())
+			detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+
+			text = wx.StaticText(panelParent, -1, "N/A")
+			text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+			text.SetSize(text.GetBestSize())
+			detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+
+			self.detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
+
+			self.gridUpdaters.append((lambda t,x: lambda a: t.SetLabel(getter(a)))(text, getter))
+
+		createDetailBlock("Damage Dealt", lambda a: locale.format("%d", a.totalDamage, grouping=True))
+		createDetailBlock("Damage Taken", lambda a: locale.format("%d", a.totalDamageTaken, grouping=True))
+		createDetailBlock("Avg. DPS", lambda a: locale.format("%.2f", a.avgDps, grouping=True))
+		createDetailBlock("Healing Done", lambda a: locale.format("%d", a.totalHealing, grouping=True))
+		createDetailBlock("Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
+		createDetailBlock("Avg. HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
+		createDetailBlock("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+
+		parent.Add(self.detailGrid, 0, wx.EXPAND | wx.ALL, 10)
+
 	def updateOverlayList(self):
 		for name, item in self.m_overlays.iteritems():
 			if overlays.IsOverlayOpen(name):
@@ -348,9 +287,16 @@ class MainFrame(wx.Frame):
 			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
 		else:
 			self.SetTitle("SWAP v%s"%VERSION)
-		for analyzerUpdater in self.analyzerUpdaters:
+
+		index = 0
+		for getter in self.reportUpdaters.values():
+			self.reportView.SetStringItem(index, 1, getter(analyzer))
+			index += 1
+
+		# Update grid
+		for analyzerUpdater in self.gridUpdaters:
 			analyzerUpdater(analyzer)
-		self.panel.Layout()
+		self.gridPanel.Layout()
 
 
 logging.SetupLogging("swap")

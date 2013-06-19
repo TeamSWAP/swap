@@ -188,7 +188,6 @@ class Parser:
 					self.events.append(event)
 				elif line[-1] != '\n' and line[-1] != '\r':
 					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
-					prnt("Parser: Line was '%s'"%line)
 					log.seek(logCursor)
 					time.sleep(0.2)
 				
