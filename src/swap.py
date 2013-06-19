@@ -252,9 +252,10 @@ class MainFrame(wx.Frame):
 		addDetailItem("My Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
 		addDetailItem("My Average HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
 		addDetailItem("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+		addDetailItem("Combat Duration (seconds)", lambda a: locale.format("%.2f", a.combatDurationLinear, grouping=True))
 
 		index = 0
-		for name in self.reportUpdaters.keys():
+		for name in sorted(self.reportUpdaters.keys()):
 			self.reportView.InsertStringItem(index, name)
 			index += 1
 
@@ -307,7 +308,8 @@ class MainFrame(wx.Frame):
 			self.SetTitle("SWAP v%s"%VERSION)
 
 		index = 0
-		for getter in self.reportUpdaters.values():
+		for name in sorted(self.reportUpdaters.keys()):
+			getter = self.reportUpdaters[name]
 			self.reportView.SetStringItem(index, 1, getter(analyzer))
 			index += 1
 
