@@ -92,6 +92,9 @@ def SendRaidUpdate(updateFunc):
 	global extraTicks, wasInCombat, playerData
 	parser = log_parser.GetThread().parser
 
+	if not currentKey:
+		return
+
 	# Do two extra ticks after combat ends, to settle numbers.
 	if not parser.inCombat:
 		if wasInCombat:
@@ -101,7 +104,7 @@ def SendRaidUpdate(updateFunc):
 		wasInCombat = True
 		extraTicks = 2
 
-	if not currentKey or extraTicks == 0 or not wasInCombat:
+	if extraTicks == 0 or not wasInCombat:
 		return
 
 	def thread():

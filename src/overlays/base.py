@@ -23,6 +23,7 @@ import overlays
 
 class BaseOverlay(wx.Frame):
 	dragDiff = None
+	dragSize = None
 
 	def __init__(self, title="DPS meter", size=(300, 100)):
 		wx.Frame.__init__(self, None, title=title, size=size, style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
@@ -46,7 +47,11 @@ class BaseOverlay(wx.Frame):
 
 		# Bind EVT_MOTION in children and propogate upwards
 		for child in self.box.GetChildren():
-			child.GetWindow().Bind(wx.EVT_MOTION, lambda e: e.ResumePropagation(wx.EVENT_PROPAGATE_MAX) or e.Skip())
+			cv = child.GetWindow()
+			if hasattr(cv, 'GetGridWindow'):
+				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
+			else:
+				cv.Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
 
 		self.topTimer = wx.Timer(self)
 		self.topTimer.Start(250)
@@ -125,8 +130,8 @@ class BaseOverlay(wx.Frame):
 			if self.dragDiff:
 				self.panel.ReleaseMouse()
 				self.dragDiff = None
-				self.sizePoint = None
 				self.dragSize = None
+				self.sizePoint = None
 				config.SetXY("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
 				config.SetXY("overlay_%s_size"%self.GetDerivedName(), self.GetSizeTuple())
 				overlays.SetOverlayBeingDragged(False)
@@ -139,10 +144,19 @@ class BaseOverlay(wx.Frame):
 		if not self.dragDiff:
 			self.panel.CaptureMouse()
 			self.dragDiff = pos - self.GetPosition()
-			self.sizePoint = pos
-			self.dragSize = self.GetSize()
 			overlays.SetOverlayBeingDragged(True)
 			self.PushToTop()
+
+		if event.ShiftDown():
+			if not self.dragSize:
+				self.dragSize = self.GetSize()
+				self.sizePoint = pos
+		else:
+			if self.dragSize:
+				sdiff = pos - self.sizePoint
+				self.dragDiff = self.dragDiff + sdiff
+				self.dragSize = None
+				self.sizePoint = None
 
 		position = pos - self.dragDiff
 
