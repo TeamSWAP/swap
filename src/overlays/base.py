@@ -161,8 +161,16 @@ class BaseOverlay(wx.Frame):
 		position = pos - self.dragDiff
 
 		if event.ShiftDown():
+			p = self.GetPosition()
 			sdiff = pos - self.sizePoint
 			sz = self.dragSize + (sdiff[0], sdiff[1])
+
+			# Cap size
+			xd = sw - (p[0] + sz[0])
+			yd = sh - (p[1] + sz[1])
+			sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
+			sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+
 			self.SetSize(sz)
 			return
 
