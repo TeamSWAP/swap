@@ -174,14 +174,16 @@ class BaseOverlay(wx.Frame):
 			self.SetSize(sz)
 			return
 
+		snapThreshold = 20
+
 		# Cap top left, top right
-		position[0] = 0 if position[0] < 20 else position[0]
-		position[1] = 0 if position[1] < 20 else position[1]
+		position[0] = 0 if position[0] < snapThreshold and position[0] > -snapThreshold else position[0]
+		position[1] = 0 if position[1] < snapThreshold and position[1] > -snapThreshold else position[1]
 
 		# Cap bottom left, bottom right
 		size = self.GetSizeTuple()
 		extent = position + size
-		position[0] = sw - size[0] if extent[0] > sw-20 else position[0]
-		position[1] = sh - size[1] if extent[1] > sh-20 else position[1]
+		position[0] = sw - size[0] if extent[0] > sw - snapThreshold and extent[0] < sw + snapThreshold else position[0]
+		position[1] = sh - size[1] if extent[1] > sh - snapThreshold and extent[1] < sh + snapThreshold else position[1]
 
 		self.SetPosition(position)
