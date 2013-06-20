@@ -166,24 +166,31 @@ class BaseOverlay(wx.Frame):
 			sz = self.dragSize + (sdiff[0], sdiff[1])
 
 			# Cap size
-			xd = sw - (p[0] + sz[0])
-			yd = sh - (p[1] + sz[1])
-			sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
-			sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+			for monitor in win32api.EnumDisplayMonitors():
+				(sx, sy, sw, sh) = monitor[2]
+				xd = sx + sw - (p[0] + sz[0])
+				yd = sy + sh - (p[1] + sz[1])
+				sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
+				sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
 
 			self.SetSize(sz)
 			return
 
 		snapThreshold = 20
 
-		# Cap top left, top right
-		position[0] = 0 if position[0] < snapThreshold and position[0] > -snapThreshold else position[0]
-		position[1] = 0 if position[1] < snapThreshold and position[1] > -snapThreshold else position[1]
+		for monitor in win32api.EnumDisplayMonitors():
+			(sx, sy, sr, sb) = monitor[2]
+			sw = sr - sx
+			sh = sb - sy
 
-		# Cap bottom left, bottom right
-		size = self.GetSizeTuple()
-		extent = position + size
-		position[0] = sw - size[0] if extent[0] > sw - snapThreshold and extent[0] < sw + snapThreshold else position[0]
-		position[1] = sh - size[1] if extent[1] > sh - snapThreshold and extent[1] < sh + snapThreshold else position[1]
+			# Cap top left, top right
+			position[0] = 0 if position[0] < sx + snapThreshold and position[0] > sx - snapThreshold else position[0]
+			position[1] = 0 if position[1] < sy + snapThreshold and position[1] > sy - snapThreshold else position[1]
+
+			# Cap bottom left, bottom right
+			size = self.GetSizeTuple()
+			extent = position + size
+			position[0] = sx + sw - size[0] if extent[0] > sx + sw - snapThreshold and extent[0] < sx + sw + snapThreshold else position[0]
+			position[1] = sy + sh - size[1] if extent[1] > sy + sh - snapThreshold and extent[1] < sy + sh + snapThreshold else position[1]
 
 		self.SetPosition(position)
