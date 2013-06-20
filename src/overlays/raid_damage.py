@@ -90,9 +90,9 @@ class RaidDamageOverlay(BaseOverlay):
 		for player in raid.playerData:
 			raidTotalDamage += player['totalDamage']
 
-		for player in sorted(raid.playerData, lambda x: x['totalDamage']):
+		for player in sorted(raid.playerData, lambda x, y: x['totalDamage'] > y['totalDamage']):
 			if raidTotalDamage > 0:
-				percent = "%.2f"%((player['totalDamage'] / raidTotalDamage) * 100.0)
+				percent = "%.2f"%((float(player['totalDamage']) / float(raidTotalDamage)) * 100.0)
 			else:
 				percent = "%.2f"%0
 

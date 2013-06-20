@@ -90,9 +90,9 @@ class RaidHealingOverlay(BaseOverlay):
 		for player in raid.playerData:
 			raidTotalHealing += player['totalHealing']
 
-		for player in sorted(raid.playerData, lambda x: x['totalHealing']):
+		for player in sorted(raid.playerData, lambda x, y: x['totalHealing'] > y['totalHealing']):
 			if raidTotalHealing > 0:
-				percent = "%.2f"%((player['totalHealing'] / raidTotalHealing) * 100.0)
+				percent = "%.2f"%((float(player['totalHealing']) / float(raidTotalHealing)) * 100.0)
 			else:
 				percent = "%.2f"%0
 
