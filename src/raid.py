@@ -22,7 +22,7 @@ from constants import *
 # Global variables
 currentKey = None
 playerData = []
-wasInCombat = False
+wasInCombat = True
 extraTicks = 2
 
 def GenerateKey(vanityKey, successFunc, failureFunc):

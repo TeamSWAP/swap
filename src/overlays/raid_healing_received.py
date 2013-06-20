@@ -64,14 +64,13 @@ class RaidHealingReceivedOverlay(BaseOverlay):
 		log_analyzer.Get().unregisterFrame(self)
 
 	def OnSize(self, event):
-		(width, height) = self.GetSize()
-		pos = self.grid.GetPosition()
-		width -= (pos[0] * 2) + 1
+		(width, height) = self.grid.GetSize()
+		width -= 10
 
 		self.grid.BeginBatch()
-		self.grid.SetColSize(0, width * 0.50)
-		self.grid.SetColSize(1, width * 0.35)
-		self.grid.SetColSize(2, width * 0.15)
+		self.grid.SetColSize(0, width * 0.40)
+		self.grid.SetColSize(1, width * 0.40)
+		self.grid.SetColSize(2, width * 0.20)
 		self.grid.EndBatch()
 
 		if event:
@@ -109,9 +108,9 @@ class RaidHealingReceivedOverlay(BaseOverlay):
 			self.grid.SetCellAlignment(index, 0, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
 			self.grid.SetCellAlignment(index, 1, wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
 			self.grid.SetCellAlignment(index, 2, wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
-			self.grid.SetCellFont(index, 0, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
-			self.grid.SetCellFont(index, 1, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
-			self.grid.SetCellFont(index, 2, wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellFont(index, 0, wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellFont(index, 1, wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+			self.grid.SetCellFont(index, 2, wx.Font(10, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
 			self.grid.SetCellTextColour(index, 0, color)
 			self.grid.SetCellTextColour(index, 1, color)
 			self.grid.SetCellTextColour(index, 2, color)

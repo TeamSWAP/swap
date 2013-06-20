@@ -56,7 +56,7 @@ class UpdaterFrame(wx.Frame):
 		prnt("-"*20)
 
 		if IS_COMPILED:
-			subprocess.Popen(["swap.exe"])
+			subprocess.Popen(["swap.exe", "--from-updater"])
 		else:
 			subprocess.Popen(["python", "swap.py"])
 
@@ -168,6 +168,10 @@ def applyUpdate(frame, info):
 		current = 0
 		total = len(nameList)
 		for f in nameList:
+			# Installed and zipped use different manifests
+			if f in ('swap.exe.manifest', 'updater.exe.manifest'):
+				continue
+			
 			prnt("Extracting %s"%f)
 			if f.endswith('/'):
 				if not os.path.isdir(f):
