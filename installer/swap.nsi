@@ -4,9 +4,12 @@
 #              by Vlasis K. Barkas aka Red Wine red_wine@freemail.gr Sep 2006               
 ############################################################################################
 
+SetCompressor ZLIB
+
 !system "get-nsis-info.py"
 !system "mkdir out"
 !include "nsis-info.nsh"
+!include "touch.nsh"
 
 !define APP_NAME "SWAP"
 !define COMP_NAME "TeamSWAP"
@@ -32,7 +35,6 @@ VIAddVersionKey "FileVersion"  "${VERSION}"
 
 ######################################################################
 
-SetCompressor ZLIB
 Name "${APP_NAME}"
 Caption "${APP_NAME}"
 OutFile "${INSTALLER_NAME}"
@@ -96,7 +98,10 @@ Section -MainProgram
 ${INSTALL_TYPE}
 SetOverwrite ifnewer
 SetOutPath "$INSTDIR"
-File /r "..\out\*"
+File /r /x "swap.exe.manifest" /x "updater.exe.manifest" "..\out\*"
+File /oname=swap.exe.manifest "..\etc\installed.manifest"
+File /oname=updater.exe.manifest "..\etc\installed.manifest"
+${Touch} $INSTDIR\updater.exe
 SectionEnd
 
 ######################################################################

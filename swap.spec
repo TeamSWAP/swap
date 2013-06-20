@@ -1,4 +1,6 @@
 # -*- mode: python -*-
+import os
+
 sa = Analysis(['src/swap.py'])
 ua = Analysis(['src/updater.py'])
 spyz = PYZ(sa.pure)
@@ -10,7 +12,8 @@ sexe = EXE(spyz,
           debug=False,
           strip=False,
           upx=True,
-          console=False )
+          console=False,
+          manifest="etc/normal.manifest" )
 uexe = EXE(upyz,
           ua.scripts,
           exclude_binaries=1,
@@ -18,7 +21,8 @@ uexe = EXE(upyz,
           debug=False,
           strip=True,
           upx=True,
-          console=False )
+          console=False,
+          manifest="etc/normal.manifest" )
 coll = COLLECT(sexe, uexe,
                sa.binaries,
                sa.zipfiles,

@@ -3,6 +3,8 @@ import os, shutil
 # Clean build files
 if os.path.isdir('build'):
 	shutil.rmtree('build')
+if os.path.isdir('dist'):
+	shutil.rmtree('dist')
 if os.path.isdir('out'):
 	shutil.rmtree('out')
 

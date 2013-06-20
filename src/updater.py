@@ -114,7 +114,7 @@ def checkForUpdates(frame):
 
 def downloadUpdate(frame, info):
 	url = info['url']
-	prnt("Downloading update from", url)
+	prnt("Downloading update from %s"%url)
 
 	conn = None
 	outputFile = None
@@ -202,7 +202,7 @@ def applyUpdate(frame, info):
 
 logging.SetupLogging("updater")
 
-app = wx.App()
+app = wx.App(redirect=False)
 frame = UpdaterFrame()
 frame.Show()
 app.MainLoop()

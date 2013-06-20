@@ -318,8 +318,8 @@ class MainFrame(wx.Frame):
 			analyzerUpdater(analyzer)
 		self.gridPanel.Layout()
 
-
 logging.SetupLogging("swap")
+locale.setlocale(locale.LC_ALL, '')
 
 prnt("SWAP v%s booting up..."%VERSION)
 
