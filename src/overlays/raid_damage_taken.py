@@ -85,12 +85,22 @@ class RaidDamageTakenOverlay(BaseOverlay):
 		if count > 0:
 			self.grid.AppendRows(count)
 
+		def sortf(x, y):
+			x = x['totalDamageTaken']
+			y = y['totalDamageTaken']
+			if x == y:
+				return 0
+			elif x < y:
+				return 1
+			else:
+				return -1
+
 		index = 0
 		raidTotalDamageTaken = 0
 		for player in raid.playerData:
 			raidTotalDamageTaken += player['totalDamageTaken']
 
-		for player in sorted(raid.playerData, lambda x, y: x['totalDamageTaken'] > y['totalDamageTaken']):
+		for player in sorted(raid.playerData, sortf):
 			if raidTotalDamageTaken > 0:
 				percent = "%.2f"%((float(player['totalDamageTaken']) / float(raidTotalDamageTaken)) * 100.0)
 			else:

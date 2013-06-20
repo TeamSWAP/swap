@@ -85,12 +85,22 @@ class RaidHealingOverlay(BaseOverlay):
 		if count > 0:
 			self.grid.AppendRows(count)
 
+		def sortf(x, y):
+			x = x['totalHealing']
+			y = y['totalHealing']
+			if x == y:
+				return 0
+			elif x < y:
+				return 1
+			else:
+				return -1
+
 		index = 0
 		raidTotalHealing = 0
 		for player in raid.playerData:
 			raidTotalHealing += player['totalHealing']
 
-		for player in sorted(raid.playerData, lambda x, y: x['totalHealing'] > y['totalHealing']):
+		for player in sorted(raid.playerData, sortf):
 			if raidTotalHealing > 0:
 				percent = "%.2f"%((float(player['totalHealing']) / float(raidTotalHealing)) * 100.0)
 			else:
