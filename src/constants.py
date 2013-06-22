@@ -19,7 +19,7 @@ import wx, os, sys
 VERSION = "0.2.0"
 VERSION_INT = 3
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
-URL_PARSER_SERVER = "http://swap-server.appspot.com/"
+PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 IS_COMPILED = 'frozen' in dir(sys)
 
 # Static Messages

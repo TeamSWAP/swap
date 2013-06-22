@@ -185,6 +185,11 @@ class MainFrame(wx.Frame):
 		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
 		result = dlg.ShowModal()
 		dlg.Destroy()
+		self.keyBox.Enable()
+		self.keyStatus.SetLabel("")
+		self.keyJoinButton.Enable()
+		self.keyGenerateButton.Enable()
+		self.keyVanityCheck.Enable()
 
 	def OnJoinRaidButton(self, event):
 		if not raid.IsInRaid():
