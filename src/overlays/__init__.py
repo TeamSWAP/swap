@@ -199,8 +199,7 @@ def IsOverlayBeingDragged():
 def ResetOverlays():
 	prnt("Resetting overlays...")
 	for overlay in overlayList:
-		try:
-			config.Remove("overlay_%s_pos"%overlay['class'].__name__)
-			config.Remove("overlay_%s_size"%overlay['class'].__name__)
-		except:
-			pass
+		if overlay['name'] == '-':
+			continue
+		config.Remove("overlay_%s_pos"%overlay['class'].__name__)
+		config.Remove("overlay_%s_size"%overlay['class'].__name__)
