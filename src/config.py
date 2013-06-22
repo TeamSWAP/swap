@@ -19,7 +19,8 @@ from logging import prnt
 
 defaults = {
 	'overlayBgColor': '#000000',
-	'overlayFgColor': '#FFFFFF'
+	'overlayFgColor': '#FFFFFF',
+	'overlayListFontSize': 10
 }
 
 settings = defaults
@@ -53,6 +54,8 @@ def Get(name):
 	global settings
 	if name in settings.keys():
 		return settings[name]
+	if name in defaults.keys():
+		return defaults[name]
 	return None
 
 def GetXY(name):

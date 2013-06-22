@@ -22,6 +22,7 @@ import config
 import log_parser, log_analyzer
 import util
 import raid
+import preferences
 from logging import prnt
 
 class MainFrame(wx.Frame):
@@ -42,6 +43,7 @@ class MainFrame(wx.Frame):
 		menu = wx.Menu()
 		menuBar.Append(menu, "&Tools")
 		m_preferences = menu.Append(MENU_ID_PREFERENCES, MENU_TITLE_PREFERENCES, MENU_TIP_PREFERENCES)
+		self.Bind(wx.EVT_MENU, self.OnPreferences, id=MENU_ID_PREFERENCES)
 
 		# Overlay
 		menu = wx.Menu()
@@ -143,6 +145,10 @@ class MainFrame(wx.Frame):
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
 		log_analyzer.Get().registerFrame(self)
+
+	def OnPreferences(self, event):
+		dialog = preferences.PreferencesDialog(self)
+		dialog.ShowModal()
 
 	def OnClose(self, event):
 		if raid.IsInRaid():
