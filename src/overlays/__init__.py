@@ -28,6 +28,8 @@ from raid_damage import RaidDamageOverlay
 from raid_damage_taken import RaidDamageTakenOverlay
 from raid_healing import RaidHealingOverlay
 from raid_healing_received import RaidHealingReceivedOverlay
+from raid_avg_dps import RaidAvgDPSOverlay
+from raid_avg_hps import RaidAvgHPSOverlay
 
 overlayCategories = [
 	{
@@ -87,6 +89,12 @@ overlayList = [
 		'category': 'raid',
 		'class': RaidDamageTakenOverlay
 	},
+	{
+		'name': 'raid_avg_dps',
+		'title': 'Average DPS',
+		'category': 'raid',
+		'class': RaidAvgDPSOverlay
+	},
 	{ 'name': '-', 'category': 'raid' },
 	{
 		'name': 'raid_healing',
@@ -99,6 +107,12 @@ overlayList = [
 		'title': 'Healing Received',
 		'category': 'raid',
 		'class': RaidHealingReceivedOverlay
+	},
+	{
+		'name': 'raid_avg_hps',
+		'title': 'Average HPS',
+		'category': 'raid',
+		'class': RaidAvgHPSOverlay
 	},
 ]
 

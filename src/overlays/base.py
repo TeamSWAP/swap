@@ -168,10 +168,11 @@ class BaseOverlay(wx.Frame):
 			# Cap size
 			for monitor in win32api.EnumDisplayMonitors():
 				(sx, sy, sw, sh) = monitor[2]
-				xd = sx + sw - (p[0] + sz[0])
-				yd = sy + sh - (p[1] + sz[1])
-				sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
-				sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+				if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
+					xd = sx + sw - (p[0] + sz[0])
+					yd = sy + sh - (p[1] + sz[1])
+					sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
+					sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
 
 			self.SetSize(sz)
 			return
