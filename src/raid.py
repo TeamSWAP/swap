@@ -47,7 +47,7 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 		stream.writeString(vanityKey)
 		sock.send(stream.toString())
 
-		data = sock.recv(64)
+		data = sock.recv(1024)
 		sock.close()
 
 		stream = ByteStream(data)
@@ -78,7 +78,7 @@ def JoinRaid(key, successFunc, failureFunc):
 		stream.writeByte(VERSION_INT)
 		sock.send(stream.toString())
 
-		data = sock.recv(64)
+		data = sock.recv(1024)
 		sock.close()
 
 		stream = ByteStream(data)
@@ -118,7 +118,7 @@ def LeaveRaid():
 		stream.writeString(me)
 		sock.send(stream.toString())
 
-		data = sock.recv(64)
+		data = sock.recv(1024)
 		sock.close()
 
 		stream = ByteStream(data)
@@ -180,7 +180,7 @@ def SendRaidUpdate(updateFunc):
 		stream.writeInt(analyzer.totalHealingReceived)
 		sock.send(stream.toString())
 
-		data = sock.recv(64)
+		data = sock.recv(1024)
 		sock.close()
 
 		stream = ByteStream(data)
