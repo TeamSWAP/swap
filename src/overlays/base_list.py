@@ -74,7 +74,7 @@ class BaseListOverlay(BaseOverlay):
 		for text in columns:
 			self.grid.SetCellValue(row, i, text)
 			self.grid.SetCellAlignment(row, i, self.columnAlign[i], wx.ALIGN_CENTRE)
-			self.grid.SetCellFont(row, i, wx.Font(config.Get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "Arial"))
+			self.grid.SetCellFont(row, i, wx.Font(config.Get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial"))
 			self.grid.SetCellTextColour(row, i, rowColor)
 			i += 1
 

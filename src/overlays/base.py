@@ -36,6 +36,7 @@ class BaseOverlay(wx.Frame):
 		self.box = wx.BoxSizer(wx.VERTICAL)
 
 		self.createUI()
+		self.updateUI()
 
 		self.panel.SetSizer(self.box)
 		self.panel.Layout()
@@ -109,9 +110,11 @@ class BaseOverlay(wx.Frame):
 	def createUI(self):
 		# Title
 		self.titleText = wx.StaticText(self.panel, -1, self.title)
-		self.titleText.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
 		self.titleText.SetSize(self.titleText.GetBestSize())
 		self.box.Add(self.titleText, 0, wx.ALL & ~wx.BOTTOM, 10)
+
+	def updateUI(self):
+		self.titleText.SetFont(wx.Font(config.Get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
 
 	def setFocusable(self, isFocusable):
 		style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)

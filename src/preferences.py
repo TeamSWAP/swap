@@ -26,16 +26,30 @@ class PreferencesDialog(wx.Dialog):
 		self.sizer = wx.BoxSizer(wx.VERTICAL)
 		self.notebook = wx.Notebook(self)
 
+		headerFont = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+
 		# -----------------------------------
 		# Overlay
 		# -----------------------------------
 		self.overlayPanel = wx.Panel(self.notebook)
 		self.overlaySizer = wx.BoxSizer(wx.VERTICAL)
 
+		# Header font size
+		self.headerFontSizeBox = wx.BoxSizer(wx.VERTICAL)
+		self.headerFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "Header Font Size")
+		self.headerFontSizeLabel.SetFont(headerFont)
+		self.headerFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS, size=(200, 100))
+		self.headerFontSizeSlider.SetTickFreq(1, 1)
+		self.headerFontSizeSlider.SetValue(config.Get("overlayHeaderFontSize"))
+		self.headerFontSizeBox.Add(self.headerFontSizeLabel, 0, wx.ALL, 5)
+		self.headerFontSizeBox.Add(self.headerFontSizeSlider, 0, wx.ALL, 5)
+		self.overlaySizer.Add(self.headerFontSizeBox, 0, wx.ALL, 10)
+
 		# List font size
 		self.listFontSizeBox = wx.BoxSizer(wx.VERTICAL)
 		self.listFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "List Font Size (ex. Raid Damage)")
-		self.listFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS, size=(500, 100))
+		self.listFontSizeLabel.SetFont(headerFont)
+		self.listFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS, size=(200, 100))
 		self.listFontSizeSlider.SetTickFreq(1, 1)
 		self.listFontSizeSlider.SetValue(config.Get("overlayListFontSize"))
 		self.listFontSizeBox.Add(self.listFontSizeLabel, 0, wx.ALL, 5)
@@ -55,5 +69,6 @@ class PreferencesDialog(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self.OnOK, id=wx.ID_OK)
 
 	def OnOK(self, event):
+		config.Set("overlayHeaderFontSize", self.headerFontSizeSlider.GetValue())
 		config.Set("overlayListFontSize", self.listFontSizeSlider.GetValue())
 		self.Destroy()

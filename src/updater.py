@@ -162,6 +162,8 @@ def downloadUpdate(frame, info):
 
 def applyUpdate(frame, info):
 	z = None
+	if not os.path.exists('pending'):
+		os.mkdir('pending')
 	try:
 		z = ZipFile("tmp.zip")
 		nameList = z.namelist()
@@ -181,6 +183,8 @@ def applyUpdate(frame, info):
 				z.extract(f, "pending")
 				continue
 			if os.path.exists(f):
+				if os.path.exists(f + '.old'):
+					os.rename(f + '.old', f + '.old.old')
 				os.rename(f, f + '.old')
 			z.extract(f)
 			current += 1

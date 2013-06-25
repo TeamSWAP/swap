@@ -20,7 +20,8 @@ from logging import prnt
 defaults = {
 	'overlayBgColor': '#000000',
 	'overlayFgColor': '#FFFFFF',
-	'overlayListFontSize': 10
+	'overlayListFontSize': 10,
+	'overlayHeaderFontSize': 13
 }
 
 settings = defaults
