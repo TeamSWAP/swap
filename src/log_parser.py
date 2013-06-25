@@ -134,7 +134,7 @@ class Parser:
 					actionTime = today + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
 
 					# Serious introspection here, man
-					if self.me == None and actor == target:
+					if self.me == None and actor == target and actor.find(':') == -1:
 						prnt("Parser: Identified %s as me"%actor)
 						self.me = actor
 

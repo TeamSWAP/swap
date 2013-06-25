@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+import os, ctypes, ConfigParser
+from ctypes.wintypes import MAX_PATH
+from logging import prnt
+
 def FormatDuration(s):
 	if s < 1:
 		return "%.1fs"%s
@@ -23,3 +27,39 @@ def FormatDuration(s):
 		return "%02dm %02ds"%(s / 60, s%60)
 	else:
 		return "%dh %02dm %02ds"%((s / 3600), (s%3600) / 60, s%60)
+
+def GetAccountIni():
+ 	dll = ctypes.windll.shell32
+	buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
+	if dll.SHGetSpecialFolderPathW(None, buf, 0x1C, False):
+		path = buf.value + "\\SWTOR\\swtor\\settings\\"
+		files = os.listdir(path)
+		accountFiles = []
+		for f in files:
+			if f.endswith('_Account.ini'):
+				accountFiles.append(path + f)
+		accountFile = max(accountFiles, key=os.path.getmtime)
+		return accountFile
+	return None
+
+def IsCombatLoggingEnabled():
+	ini = GetAccountIni()
+	if ini:
+		config = ConfigParser.RawConfigParser()
+		config.read(ini)
+		cabf4 = config.get("Settings", "cabf_4")
+		if long(cabf4) & (1 << 14):
+			return True
+		if cabf4 != None and cabf4 != "":
+			return False
+	return True
+
+def EnableCombatLogging():
+	ini = GetAccountIni()
+	if ini:
+		config = ConfigParser.RawConfigParser()
+		config.read(ini)
+		cabf4 = config.get("Settings", "cabf_4")
+		config.set("Settings", "cabf_4", long(cabf4) | (1 << 14))
+		with open(ini, 'wb') as configFile:
+			config.write(configFile)

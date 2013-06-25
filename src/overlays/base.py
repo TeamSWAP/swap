@@ -54,9 +54,9 @@ class BaseOverlay(wx.Frame):
 			else:
 				cv.Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
 
-		self.topTimer = wx.Timer(self)
-		self.topTimer.Start(250)
-		self.Bind(wx.EVT_TIMER, self.OnTopTimer, self.topTimer)
+		self.updateTimer = wx.Timer(self)
+		self.updateTimer.Start(400)
+		self.Bind(wx.EVT_TIMER, self.OnUpdateTimer, self.updateTimer)
 
 		self.hwnd = self.GetHandle()
 		self.setFocusable(False)
@@ -71,12 +71,13 @@ class BaseOverlay(wx.Frame):
 		if savedSize != None:
 			self.SetSize(savedSize)
 
-	# Always on Top isn't always so, well, on top. This is a hack to fix those
-	# situations. Example: Tabbing to client, then clicking SWTOR, then tabbing
-	# back then clicking SWTOR again hides the overlays. We have the taskbar icon
-	# hidden and pop the overlay back on top at a regular interval.
-	def OnTopTimer(self, event):
-		# Only enforce while you're tabbed to SWTOR
+	def OnUpdateTimer(self, event):
+		self.updateUI()
+
+		# Always on Top isn't always so, well, on top. This is a hack to fix those
+		# situations. Example: Tabbing to client, then clicking SWTOR, then tabbing
+		# back then clicking SWTOR again hides the overlays. We have the taskbar icon
+		# hidden and pop the overlay back on top at a regular interval.
 		fgHwnd = win32gui.GetForegroundWindow()
 		if win32gui.GetWindowText(fgHwnd).find(': The Old Republic') != -1:
 			topMost = win32gui.GetWindow(self.GetHandle(), GW_HWNDFIRST)
@@ -169,32 +170,38 @@ class BaseOverlay(wx.Frame):
 			sz = self.dragSize + (sdiff[0], sdiff[1])
 
 			# Cap size
-			for monitor in win32api.EnumDisplayMonitors():
-				(sx, sy, sw, sh) = monitor[2]
-				if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
-					xd = sx + sw - (p[0] + sz[0])
-					yd = sy + sh - (p[1] + sz[1])
-					sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
-					sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+			if config.Get("overlaySnap"):
+				for monitor in win32api.EnumDisplayMonitors():
+					(sx, sy, sw, sh) = monitor[2]
+					if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
+						xd = sx + sw - (p[0] + sz[0])
+						yd = sy + sh - (p[1] + sz[1])
+						sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
+						sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+
+			if config.Get("overlaySizeToGrid"):
+				sz[0] = int(round(sz[0] / 10.0) * 10)
+				sz[1] = int(round(sz[1] / 10.0) * 10)
 
 			self.SetSize(sz)
 			return
 
 		snapThreshold = 20
 
-		for monitor in win32api.EnumDisplayMonitors():
-			(sx, sy, sr, sb) = monitor[2]
-			sw = sr - sx
-			sh = sb - sy
+		if config.Get("overlaySnap"):
+			for monitor in win32api.EnumDisplayMonitors():
+				(sx, sy, sr, sb) = monitor[2]
+				sw = sr - sx
+				sh = sb - sy
 
-			# Cap top left, top right
-			position[0] = sx if position[0] < sx + snapThreshold and position[0] > sx - snapThreshold else position[0]
-			position[1] = sy if position[1] < sy + snapThreshold and position[1] > sy - snapThreshold else position[1]
+				# Cap top left, top right
+				position[0] = sx if position[0] < sx + snapThreshold and position[0] > sx - snapThreshold else position[0]
+				position[1] = sy if position[1] < sy + snapThreshold and position[1] > sy - snapThreshold else position[1]
 
-			# Cap bottom left, bottom right
-			size = self.GetSizeTuple()
-			extent = position + size
-			position[0] = sx + sw - size[0] if extent[0] > sx + sw - snapThreshold and extent[0] < sx + sw + snapThreshold else position[0]
-			position[1] = sy + sh - size[1] if extent[1] > sy + sh - snapThreshold and extent[1] < sy + sh + snapThreshold else position[1]
+				# Cap bottom left, bottom right
+				size = self.GetSizeTuple()
+				extent = position + size
+				position[0] = sx + sw - size[0] if extent[0] > sx + sw - snapThreshold and extent[0] < sx + sw + snapThreshold else position[0]
+				position[1] = sy + sh - size[1] if extent[1] > sy + sh - snapThreshold and extent[1] < sy + sh + snapThreshold else position[1]
 
 		self.SetPosition(position)

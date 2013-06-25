@@ -21,7 +21,9 @@ defaults = {
 	'overlayBgColor': '#000000',
 	'overlayFgColor': '#FFFFFF',
 	'overlayListFontSize': 10,
-	'overlayHeaderFontSize': 13
+	'overlayHeaderFontSize': 13,
+	'overlaySizeToGrid': True,
+	'overlaySnap': True
 }
 
 settings = defaults

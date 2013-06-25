@@ -29,6 +29,14 @@ class MainFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520), style=wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX)
 
+		if not util.IsCombatLoggingEnabled():
+			dlg = wx.MessageDialog(self, MSG_COMBAT_LOGGING_DISABLED_TEXT, MSG_COMBAT_LOGGING_DISABLED_TITLE, wx.OK | wx.CANCEL | wx.ICON_ERROR)
+			result = dlg.ShowModal()
+			dlg.Destroy()
+
+			if result == wx.ID_OK:
+				util.EnableCombatLogging()
+
 		# Setup menu bar
 		menuBar = wx.MenuBar()
 		self.SetMenuBar(menuBar)
@@ -72,6 +80,16 @@ class MainFrame(wx.Frame):
 		m_dark = menu.AppendCheckItem(MENU_ID_OVERLAY_DARK, MENU_TITLE_OVERLAY_DARK, MENU_TIP_OVERLAY_DARK)
 		m_dark.Check(overlays.IsDarkTheme())
 		self.Bind(wx.EVT_MENU, lambda e: overlays.ToggleDarkTheme(), id=MENU_ID_OVERLAY_DARK)
+
+		m_sizeToGrid = menu.AppendCheckItem(MENU_ID_OVERLAY_SIZE_TO_GRID, MENU_TITLE_OVERLAY_SIZE_TO_GRID, MENU_TIP_OVERLAY_SIZE_TO_GRID)
+		m_sizeToGrid.Check(config.Get("overlaySizeToGrid") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlaySizeToGrid", m_sizeToGrid.IsChecked()), id=MENU_ID_OVERLAY_SIZE_TO_GRID)
+
+		m_snapOverlays = menu.AppendCheckItem(MENU_ID_OVERLAY_SNAP, MENU_TITLE_OVERLAY_SNAP, MENU_TIP_OVERLAY_SNAP)
+		m_snapOverlays.Check(config.Get("overlaySnap") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlaySnap", m_snapOverlays.IsChecked()), id=MENU_ID_OVERLAY_SNAP)
+
+		menu.AppendSeparator()
 
 		m_reset = menu.Append(MENU_ID_OVERLAY_RESET, MENU_TITLE_OVERLAY_RESET, MENU_TIP_OVERLAY_RESET)
 		self.Bind(wx.EVT_MENU, self.OnResetOverlays, id=MENU_ID_OVERLAY_RESET)
