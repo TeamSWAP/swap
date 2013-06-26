@@ -27,7 +27,7 @@ from logging import prnt
 
 class MainFrame(wx.Frame):
 	def __init__(self):
-		wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520), style=wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX)
+		wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520))
 
 		if not util.IsCombatLoggingEnabled():
 			dlg = wx.MessageDialog(self, MSG_COMBAT_LOGGING_DISABLED_TEXT, MSG_COMBAT_LOGGING_DISABLED_TITLE, wx.OK | wx.CANCEL | wx.ICON_ERROR)
@@ -36,6 +36,8 @@ class MainFrame(wx.Frame):
 
 			if result == wx.ID_OK:
 				util.EnableCombatLogging()
+
+		self.SetMinSize((700, 520))
 
 		# Setup menu bar
 		menuBar = wx.MenuBar()
