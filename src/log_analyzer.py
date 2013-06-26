@@ -85,7 +85,8 @@ class AnalyzerThread(threading.Thread):
 						totalHealing += ev.healing
 					if ev.type == GameEvent.TYPE_HEAL and ev.target == self.parser.me:
 						totalHealingReceived += ev.healing
-					totalThreat += ev.threat
+					if ev.actor == self.parser.me:
+						totalThreat += ev.threat
 				combatDuration = combatEndTime - combatStartTime
 
 				self.totalDamage = totalDamage
