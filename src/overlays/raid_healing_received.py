@@ -34,10 +34,11 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Healing Received", "%"], [0.4, 0.4, 0.2], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Healing Received", "%"], [2, 2, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
-		log_analyzer.Get().unregisterFrame(self)
+		if event.GetEventObject() == self:
+			log_analyzer.Get().unregisterFrame(self)
 
 	def OnAnalyzerTick(self, analyzer):
 		self.beginBatch()

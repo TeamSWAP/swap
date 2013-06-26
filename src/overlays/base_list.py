@@ -26,81 +26,84 @@ class BaseListOverlay(BaseOverlay):
 	RIGHT = wx.ALIGN_RIGHT
 	CENTER = wx.ALIGN_CENTRE
 
-	columnCount = 0
-	columnShare = []
-	columnAlign = []
-
 	def __init__(self, title="", size=(300, 100)):
-		BaseOverlay.__init__(self, title=title, size=size)
+		self.defaultTextColor = 0
+		self.columnCount = 0
+		self.columnShare = []
+		self.columnAlign = []
+		self.rowData = []
 
-		self.Bind(wx.EVT_SIZE, self.OnSize)
-		self.OnSize(None)
+		BaseOverlay.__init__(self, title=title, size=size)
 
 	def createUI(self):
 		BaseOverlay.createUI(self)
 
-		# List
-		self.grid = wx.grid.Grid(self.panel, -1)
-		self.grid.CreateGrid(1, 3)
-		self.grid.SetRowLabelSize(0)
-		self.grid.SetColLabelSize(0)
-		self.grid.SetSelectionBackground(wx.Colour(0, 0, 0, 0))
-		self.grid.DisableDragColSize()
-		self.grid.DisableDragRowSize()
-		self.grid.DisableDragColMove()
-		self.grid.EnableGridLines(False)
-		self.grid.EnableEditing(False)
+		self.raidListBox = wx.BoxSizer(wx.VERTICAL)
 
-		self.box.Add(self.grid, 1, wx.EXPAND | wx.ALL, 10)
+		self.box.Add(self.raidListBox, 1, wx.EXPAND | wx.ALL, 10)
+
+	def updateUI(self):
+		BaseOverlay.updateUI(self)
+		self.listFont = wx.Font(config.Get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial")
 
 	def setColumns(self, cols, shares, aligns):
 		i = 0
 		for text in cols:
-			self.grid.SetColLabelValue(i, text)
 			self.columnShare.append(shares[i])
 			self.columnAlign.append(aligns[i])
 			i += 1
 		self.columnCount = i
 
 	def clearList(self):
-		currentRowCount = self.grid.GetNumberRows()
-		if currentRowCount > 0:
-			self.grid.DeleteRows(0, currentRowCount)
+		self.rowData = []
 
-	def addRow(self, columns, rowColor=wx.Colour(255, 255, 255, 255)):
-		self.grid.AppendRows(1)
-		row = self.grid.GetNumberRows() - 1
-		i = 0
-		for text in columns:
-			self.grid.SetCellValue(row, i, text)
-			self.grid.SetCellAlignment(row, i, self.columnAlign[i], wx.ALIGN_CENTRE)
-			self.grid.SetCellFont(row, i, wx.Font(config.Get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial"))
-			self.grid.SetCellTextColour(row, i, rowColor)
-			i += 1
+	def addRow(self, columns, rowColor=None):
+		if rowColor == None:
+			rowColor = self.defaultTextColor
+
+		self.rowData.append({'columns': columns, 'rowColor': rowColor})
 
 	def beginBatch(self):
-		self.grid.BeginBatch()
+		pass
 
 	def endBatch(self):
-		self.grid.EndBatch()
+		self.Freeze()
+
+		sizerRowCount = len(self.raidListBox.GetChildren())
+		delta = len(self.rowData) - sizerRowCount
+		if delta > 0:
+			for i in range(0, delta):
+				rowBox = wx.BoxSizer(wx.HORIZONTAL)
+				x = 0
+				for share in self.columnShare:
+					align = self.columnAlign[x]
+					columnText = wx.StaticText(self.panel, -1, "", style=align)
+					rowBox.Add(columnText, share)
+					x += 1
+				self.bindViews(rowBox)
+				self.raidListBox.Add(rowBox, 0, wx.EXPAND)
+				sizerRowCount += 1
+		elif delta < 0:
+			for i in range(0, -delta):
+				self.raidListBox.Hide(sizerRowCount - 1)
+				self.raidListBox.Remove(sizerRowCount - 1)
+				sizerRowCount -= 1
+
+		i = 0
+		for row in self.rowData:
+			rowBox = self.raidListBox.GetItem(i).GetSizer()
+			x = 0
+			for col in row['columns']:
+				columnText = rowBox.GetItem(x).GetWindow()
+				columnText.SetFont(self.listFont)
+				columnText.SetLabel(col)
+				columnText.SetForegroundColour(row['rowColor'])
+				x += 1
+			i += 1
+
+		self.Thaw()
 
 	def updateColors(self):
-		self.grid.SetDefaultCellBackgroundColour(self.getBackgroundColor())
-		self.grid.SetDefaultCellTextColour(self.getForegroundColor())
+		self.defaultTextColor = self.getForegroundColor()
 		BaseOverlay.updateColors(self)
-
-	def OnSize(self, event):
-		(width, height) = self.grid.GetSize()
-		width -= 10
-
-		self.grid.BeginBatch()
-		for column in range(0, self.columnCount):
-			share = self.columnShare[column]
-			self.grid.SetColSize(column, width * share)
-		self.grid.EndBatch()
-
-		if event:
-			event.Skip()
-
-		self.panel.Layout()
 

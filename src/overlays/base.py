@@ -46,13 +46,7 @@ class BaseOverlay(wx.Frame):
 
 		self.panel.Bind(wx.EVT_MOTION, self.OnMouseMove)
 
-		# Bind EVT_MOTION in children and propogate upwards
-		for child in self.box.GetChildren():
-			cv = child.GetWindow()
-			if hasattr(cv, 'GetGridWindow'):
-				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
-			else:
-				cv.Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
+		self.bindViews(self.box)
 
 		self.updateTimer = wx.Timer(self)
 		self.updateTimer.Start(400)
@@ -87,6 +81,16 @@ class BaseOverlay(wx.Frame):
 			if overlays.IsOverlayBeingDragged():
 				return
 			self.PushToTop()
+
+	def bindViews(self, v):
+		for child in v.GetChildren():
+			if isinstance(child, wx.Sizer):
+				bindViews(child.GetSizer())
+			cv = child.GetWindow()
+			if hasattr(cv, 'GetGridWindow'):
+				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
+			elif hasattr(cv, 'Bind'):
+				cv.Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
 
 	def PushToTop(self):
 		pos = self.GetPosition()
