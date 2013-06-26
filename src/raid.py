@@ -178,6 +178,7 @@ def SendRaidUpdate(updateFunc):
 		stream.writeInt(analyzer.totalDamageTaken)
 		stream.writeInt(analyzer.totalHealing)
 		stream.writeInt(analyzer.totalHealingReceived)
+		stream.writeInt(analyzer.totalThreat)
 		sock.send(stream.toString())
 
 		data = sock.recv(1024)
@@ -198,6 +199,7 @@ def SendRaidUpdate(updateFunc):
 				player['totalDamageTaken'] = stream.readInt()
 				player['totalHealing'] = stream.readInt()
 				player['totalHealingReceived'] = stream.readInt()
+				player['totalThreat'] = stream.readInt()
 				players.append(player)
 			playerData = players
 			updateFunc()

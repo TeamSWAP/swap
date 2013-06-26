@@ -30,6 +30,7 @@ from raid_healing import RaidHealingOverlay
 from raid_healing_received import RaidHealingReceivedOverlay
 from raid_avg_dps import RaidAvgDPSOverlay
 from raid_avg_hps import RaidAvgHPSOverlay
+from raid_threat import RaidThreatOverlay
 
 overlayCategories = [
 	{
@@ -113,6 +114,13 @@ overlayList = [
 		'title': 'Average HPS',
 		'category': 'raid',
 		'class': RaidAvgHPSOverlay
+	},
+	{ 'name': '-', 'category': 'raid' },
+	{
+		'name': 'raid_threat',
+		'title': 'Threat',
+		'category': 'raid',
+		'class': RaidThreatOverlay
 	},
 ]
 

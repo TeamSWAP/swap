@@ -282,6 +282,7 @@ class MainFrame(wx.Frame):
 		addDetailItem("My Healing Done", lambda a: locale.format("%d", a.totalHealing, grouping=True))
 		addDetailItem("My Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
 		addDetailItem("My Average HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
+		addDetailItem("My Threat", lambda a: locale.format("%d", a.totalThreat, grouping=True))
 		addDetailItem("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
 		addDetailItem("Combat Duration (seconds)", lambda a: locale.format("%.2f", a.combatDurationLinear, grouping=True))
 

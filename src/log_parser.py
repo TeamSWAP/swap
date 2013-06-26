@@ -49,6 +49,7 @@ class GameEvent:
 		self.damage = 0
 		self.healing = 0
 		self.time = 0
+		self.threat = 0
 
 class Parser:
 	"""docstring for Parser"""
@@ -129,6 +130,7 @@ class Parser:
 					actionType = res.group('actiontype')
 					actionTypeId = res.group('actiontypeid')
 					result = res.group('result')
+					threat = int(res.group('threat')) if res.group('threat') else 0
 
 					today = time.mktime(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timetuple())
 					actionTime = today + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
@@ -145,6 +147,7 @@ class Parser:
 					event.ability = abilityId
 					event.inCombat = self.inCombat
 					event.time = actionTime
+					event.threat = threat
 
 					if event.type == GameEvent.TYPE_ENTER_COMBAT:
 						self.inCombat = True

@@ -62,6 +62,7 @@ class AnalyzerThread(threading.Thread):
 				totalDamageTaken = 0
 				totalHealing = 0
 				totalHealingReceived = 0
+				totalThreat = 0
 
 				events = self.parser.events
 				for ev in reversed(events):
@@ -84,12 +85,14 @@ class AnalyzerThread(threading.Thread):
 						totalHealing += ev.healing
 					if ev.type == GameEvent.TYPE_HEAL and ev.target == self.parser.me:
 						totalHealingReceived += ev.healing
+					totalThreat += ev.threat
 				combatDuration = combatEndTime - combatStartTime
 
 				self.totalDamage = totalDamage
 				self.totalDamageTaken = totalDamageTaken
 				self.totalHealing = totalHealing
 				self.totalHealingReceived = totalHealingReceived
+				self.totalThreat = totalThreat
 				self.combatDuration = combatDuration
 				if len(events) > 0 and self.parser.inCombat:
 					self.combatDurationLinear = time.time() - combatStartTime
