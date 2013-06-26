@@ -94,6 +94,8 @@ class AnalyzerThread(threading.Thread):
 				self.totalHealing = totalHealing
 				self.totalHealingReceived = totalHealingReceived
 				self.totalThreat = totalThreat
+				self.combatStartTime = combatStartTime
+				self.combatEndTime = combatEndTime
 				self.combatDuration = combatDuration
 				if len(events) > 0 and self.parser.inCombat:
 					self.combatDurationLinear = time.time() - combatStartTime

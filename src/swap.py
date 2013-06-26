@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import wx, os, shutil, locale
+import wx, os, shutil, locale, time
 from constants import *
 import overlays
 import logging
@@ -285,6 +285,8 @@ class MainFrame(wx.Frame):
 		addDetailItem("My Threat", lambda a: locale.format("%d", a.totalThreat, grouping=True))
 		addDetailItem("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
 		addDetailItem("Combat Duration (seconds)", lambda a: locale.format("%.2f", a.combatDurationLinear, grouping=True))
+		addDetailItem("Combat Enter Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatStartTime)))
+		addDetailItem("Combat Exit Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatEndTime)))
 
 		index = 0
 		for name in sorted(self.reportUpdaters.keys()):
