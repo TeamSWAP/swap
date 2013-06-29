@@ -185,16 +185,16 @@ def ToggleOverlay(name):
 def ToggleDarkTheme():
 	global openOverlays
 	if IsDarkTheme():
-		config.Set("overlayBgColor", "#FFFFFF")
-		config.Set("overlayFgColor", "#000000")
+		config.Set("overlayBgColor", 0xFFFFFF)
+		config.Set("overlayFgColor", 0x000000)
 	else:
-		config.Set("overlayBgColor", "#000000")
-		config.Set("overlayFgColor", "#FFFFFF")
+		config.Set("overlayBgColor", 0x000000)
+		config.Set("overlayFgColor", 0xFFFFFF)
 	for overlay in openOverlays.values():
 		overlay.updateColors()
 
 def IsDarkTheme():
-	return config.Get("overlayBgColor") == "#000000"
+	return config.Get("overlayBgColor") == 0
 
 def SetOverlayBeingDragged(val):
 	global isOverlayBeingDragged

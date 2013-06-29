@@ -19,8 +19,8 @@ import atexit, json, traceback, os
 from logging import prnt
 
 defaults = {
-	'overlayBgColor': '#000000',
-	'overlayFgColor': '#FFFFFF',
+	'overlayBgColor': 0x000000,
+	'overlayFgColor': 0xFFFFFF,
 	'overlayListFontSize': 10,
 	'overlayListSelfColor': 0x1EADFF,
 	'overlayOpacity': 150,
@@ -50,6 +50,17 @@ def Load():
 		prnt(traceback.format_exc())
 	if data != None:
 		settings = data
+
+	# Convert from old format
+	bg = Get("overlayBgColor")
+	if isinstance(bg, basestring):
+		prnt("Legacy overlay colors found, converting...")
+		bg = int(bg[1:], 16)
+		Set("overlayBgColor", bg)
+
+		fg = Get("overlayFgColor")
+		fg = int(fg[1:], 16)
+		Set("overlayFgColor", fg)
 
 def Save():
 	f = open('settings.json', 'w')

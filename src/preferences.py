@@ -43,20 +43,16 @@ class PreferencesDialog(wx.Dialog):
 		header.SetFont(self.headerFont)
 		self.overlaySizer.Add(header, 0, wx.ALL, 10)
 
-		# Opacity
 		self.addSliderOption("overlayOpacity", "Opacity", 0, 255, self.overlayPanel, self.overlaySizer)
-
-		# Header font size
 		self.addSliderOption("overlayHeaderFontSize", "Header font size", 8, 18, self.overlayPanel, self.overlaySizer)
+		self.addColorOption("overlayBgColor", "Background color", self.overlayPanel, self.overlaySizer)
+		self.addColorOption("overlayFgColor", "Foreground color", self.overlayPanel, self.overlaySizer)
 
 		header = wx.StaticText(self.overlayPanel, -1, "Raid Lists")
 		header.SetFont(self.headerFont)
 		self.overlaySizer.Add(header, 0, wx.ALL, 10)
 
-		# List font size
 		self.addSliderOption("overlayListFontSize", "List font size", 8, 18, self.overlayPanel, self.overlaySizer)
-
-		# List self color
 		self.addColorOption("overlayListSelfColor", "Self indicator color", self.overlayPanel, self.overlaySizer)
 
 		self.overlayPanel.SetSizer(self.overlaySizer)

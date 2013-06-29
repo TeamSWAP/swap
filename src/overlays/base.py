@@ -101,10 +101,10 @@ class BaseOverlay(wx.Frame):
 		return self.__class__.__name__
 
 	def getBackgroundColor(self):
-		return config.Get("overlayBgColor")
+		return config.GetColor("overlayBgColor")
 
 	def getForegroundColor(self):
-		return config.Get("overlayFgColor")
+		return config.GetColor("overlayFgColor")
 
 	def updateColors(self):
 		self.panel.SetBackgroundColour(self.getBackgroundColor())
