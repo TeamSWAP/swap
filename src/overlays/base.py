@@ -54,7 +54,6 @@ class BaseOverlay(wx.Frame):
 
 		self.hwnd = self.GetHandle()
 		self.setFocusable(False)
-		self.setAlpha(150)
 		self.updateColors()
 
 		savedPosition = config.GetXY("overlay_%s_pos"%self.GetDerivedName())
@@ -110,6 +109,7 @@ class BaseOverlay(wx.Frame):
 	def updateColors(self):
 		self.panel.SetBackgroundColour(self.getBackgroundColor())
 		self.titleText.SetForegroundColour(self.getForegroundColor())
+		self.setAlpha(config.Get("overlayOpacity"))
 		self.Refresh()
 
 	def createUI(self):
@@ -120,6 +120,7 @@ class BaseOverlay(wx.Frame):
 
 	def updateUI(self):
 		self.titleText.SetFont(wx.Font(config.Get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.updateColors()
 
 	def setFocusable(self, isFocusable):
 		style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)

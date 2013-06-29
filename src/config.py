@@ -23,6 +23,7 @@ defaults = {
 	'overlayFgColor': '#FFFFFF',
 	'overlayListFontSize': 10,
 	'overlayListSelfColor': 0x1EADFF,
+	'overlayOpacity': 150,
 	'overlayHeaderFontSize': 13,
 	'overlaySizeToGrid': True,
 	'overlaySnap': True
