@@ -72,14 +72,18 @@ class UpdaterFrame(wx.Frame):
 		self.progress.SetValue(progress * 100)
 
 	def updateComplete(self, info):
-		self.Hide()
-
 		version = info['version']
 		changelog = info['changelog']
+
+		self.title.SetLabel("Update complete!")
+		self.status.SetLabel("Launching SWAP...")
+		self.progress.SetValue(100)
 
 		dialog = wx.MessageDialog(self, changelog, "What's New in v%s"%version, wx.OK)
 		dialog.ShowModal()
 		dialog.Destroy()
+
+		self.Hide()
 
 		self.launch()
 

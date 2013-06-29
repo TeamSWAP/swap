@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import wx
 import atexit, json, traceback, os
 from logging import prnt
 
@@ -21,6 +22,7 @@ defaults = {
 	'overlayBgColor': '#000000',
 	'overlayFgColor': '#FFFFFF',
 	'overlayListFontSize': 10,
+	'overlayListSelfColor': 0x1EADFF,
 	'overlayHeaderFontSize': 13,
 	'overlaySizeToGrid': True,
 	'overlaySnap': True
@@ -69,6 +71,15 @@ def GetXY(name):
 	y = xy & 0xFFFF
 	return [x, y]
 
+def GetColor(name):
+	xy = Get(name)
+	if xy == None:
+		return None
+	r = (xy >> 16) & 0xFF
+	g = (xy >> 8) & 0xFF
+	b = xy & 0xFF
+	return wx.Colour(r, g, b, 255)
+
 def Set(name, value):
 	settings[name] = value
 
@@ -76,6 +87,13 @@ def SetXY(name, value):
 	x, y = value
 	xy = x
 	xy = (xy << 16) + y
+	Set(name, xy)
+
+def SetColor(name, value):
+	(r, g, b) = value.Get(False)
+	xy = r
+	xy = (xy << 8) + g
+	xy = (xy << 8) + b
 	Set(name, xy)
 
 def Remove(name):

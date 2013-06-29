@@ -18,6 +18,7 @@ import wx
 from constants import *
 from logging import prnt
 import config
+import log_parser
 
 class PreferencesDialog(wx.Dialog):
 	def __init__(self, parent):
@@ -26,7 +27,8 @@ class PreferencesDialog(wx.Dialog):
 		self.sizer = wx.BoxSizer(wx.VERTICAL)
 		self.notebook = wx.Notebook(self)
 
-		headerFont = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+		headerFont = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+		nameFont = wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
 
 		# -----------------------------------
 		# Overlay
@@ -34,27 +36,46 @@ class PreferencesDialog(wx.Dialog):
 		self.overlayPanel = wx.Panel(self.notebook)
 		self.overlaySizer = wx.BoxSizer(wx.VERTICAL)
 
+		header = wx.StaticText(self.overlayPanel, -1, "All Overlays")
+		header.SetFont(headerFont)
+		self.overlaySizer.Add(header, 0, wx.ALL, 10)
+
 		# Header font size
-		self.headerFontSizeBox = wx.BoxSizer(wx.VERTICAL)
-		self.headerFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "Header Font Size")
-		self.headerFontSizeLabel.SetFont(headerFont)
-		self.headerFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS, size=(200, 100))
+		self.headerFontSizeBox = wx.BoxSizer(wx.HORIZONTAL)
+		self.headerFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "Header font size")
+		self.headerFontSizeLabel.SetFont(nameFont)
+		self.headerFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS, size=(200, 20))
 		self.headerFontSizeSlider.SetTickFreq(1, 1)
 		self.headerFontSizeSlider.SetValue(config.Get("overlayHeaderFontSize"))
-		self.headerFontSizeBox.Add(self.headerFontSizeLabel, 0, wx.ALL, 5)
-		self.headerFontSizeBox.Add(self.headerFontSizeSlider, 0, wx.ALL, 5)
-		self.overlaySizer.Add(self.headerFontSizeBox, 0, wx.ALL, 10)
+		self.headerFontSizeBox.Add(self.headerFontSizeLabel, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.headerFontSizeBox.Add(self.headerFontSizeSlider, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.overlaySizer.Add(self.headerFontSizeBox, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
+
+		header = wx.StaticText(self.overlayPanel, -1, "Raid Lists")
+		header.SetFont(headerFont)
+		self.overlaySizer.Add(header, 0, wx.ALL, 10)
 
 		# List font size
-		self.listFontSizeBox = wx.BoxSizer(wx.VERTICAL)
-		self.listFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "List Font Size (ex. Raid Damage)")
-		self.listFontSizeLabel.SetFont(headerFont)
-		self.listFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS | wx.SL_LABELS, size=(200, 100))
+		self.listFontSizeBox = wx.BoxSizer(wx.HORIZONTAL)
+		self.listFontSizeLabel = wx.StaticText(self.overlayPanel, -1, "Font size")
+		self.listFontSizeLabel.SetFont(nameFont)
+		self.listFontSizeSlider = wx.Slider(self.overlayPanel, -1, 8, 5, 18, style=wx.SL_HORIZONTAL | wx.SL_AUTOTICKS, size=(200, 20))
 		self.listFontSizeSlider.SetTickFreq(1, 1)
 		self.listFontSizeSlider.SetValue(config.Get("overlayListFontSize"))
-		self.listFontSizeBox.Add(self.listFontSizeLabel, 0, wx.ALL, 5)
-		self.listFontSizeBox.Add(self.listFontSizeSlider, 0, wx.ALL, 5)
-		self.overlaySizer.Add(self.listFontSizeBox, 0, wx.ALL, 10)
+		self.listFontSizeBox.Add(self.listFontSizeLabel, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.listFontSizeBox.Add(self.listFontSizeSlider, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.overlaySizer.Add(self.listFontSizeBox, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
+
+		# List me size (RGB slider)
+		self.listRGBBox = wx.BoxSizer(wx.HORIZONTAL)
+		self.listRGBLabel = wx.StaticText(self.overlayPanel, -1, "Self indicator color")
+		self.listRGBLabel.SetFont(nameFont)
+		self.listRGBButton = wx.Button(self.overlayPanel, -1, log_parser.GetThread().parser.me, size=(100, -1))
+		self.listRGBButton.SetForegroundColour(config.GetColor("overlayListSelfColor"))
+		self.listRGBButton.Bind(wx.EVT_BUTTON, self.OnListSelfColorClick)
+		self.listRGBBox.Add(self.listRGBLabel, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.listRGBBox.Add(self.listRGBButton, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+		self.overlaySizer.Add(self.listRGBBox, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
 		self.overlayPanel.SetSizer(self.overlaySizer)
 		self.overlayPanel.Layout()
@@ -71,4 +92,12 @@ class PreferencesDialog(wx.Dialog):
 	def OnOK(self, event):
 		config.Set("overlayHeaderFontSize", self.headerFontSizeSlider.GetValue())
 		config.Set("overlayListFontSize", self.listFontSizeSlider.GetValue())
+		config.SetColor("overlayListSelfColor", self.listRGBButton.GetForegroundColour())
 		self.Destroy()
+
+	def OnListSelfColorClick(self, event):
+		dialog = wx.ColourDialog(self)
+		if dialog.ShowModal() == wx.ID_OK:
+			(red, green, blue) = dialog.GetColourData().GetColour().Get()
+			color = wx.Colour(red, green, blue, 255)
+			self.listRGBButton.SetForegroundColour(color)
