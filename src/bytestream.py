@@ -47,7 +47,7 @@ class ByteStream:
 
 	def writeString(self, string):
 		self.writeByte(len(string))
-		self.data += string.encode('ascii')
+		self.data += string
 
 	def readFloat(self):
 		number = struct.unpack('!f', self.data[self.position:self.position + 4])[0]

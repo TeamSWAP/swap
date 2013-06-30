@@ -224,7 +224,7 @@ class MainFrame(wx.Frame):
 			self.keyJoinButton.Disable()
 			self.keyGenerateButton.Disable()
 			self.keyVanityCheck.Disable()
-			raid.JoinRaid(self.keyBox.GetValue(), self.OnJoinedRaid, self.OnFailedToJoinRaid)
+			raid.JoinRaid(self.keyBox.GetValue().encode('ascii'), self.OnJoinedRaid, self.OnFailedToJoinRaid)
 		else:
 			raid.LeaveRaid()
 			self.OnLeftRaid()

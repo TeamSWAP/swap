@@ -16,8 +16,8 @@
 
 import wx, os, sys
 
-VERSION = "0.6.0"
-VERSION_INT = 9
+VERSION = "0.6.2"
+VERSION_INT = 11
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 IS_COMPILED = 'frozen' in dir(sys)
