@@ -18,6 +18,5 @@ or, if you want to skip the installer:
 
     python src/swap.py
 
-## Contributing
-Pull requests are welcomed, as long as they are well written, and follow the coding style of the
-files modified.
+## License
+SWAP is licensed under the Apache 2.0 license. View the [full license here](http://www.apache.org/licenses/LICENSE-2.0.html)
