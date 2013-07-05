@@ -14,7 +14,7 @@ Once dependencies are installed
 
     python run.py
 
-or, if you want to skip the installer:
+or, if you want to skip the updater:
 
     python src/swap.py
 
