@@ -59,6 +59,8 @@ class RaidThreatOverlay(BaseListOverlay):
 		index = 0
 		raidTotalThreat = 0
 		for player in raid.playerData:
+			if player['totalThreat'] < 0:
+				continue
 			raidTotalThreat += player['totalThreat']
 
 		for player in sorted(raid.playerData, sortf):
