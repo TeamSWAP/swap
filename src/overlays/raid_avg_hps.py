@@ -35,7 +35,7 @@ class RaidAvgHPSOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Avg. Healing", "%"], [2, 2, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Avg. Healing", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -73,8 +73,13 @@ class RaidAvgHPSOverlay(BaseListOverlay):
 				color = config.GetColor("overlayListSelfColor")
 
 			hps = (player['totalHealing'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			percent = (float(player['totalHealing']) / float(raidTotalHealing)) if raidTotalHealing else 0
 
-			self.addRow([player['name'][1:], locale.format("%.2f", hps, grouping=True), "%s%%"%percent], color)
+			color = self.getForegroundColor()
+			if player['name'] == analyzer.parser.me:
+				color = config.GetColor("overlayListSelfColor")
+
+			self.addRow([player['name'][1:], locale.format("%.2f", hps, grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()

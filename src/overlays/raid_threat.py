@@ -36,7 +36,7 @@ class RaidThreatOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Threat", "%"], [2, 2, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Threat", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -64,16 +64,14 @@ class RaidThreatOverlay(BaseListOverlay):
 		for player in sorted(raid.playerData, sortf):
 			if player['totalThreat'] == 0:
 				continue
-			if raidTotalThreat > 0:
-				percent = "%.2f"%((float(player['totalThreat']) / float(raidTotalThreat)) * 100.0)
-			else:
-				percent = "%.2f"%0
+
+			percent = (float(player['totalThreat']) / float(raidTotalThreat)) if raidTotalThreat else 0
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), "%s%%"%percent], color)
+			self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()

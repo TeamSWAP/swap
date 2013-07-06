@@ -21,6 +21,54 @@ from logging import prnt
 import log_analyzer
 import raid, config
 
+class ShareBar(wx.PyControl):
+	def __init__(self, parent, id, style=wx.NO_BORDER):
+		wx.PyControl.__init__(self, parent, id, style=style)
+
+		self.value = 0
+		self.Bind(wx.EVT_PAINT, self.OnPaint)
+
+	def SetValue(self, v):
+		self.value = v
+
+	def DoGetBestSize(self):
+		best = wx.Size(0, 15)
+		return best
+
+	def OnPaint(self, event):
+		dc = wx.BufferedPaintDC(self)
+		width, height = self.GetClientSize()
+		if not width or not height:
+			return
+
+		fillWidth = round(float(width) * self.value)
+
+		bgColor = self.GetBackgroundColour()
+		bgR, bgG, bgB = bgColor.Get(False)
+		iBgR = 255 - bgR
+		iBgG = 255 - bgG
+		iBgB = 255 - bgB
+		bgColor.Set(iBgR + (bgR - iBgR) * 0.5, iBgG + (bgG - iBgG) * 0.5, iBgB + (bgB - iBgB) * 0.5, 255)
+		bgBrush = wx.Brush(bgColor, wx.SOLID)
+
+		fgColor = self.GetForegroundColour()
+		fgBrush = wx.Brush(fgColor, wx.SOLID)
+
+		dc.SetBackground(bgBrush)
+		dc.Clear()
+
+		dc.SetBrush(fgBrush)
+		dc.SetPen(wx.TRANSPARENT_PEN)
+		dc.DrawRectangle(0, 0, fillWidth, height)
+
+		dc.SetFont(self.GetFont())
+		dc.SetTextForeground((bgR, bgG, bgB))
+
+		pc = "%.2f%%"%(float(self.value) * 100.0)
+		textWidth, textHeight = dc.GetTextExtent(pc)
+
+		dc.DrawText(pc, (width / 2) - (textWidth / 2), (height / 2) - (textHeight / 2))
+
 class BaseListOverlay(BaseOverlay):
 	LEFT = wx.ALIGN_LEFT
 	RIGHT = wx.ALIGN_RIGHT
@@ -29,6 +77,7 @@ class BaseListOverlay(BaseOverlay):
 	def __init__(self, title="", size=(300, 100)):
 		self.defaultTextColor = 0
 		self.columnCount = 0
+		self.columnTypes = []
 		self.columnShare = []
 		self.columnAlign = []
 		self.rowData = []
@@ -49,6 +98,7 @@ class BaseListOverlay(BaseOverlay):
 	def setColumns(self, cols, shares, aligns):
 		i = 0
 		for text in cols:
+			self.columnTypes.append(cols[i])
 			self.columnShare.append(shares[i])
 			self.columnAlign.append(aligns[i])
 			i += 1
@@ -77,8 +127,12 @@ class BaseListOverlay(BaseOverlay):
 				x = 0
 				for share in self.columnShare:
 					align = self.columnAlign[x]
-					columnText = wx.StaticText(self.panel, -1, "", style=align)
-					rowBox.Add(columnText, share)
+					colType = self.columnTypes[x]
+					if colType == 'ShareBar':
+						columnView = ShareBar(self.panel, -1)
+					else:
+						columnView = wx.StaticText(self.panel, -1, "", style=align)
+					rowBox.Add(columnView, share, wx.ALIGN_CENTER_VERTICAL)
 					x += 1
 				self.bindViews(rowBox)
 				self.raidListBox.Add(rowBox, 0, wx.EXPAND)
@@ -94,10 +148,15 @@ class BaseListOverlay(BaseOverlay):
 			rowBox = self.raidListBox.GetItem(i).GetSizer()
 			x = 0
 			for col in row['columns']:
-				columnText = rowBox.GetItem(x).GetWindow()
-				columnText.SetFont(self.listFont)
-				columnText.SetLabel(col)
-				columnText.SetForegroundColour(row['rowColor'])
+				colType = self.columnTypes[x]
+				columnView = rowBox.GetItem(x).GetWindow()
+				if colType == 'ShareBar':
+					columnView.SetValue(col)
+					columnView.SetBackgroundColour(self.getBackgroundColor())
+				else:
+					columnView.SetFont(self.listFont)
+					columnView.SetLabel(col)
+				columnView.SetForegroundColour(row['rowColor'])
 				x += 1
 			i += 1
 

@@ -35,7 +35,7 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Healing Received", "%"], [2, 2, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Healing Received", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -63,16 +63,14 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 		for player in sorted(raid.playerData, sortf):
 			if player['totalHealingReceived'] == 0:
 				continue
-			if raidTotalHealingReceived > 0:
-				percent = "%.2f"%((float(player['totalHealingReceived']) / float(raidTotalHealingReceived)) * 100.0)
-			else:
-				percent = "%.2f"%0
+
+			percent = (float(player['totalHealingReceived']) / float(raidTotalHealingReceived)) if raidTotalHealingReceived else 0
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalHealingReceived'], grouping=True), "%s%%"%percent], color)
+			self.addRow([player['name'][1:], locale.format("%d", player['totalHealingReceived'], grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()
