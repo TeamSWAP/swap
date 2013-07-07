@@ -360,17 +360,21 @@ class NodeConnection(threading.Thread):
 
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
-				data = ByteStream(self.sock.recv(512))
-				packetType = data.readByte()
-				if packetType == P_DATA:
-					self.pendingRecv.append(data.readString())
-				elif packetType == P_CLOSE:
-					self.closeInternal(ERR_CLOSED_BY_REMOTE)
-					break
-				elif packetType == P_KEEP_ALIVE:
-					debug("Got keep alive")
-					pass
-				self.lastPacketReceived = now
+				try:
+					data = ByteStream(self.sock.recv(512))
+				except:
+					data = None
+				if data != None:
+					packetType = data.readByte()
+					if packetType == P_DATA:
+						self.pendingRecv.append(data.readString())
+					elif packetType == P_CLOSE:
+						self.closeInternal(ERR_CLOSED_BY_REMOTE)
+						break
+					elif packetType == P_KEEP_ALIVE:
+						debug("Got keep alive")
+						pass
+					self.lastPacketReceived = now
 
 			if now - self.lastPacketSent > 10:
 				packet = ByteStream()
