@@ -15,14 +15,12 @@
 #
 
 import wx, os, shutil, locale, time
-from constants import *
-import overlays
-import logging
-import config
-import log_parser, log_analyzer
-import util
-import raid
+import overlays, logging, config
+import log_parser, log_analyzer, util, raid, net
 import preferences
+import ext.fuzion as fuzion
+
+from constants import *
 from logging import prnt
 
 class MainFrame(wx.Frame):
@@ -352,27 +350,29 @@ class MainFrame(wx.Frame):
 			analyzerUpdater(analyzer)
 		self.gridPanel.Layout()
 
-logging.SetupLogging("swap")
-locale.setlocale(locale.LC_ALL, '')
+if __name__ == '__main__':
+	logging.SetupLogging("swap")
+	locale.setlocale(locale.LC_ALL, '')
 
-prnt("SWAP v%s booting up..."%VERSION)
+	prnt("SWAP v%s booting up..."%VERSION)
 
-config.Load()
-log_parser.Start()
-log_analyzer.Start(log_parser.GetThread())
+	net.Init()
+	config.Load()
+	log_parser.Start()
+	log_analyzer.Start(log_parser.GetThread())
 
-if os.path.isdir("pending"):
-	prnt("Finalizing update...")
-	
-	for f in os.listdir("pending"):
-		shutil.copyfile("pending/%s"%f, f)
-	shutil.rmtree("pending")
+	if os.path.isdir("pending"):
+		prnt("Finalizing update...")
+		
+		for f in os.listdir("pending"):
+			shutil.copyfile("pending/%s"%f, f)
+		shutil.rmtree("pending")
 
-	for f in os.listdir("."):
-		if f.endswith('.old'):
-			os.remove(f)
+		for f in os.listdir("."):
+			if f.endswith('.old'):
+				os.remove(f)
 
-app = wx.App(redirect=False)
-frame = MainFrame()
-frame.Show()
-app.MainLoop()
+	app = wx.App(redirect=False)
+	frame = MainFrame()
+	frame.Show()
+	app.MainLoop()

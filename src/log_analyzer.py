@@ -20,6 +20,7 @@ import traceback
 import atexit
 import wx
 import raid
+
 from log_parser import GameEvent
 from logging import prnt
 
@@ -53,7 +54,6 @@ class AnalyzerThread(threading.Thread):
 	def analyze(self):
 		prnt("Analyzer: Starting...")
 		try:
-			lastRaidUpdate = time.time()
 			stateInCombat = False
 			while not self.stopEvent.isSet():
 				combatStartTime = 0
@@ -109,9 +109,6 @@ class AnalyzerThread(threading.Thread):
 				self.avgHps = (totalHealing / combatDuration) if combatDuration > 0 else 0
 				
 				now = time.time()
-				if now - lastRaidUpdate >= 2.5 and self.parser.me:
-					lastRaidUpdate = now
-					raid.SendRaidUpdate(self.notifyFrames)
 
 				self.notifyFrames()
 

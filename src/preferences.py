@@ -15,10 +15,11 @@
 #
 
 import wx
-from constants import *
-from logging import prnt
 import config
 import log_parser
+
+from constants import *
+from logging import prnt
 
 class PreferencesDialog(wx.Dialog):
 	def __init__(self, parent):

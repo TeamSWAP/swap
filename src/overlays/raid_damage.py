@@ -15,12 +15,13 @@
 #
 
 import wx, wx.grid, random, time, locale, math
-from threading import Thread, Event
-from base_list import BaseListOverlay
-from logging import prnt
 import config
 import log_analyzer
 import raid
+
+from threading import Thread, Event
+from base_list import BaseListOverlay
+from logging import prnt
 
 class RaidDamageOverlay(BaseListOverlay):
 	def __init__(self):
@@ -61,8 +62,8 @@ class RaidDamageOverlay(BaseListOverlay):
 			raidTotalDamage += player['totalDamage']
 
 		for player in sorted(raid.playerData, sortf):
-			if player['totalDamage'] == 0:
-				continue
+			#if player['totalDamage'] == 0:
+			#	continue
 			if raidTotalDamage > 0:
 				percent = "%.2f"%((float(player['totalDamage']) / float(raidTotalDamage)) * 100.0)
 			else:

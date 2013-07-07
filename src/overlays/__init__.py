@@ -14,9 +14,10 @@
 # limitations under the License.
 #
 
+import config
+
 from base import BaseOverlay
 from logging import prnt
-import config
 
 # Import overlay classes
 from avg_dps import AverageDPSOverlay

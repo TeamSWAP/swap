@@ -15,11 +15,12 @@
 #
 
 import wx, wx.grid, random, time, locale, math
+import log_analyzer
+import raid
+
 from threading import Thread, Event
 from base import BaseOverlay
 from logging import prnt
-import log_analyzer
-import raid
 
 class RaidDamageOverlay(BaseOverlay):
 	def __init__(self):

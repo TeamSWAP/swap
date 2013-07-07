@@ -16,10 +16,11 @@
 
 import wx, os, sys
 
-VERSION = "0.6.2"
-VERSION_INT = 11
+VERSION = "0.7.0"
+VERSION_INT = 12
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
+NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 IS_COMPILED = 'frozen' in dir(sys)
 
 # Static Messages

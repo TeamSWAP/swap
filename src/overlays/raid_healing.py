@@ -15,12 +15,13 @@
 #
 
 import wx, wx.grid, random, time, locale, math
-from threading import Thread, Event
-from base_list import BaseListOverlay
-from logging import prnt
 import config
 import log_analyzer
 import raid
+
+from threading import Thread, Event
+from base_list import BaseListOverlay
+from logging import prnt
 
 class RaidHealingOverlay(BaseListOverlay):
 	def __init__(self):

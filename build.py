@@ -5,8 +5,8 @@ import os, shutil
 #
 
 args = {
-    'opts': '--log-level=INFO -n swap -y --distpath=out --workpath=build --upx-dir external/upx',
-    'spec': 'swap.spec'
+    'opts': '--log-level=INFO -n swap -y --distpath=out --workpath=build --upx-dir external/upx --onefile',
+    'spec': 'src/swap.py'
 }
 
 print "Compiling with args:"

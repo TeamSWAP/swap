@@ -16,6 +16,7 @@
 
 import wx
 import atexit, json, traceback, os
+
 from logging import prnt
 
 defaults = {

@@ -16,6 +16,7 @@
 
 import wx, time, locale, util
 import log_analyzer
+
 from threading import Thread, Event
 from base import BaseOverlay
 from logging import prnt

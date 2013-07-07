@@ -16,20 +16,27 @@
 
 import threading, urllib, urllib2, json, socket, struct
 import log_parser, log_analyzer
+import net
+
 from logging import prnt
 from constants import *
 from bytestream import ByteStream
+from raid_server import RaidServer
+from raid_client import RaidClient
 
 REQUEST_GET_KEY = 0x1
-REQUEST_JOIN_TEST = 0x2
-REQUEST_LEAVE_RAID = 0x3
-REQUEST_POST_UPDATE = 0x4
+REQUEST_JOIN_RAID = 0x2
 
 # Global variables
 currentKey = None
 playerData = []
 wasInCombat = True
 extraTicks = 2
+
+# This variable contains True if this client is currently hosting.
+isHost = False
+raidServer = None
+raidClient = None
 
 def GenerateKey(vanityKey, successFunc, failureFunc):
 	vanityKeyLen = len(vanityKey) if vanityKey else 0
@@ -64,7 +71,9 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 
 def JoinRaid(key, successFunc, failureFunc):
 	def thread():
-		global currentKey
+		global currentKey, raidServer, raidClient
+
+		# Connect to server...
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		try:
 			sock.connect(PARSER_SERVER_ADDR)
@@ -72,24 +81,39 @@ def JoinRaid(key, successFunc, failureFunc):
 			failureFunc()
 			return
 
+		# Write data
 		stream = ByteStream()
-		stream.writeByte(REQUEST_JOIN_TEST)
-		stream.writeString(key)
+		stream.writeByte(REQUEST_JOIN_RAID)
 		stream.writeByte(VERSION_INT)
+		stream.writeString(key)
+		stream.writeString(net.node.getId())
 		sock.send(stream.toString())
 
+		# Read data
 		data = sock.recv(1024)
-		sock.close()
-
 		stream = ByteStream(data)
 		
-		success = stream.readByte() == 1
+		# Process data
+		success = stream.readBoolean()
 		if success:
 			currentKey = key
+			isHost = stream.readBoolean()
+			serverNode = net.node.getId()
+			if isHost:
+				prnt("Raid: Joined raid, became host")
+				raidServer = RaidServer(sock)
+				raidServer.start()
+			else:
+				prnt("Raid: Joined raid, didn't become host")
+				serverNode = stream.readString()
+				sock.close()
+			raidClient = RaidClient(serverNode)
+			raidClient.start()
 			successFunc()
 		else:
 			reason = stream.readString()
 			failureFunc(reason)
+			sock.close()
 
 	t = threading.Thread(target=thread)
 	t.start()
@@ -97,115 +121,15 @@ def JoinRaid(key, successFunc, failureFunc):
 def LeaveRaid():
 	global currentKey
 
-	def thread(key):
-		global currentKey
-		me = log_analyzer.Get().parser.me
-		if not me:
-			return
-
-		prnt("Leaving raid %s"%key)
-
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		try:
-			sock.connect(PARSER_SERVER_ADDR)
-		except:
-			failureFunc()
-			return
-
-		stream = ByteStream()
-		stream.writeByte(REQUEST_LEAVE_RAID)
-		stream.writeString(key)
-		stream.writeString(me)
-		sock.send(stream.toString())
-
-		data = sock.recv(1024)
-		sock.close()
-
-		stream = ByteStream(data)
-		
-		success = stream.readByte() == 1
-		if success:
-			prnt("Left raid")
-		else:
-			prnt("Failed to leave raid, oh well")
-
-	t = threading.Thread(target=thread, args=[currentKey])
-	t.start()
+	# TODO: Stub.
+	if raidServer != None:
+		raidServer.stop()
+	if raidClient != None:
+		raidClient.stop()
 
 	currentKey = None
 	wasInCombat = False
 	extraTicks = 0
-
-def SendRaidUpdate(updateFunc):
-	global extraTicks, wasInCombat, playerData
-	parser = log_parser.GetThread().parser
-
-	if not currentKey:
-		return
-
-	# Do two extra ticks after combat ends, to settle numbers.
-	if not parser.inCombat:
-		if wasInCombat:
-			if extraTicks > 0:
-				extraTicks -= 1
-	else:
-		wasInCombat = True
-		extraTicks = 2
-
-	if extraTicks == 0 or not wasInCombat:
-		return
-
-	def thread():
-		global playerData
-		
-		me = parser.me
-		analyzer = log_analyzer.Get()
-
-		prnt("Sending raid update")
-
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		try:
-			sock.connect(PARSER_SERVER_ADDR)
-		except:
-			failureFunc()
-			return
-
-		stream = ByteStream()
-		stream.writeByte(REQUEST_POST_UPDATE)
-		stream.writeString(currentKey)
-		stream.writeString(me)
-		stream.writeInt(analyzer.totalDamage)
-		stream.writeInt(analyzer.totalDamageTaken)
-		stream.writeInt(analyzer.totalHealing)
-		stream.writeInt(analyzer.totalHealingReceived)
-		stream.writeInt(analyzer.totalThreat)
-		sock.send(stream.toString())
-
-		data = sock.recv(1024)
-		sock.close()
-
-		stream = ByteStream(data)
-
-		prnt("Sent raid update")
-
-		success = stream.readByte() == 1
-		if success:
-			playerCount = stream.readByte()
-			players = []
-			for i in range(0, playerCount):
-				player = {}
-				player['name'] = stream.readString()
-				player['totalDamage'] = stream.readInt()
-				player['totalDamageTaken'] = stream.readInt()
-				player['totalHealing'] = stream.readInt()
-				player['totalHealingReceived'] = stream.readInt()
-				player['totalThreat'] = stream.readInt()
-				players.append(player)
-			playerData = players
-			updateFunc()
-
-	t = threading.Thread(target=thread)
-	t.start()
 
 def IsInRaid():
 	return currentKey != None

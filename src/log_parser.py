@@ -20,6 +20,7 @@ import re
 import threading
 import traceback
 import atexit
+
 from ctypes.wintypes import MAX_PATH
 from logging import prnt
 
@@ -72,7 +73,9 @@ class Parser:
 		    return False
 
 	def getNewestLog(self):
-		return max(os.listdir(self.logLocation))
+		if os.path.exists(self.logLocation):
+			return max(os.listdir(self.logLocation))
+		return None
 
 	def run(self, hasStopped):
 		prnt("Parser: Starting...")
@@ -83,6 +86,14 @@ class Parser:
 				raise Exception("No log location set. Did you forget to call getDocs?")
 
 			logFile = self.getNewestLog()
+			if logFile == None:
+				prnt("Parser: Waiting for log...")
+				while not hasStopped.isSet():
+					if self.getNewestLog() != None:
+						break
+					time.sleep(0.4)
+				if hasStopped.isSet():
+					return True
 			log = open(self.logLocation + "\\" + logFile, 'r')
 			logCursor = 0
 

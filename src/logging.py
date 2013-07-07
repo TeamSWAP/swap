@@ -15,6 +15,7 @@
 #
 
 import sys, atexit
+
 from constants import *
 from threading import Lock
 from datetime import datetime
@@ -62,6 +63,7 @@ def SetupLogging(tag):
 	redirector = LogRedirector(tag)
 	atexit.register(redirector.close)
 
-def prnt(text=""):
+def prnt(*text):
+	text = ' '.join(map(lambda x:str(x), text))
 	with threadLock:
-		redirector.write(str(text) + '\n')
+		redirector.write(text + '\n')

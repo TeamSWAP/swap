@@ -15,11 +15,12 @@
 #
 
 import wx, wx.grid, random, time, locale, math
+import log_analyzer
+import raid, config
+
 from threading import Thread, Event
 from base import BaseOverlay
 from logging import prnt
-import log_analyzer
-import raid, config
 
 class BaseListOverlay(BaseOverlay):
 	LEFT = wx.ALIGN_LEFT

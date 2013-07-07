@@ -15,11 +15,12 @@
 #
 
 import wx, time, subprocess, json, os, traceback
+import logging
+
 from zipfile import ZipFile
 from threading import Thread
 from urllib2 import urlopen, HTTPError
 from constants import *
-import logging
 from logging import prnt
 
 class UpdaterFrame(wx.Frame):
