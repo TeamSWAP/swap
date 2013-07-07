@@ -1,17 +1,35 @@
 # -*- mode: python -*-
-a = Analysis(['src/swap.py'],
-             pathex=['C:\\Users\\Daniel\\Desktop\\swap'],
-             hiddenimports=[],
-             hookspath=None,
-             runtime_hooks=None)
-pyz = PYZ(a.pure)
-exe = EXE(pyz,
-          a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
-          name='swap.exe',
+import os
+
+sa = Analysis(['src/swap.py'])
+ua = Analysis(['src/updater.py'])
+spyz = PYZ(sa.pure)
+upyz = PYZ(ua.pure)
+sexe = EXE(spyz,
+          sa.scripts,
+          exclude_binaries=1,
+          name=os.path.join('build\\pyi.win32\\swap', 'swap.exe'),
           debug=False,
-          strip=None,
+          strip=False,
           upx=True,
-          console=True )
+          console=False,
+          manifest="etc/normal.manifest" )
+uexe = EXE(upyz,
+          ua.scripts,
+          exclude_binaries=1,
+          name=os.path.join('build\\pyi.win32\\updater', 'updater.exe'),
+          debug=False,
+          strip=True,
+          upx=True,
+          console=False,
+          manifest="etc/normal.manifest" )
+coll = COLLECT(sexe, uexe,
+               sa.binaries,
+               sa.zipfiles,
+               sa.datas,
+               ua.binaries,
+               ua.zipfiles,
+               ua.datas,
+               strip=False,
+               upx=True,
+               name='')
