@@ -58,6 +58,15 @@ CS_FAILED_NO_NODE    = CS_FAILED_BASE + 0
 CS_FAILED_REJECTED   = CS_FAILED_BASE + 1
 CS_FAILED_TUNNEL     = CS_FAILED_BASE + 2
 
+# ----------------------------------
+# Node state
+# ----------------------------------
+NS_NOT_CONNECTED     = 0
+NS_CONNECTING        = 1
+NS_CONNECTED         = 2
+NS_FAILED            = 3
+NS_REGISTERED        = 4
+
 printLock = threading.Lock()
 
 def debug(*args):
@@ -66,12 +75,14 @@ def debug(*args):
 		print ' '.join(map(lambda x:str(x), args))
 
 class Node:
-	def __init__(self):
+	def __init__(self, nodeStateCallback=None):
 		self.id = None
 		self.ports = {}
 		self.portsLock = threading.Lock()
 		self.connections = []
 		self.stateLock = threading.Lock()
+		self.nodeState = NS_NOT_CONNECTED
+		self.nodeStateCallback = nodeStateCallback
 
 	# thread-safe: but only call once!
 	def setNodeServer(self, server, reflectionServer=None):
@@ -80,6 +91,11 @@ class Node:
 		self.reflectionServer = reflectionServer.split(':') if reflectionServer else self.nodeServer
 		self.reflectionServer = (self.reflectionServer[0], int(self.reflectionServer[1]))
 		self.startThread()
+
+	def updateNodeState(self, state):
+		self.nodeState = state
+		if self.nodeStateCallback:
+			self.nodeStateCallback(self.nodeState)
 
 	def startThread(self):
 		t = threading.Thread(target=self.mainLoop, args=[])
@@ -102,7 +118,18 @@ class Node:
 	def mainLoop(self):
 		debug("Connecting to node server @ %s"%repr(self.nodeServer))
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sock.connect(self.nodeServer)
+
+		while True:
+			self.updateNodeState(NS_CONNECTING)
+			try:
+				self.sock.connect(self.nodeServer)
+				break
+			except:
+				debug("Connect failed, trying again in 5s...")
+				self.updateNodeState(NS_FAILED)
+			time.sleep(5)
+
+		self.updateNodeState(NS_CONNECTED)
 		debug("Connected.")
 		
 		# send register packet
@@ -127,6 +154,7 @@ class Node:
 			with self.stateLock:
 				self.id = b.readString()
 			debug("Registered with node server, id is", self.id)
+			self.updateNodeState(NS_REGISTERED)
 		elif p == P_CONNECT_REQUEST:
 			targetId = b.readString()
 			targetPort = b.readString()
