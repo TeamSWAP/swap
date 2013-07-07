@@ -68,8 +68,12 @@ class RaidClient(threading.Thread):
 		prnt("RaidClient: Sending update...")
 		stream = fuzion.ByteStream()
 		stream.writeByte(REQUEST_PLAYER_UPDATE)
-		stream.writeString(log_analyzer.Get().parser.me or "NoPlayer")
+		stream.writeString(log_analyzer.Get().parser.me or "@NoPlayer")
 		stream.writeInt(log_analyzer.Get().totalDamage)
+		stream.writeInt(log_analyzer.Get().totalDamageTaken)
+		stream.writeInt(log_analyzer.Get().totalHealing)
+		stream.writeInt(log_analyzer.Get().totalHealingReceived)
+		stream.writeInt(log_analyzer.Get().totalThreat)
 		self.conn.send(stream)
 
 	def gotRaidUpdate(self, stream):
@@ -80,7 +84,12 @@ class RaidClient(threading.Thread):
 		for i in range(0, playerCount):
 			player = {}
 			player['name'] = stream.readString()
+			player['connType'] = stream.readString()
 			player['totalDamage'] = stream.readInt()
+			player['totalDamageTaken'] = stream.readInt()
+			player['totalHealing'] = stream.readInt()
+			player['totalHealingReceived'] = stream.readInt()
+			player['totalThreat'] = stream.readInt()
 			playerList.append(player)
 
 		raid.playerData = playerList

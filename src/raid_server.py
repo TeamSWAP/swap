@@ -94,10 +94,29 @@ class RaidServer(threading.Thread):
 	def processPlayerUpdate(self, client, stream):
 		name = stream.readString()
 		totalDamage = stream.readInt()
+		totalDamageTaken = stream.readInt()
+		totalHealing = stream.readInt()
+		totalHealingReceived = stream.readInt()
+		totalThreat = stream.readInt()
 
 		prnt("RaidServer: Got player update from %s!"%name)
 
-		client['playerInfo'] = {'name': name, 'totalDamage': totalDamage}
+		conn = client['conn']
+		connType = 'T'
+		if conn.relay:
+			connType = 'R'
+		elif conn.loopback:
+			connType = 'L'
+
+		client['playerInfo'] = {
+			'name': name,
+			'connType': connType,
+			'totalDamage': totalDamage,
+			'totalDamageTaken': totalDamageTaken,
+			'totalHealing': totalHealing,
+			'totalHealingReceived': totalHealingReceived,
+			'totalThreat': totalThreat
+		}
 
 	def sendRaidUpdate(self):
 		prnt("RaidServer: Sending raid update...")
@@ -115,7 +134,12 @@ class RaidServer(threading.Thread):
 		stream.writeByte(len(playerList))
 		for player in playerList:
 			stream.writeString(player['name'])
+			stream.writeString(player['connType'])
 			stream.writeInt(player['totalDamage'])
+			stream.writeInt(player['totalDamageTaken'])
+			stream.writeInt(player['totalHealing'])
+			stream.writeInt(player['totalHealingReceived'])
+			stream.writeInt(player['totalThreat'])
 
 		for client in self.clientList:
 			conn = client['conn']

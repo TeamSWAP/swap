@@ -154,6 +154,14 @@ class MainFrame(wx.Frame):
 		self.createReportView(self.reportSizer, self.reportPanel)
 		self.tabs.AddPage(self.reportPanel, "Report")
 
+		# Create Raid tab
+		self.raidPanel = wx.Panel(self.tabs)
+		self.raidSizer = wx.BoxSizer(wx.VERTICAL)
+		self.raidPanel.SetSizer(self.raidSizer)
+		self.raidPanel.Layout()
+		self.createRaidView(self.raidSizer, self.raidPanel)
+		self.tabs.AddPage(self.raidPanel, "Raid")
+
 		self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
 		self.panel.SetSizer(self.box)
@@ -293,6 +301,23 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.reportView, 1, wx.EXPAND, 0)
 
+	def createRaidView(self, parent=None, panelParent=None):
+		parent = parent if parent else self.box
+		panelParent = panelParent if panelParent else self.panel
+		
+		self.raidView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+		self.raidView.InsertColumn(0, "C"); self.raidView.SetColumnWidth(0, 20)
+		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(3, "Damage Taken"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(4, "Avg. DPS"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(5, "Healing"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(6, "Healing Received"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(7, "Avg. HPS"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(8, "Threat"); self.raidView.SetColumnWidth(1, 100)
+
+		parent.Add(self.raidView, 1, wx.EXPAND, 0)
+
 	def createGridView(self, parent=None, panelParent=None):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
@@ -343,6 +368,24 @@ class MainFrame(wx.Frame):
 		for name in sorted(self.reportUpdaters.keys()):
 			getter = self.reportUpdaters[name]
 			self.reportView.SetStringItem(index, 1, getter(analyzer))
+			index += 1
+
+		self.raidView.DeleteAllItems()
+		index = 0
+		for player in raid.playerData:
+			connectionType = player['connType']
+			name = player['name'][1:]
+			avgDps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			avgHps = (player['totalHealing'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			self.raidView.InsertStringItem(index, connectionType)
+			self.raidView.SetStringItem(index, 1, name)
+			self.raidView.SetStringItem(index, 2, locale.format("%d", player['totalDamage'], grouping=True))
+			self.raidView.SetStringItem(index, 3, locale.format("%d", player['totalDamageTaken'], grouping=True))
+			self.raidView.SetStringItem(index, 4, locale.format("%.2f", avgDps, grouping=True))
+			self.raidView.SetStringItem(index, 5, locale.format("%d", player['totalHealing'], grouping=True))
+			self.raidView.SetStringItem(index, 6, locale.format("%d", player['totalHealingReceived'], grouping=True))
+			self.raidView.SetStringItem(index, 7, locale.format("%.2f", avgHps, grouping=True))
+			self.raidView.SetStringItem(index, 8, locale.format("%d", player['totalThreat'], grouping=True))
 			index += 1
 
 		# Update grid
