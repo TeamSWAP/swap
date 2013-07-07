@@ -27,6 +27,7 @@ P_REGISTER                    = 1
 P_CONNECT_REQUEST             = 2
 P_CONNECT_RESPONSE            = 3
 P_TUNNEL_INFO                 = 4
+P_RELAY_PACKET                = 9
 
 # P2P connection messages
 P_TUNNEL_SYNACK               = 5
@@ -209,6 +210,14 @@ class Node:
 
 			conn = self.getConnection(targetId, targetPort)
 			conn.gotTunnelInfo(privIp, privPort, pubIp, pubPort)
+		elif p == P_RELAY_PACKET:
+			targetId = b.readString()
+			targetPort = b.readString()
+			data = b.readString()
+
+			conn = self.getConnection(targetId, targetPort)
+			if conn:
+				conn.injectRelayRead(data)
 
 	# thread-safe
 	def reflectAddress(self):
@@ -299,6 +308,15 @@ class Node:
 		self.send(out)
 
 	# thread-safe
+	def sendRelay(self, targetId, targetPort, data):
+		out = ByteStream()
+		out.writeByte(P_RELAY_PACKET)
+		out.writeString(targetId)
+		out.writeString(targetPort)
+		out.writeString(data)
+		self.send(out)
+
+	# thread-safe
 	def waitForNS(self):
 		while True:
 			with self.stateLock:
@@ -339,6 +357,7 @@ class NodeConnection(threading.Thread):
 		self.loopback = self.targetId == self.node.id
 		self.state = CS_REQUESTED
 		self.tunnelSetup = False
+		self.tunnelTicks = 0
 		self.lastPacketSent = 0
 		self.lastPacketReceived = 0
 		self.pendingRecv = []
@@ -346,6 +365,8 @@ class NodeConnection(threading.Thread):
 		self.threadStopped = threading.Event()
 		self.closed = False
 		self.closedReason = 0
+		self.relay = False
+		self.relayedRead = []
 
 	def start(self):
 		self.threadStarted = True
@@ -370,9 +391,7 @@ class NodeConnection(threading.Thread):
 					self.state = CS_TUNNELING
 			else:
 				self.state = CS_CONNECTED
-				p = self.node.getPort(self.targetPort)
-				if p != None:
-					p.pendingConnections.append(self)
+				self.pushToPort()
 
 		while not self.threadStopped.isSet():
 			now = time.time()
@@ -386,10 +405,19 @@ class NodeConnection(threading.Thread):
 				time.sleep(0.2)
 				continue
 
-			r, w, e = select([self.sock], [self.sock], [], 0)
+			# Don't timeout immediately.
+			if self.lastPacketReceived == 0:
+				self.lastPacketReceived = time.time()
+
+			if self.relay:
+				r = len(self.relayedRead) > 0
+				w = 1
+				e = 0
+			else:
+				r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
 				try:
-					data = ByteStream(self.sock.recv(512))
+					data = ByteStream(self._recv())
 				except:
 					# UDP returns a ECONNRESET for IMCP failures, ignore them
 					data = None
@@ -408,7 +436,7 @@ class NodeConnection(threading.Thread):
 			if now - self.lastPacketSent > 10:
 				packet = ByteStream()
 				packet.writeByte(P_KEEP_ALIVE)
-				self.sock.send(packet.toString())
+				self._send(packet.toString())
 
 				self.lastPacketSent = now
 
@@ -435,7 +463,7 @@ class NodeConnection(threading.Thread):
 		size = len(data)
 		sent = 0
 		while sent < size and tries < 20:
-			sent += self.sock.send(data[sent:])
+			sent += self._send(data[sent:])
 		self.lastPacketSent = time.time()
 
 	def recv(self, raw=False):
@@ -458,7 +486,7 @@ class NodeConnection(threading.Thread):
 		if not self.loopback:
 			packet = ByteStream()
 			packet.writeByte(P_CLOSE)
-			self.sock.send(packet.toString())
+			self._send(packet.toString())
 
 		self.closeInternal(ERR_CLOSED_BY_SELF)
 
@@ -467,12 +495,28 @@ class NodeConnection(threading.Thread):
 		self.node.connectionDied(self)
 		self.closed = True
 		self.closedReason = reason
-		if not self.loopback:
+		if not self.loopback and not self.relay:
 			self.sock.close()
+
+	def pushToPort(self):
+		# Push the connection into the listening port, if it's our port
+		p = self.node.getPort(self.targetPort)
+		if p != None:
+			p.pendingConnections.append(self)
 
 	def updateNotConnected(self):
 		if self.state == CS_TUNNELING:
 			debug("Tunneling")
+			self.tunnelTicks += 1
+
+			# 0.2 x 10 = 2s for tunnel establishment
+			if self.tunnelTicks == 11:
+				# Switch to relay for now :(
+				debug("Fallback to relay.")
+				self.state = CS_CONNECTED
+				self.relay = True
+				self.pushToPort()
+				return
 
 			mySyn = ByteStream()
 			mySyn.writeByte(P_TUNNEL_SYNACK)
@@ -500,10 +544,7 @@ class NodeConnection(threading.Thread):
 					self.addr = addr
 					self.sock.connect(addr)
 
-					# Push into port if it's our port
-					p = self.node.getPort(self.targetPort)
-					if p != None:
-						p.pendingConnections.append(self)
+					self.pushToPort()
 
 					debug("Tunnel established.")
 
@@ -519,3 +560,20 @@ class NodeConnection(threading.Thread):
 			self.state = CS_TUNNELING
 		else:
 			self.state = CS_GOT_TUNNEL_INFO
+
+	def _send(self, data):
+		if self.relay:
+			self.node.sendRelay(self.targetId, self.targetPort, data)
+			return len(data)
+		return self.sock.send(data)
+
+	def _recv(self):
+		if self.relay:
+			while len(self.relayedRead) == 0:
+				time.sleep(0.001)
+				continue
+			return self.relayedRead.pop(0)
+		return self.sock.recv(512)
+
+	def injectRelayRead(self, data):
+		self.relayedRead.append(data)

@@ -32,6 +32,7 @@ P_REGISTER                    = 1
 P_CONNECT_REQUEST             = 2
 P_CONNECT_RESPONSE            = 3
 P_TUNNEL_INFO                 = 4
+P_RELAY_PACKET                = 9
 
 # Error codes
 ERR_NO_ERROR                  = 0
@@ -111,6 +112,11 @@ class ConnectionHandler(threading.Thread):
 			pubIp = data.readString()
 			pubPort = data.readInt()
 			self.ns.sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort)
+		elif packet == P_RELAY_PACKET:
+			targetId = data.readString()
+			targetPort = data.readString()
+			data = data.readString()
+			self.ns.sendRelayPacket(self, targetId, targetPort, data)
 
 	# thread-safe
 	def sendConnectRequest(self, sourceId, targetPort):
@@ -152,6 +158,16 @@ class ConnectionHandler(threading.Thread):
 		out.writeInt(privPort)
 		out.writeString(pubIp)
 		out.writeInt(pubPort)
+		self.send(out)
+
+	# thread-safe
+	def sendRelayPacket(self, targetId, targetPort, data):
+		""" Sends tunnel info to a node. """
+		out = ByteStream()
+		out.writeByte(P_RELAY_PACKET)
+		out.writeString(targetId)
+		out.writeString(targetPort)
+		out.writeString(data)
 		self.send(out)
 
 
@@ -243,6 +259,15 @@ class NodeServer(threading.Thread):
 			targetNode = self.findNode(targetId)
 			if targetNode != None:
 				targetNode.sendTunnelInfo(sourceId, targetPort, privIp, privPort, pubIp, pubPort)
+
+	# thread-safe, called from ConnectionHandler
+	def sendRelayPacket(self, sourceNode, targetId, targetPort, data):
+		""" Relays a packet """
+		with self.nodesLock:
+			sourceId = sourceNode.id
+			targetNode = self.findNode(targetId)
+			if targetNode != None:
+				targetNode.sendRelayPacket(sourceId, targetPort, data)
 
 
 class ReflectionServer(threading.Thread):
