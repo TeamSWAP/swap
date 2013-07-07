@@ -391,6 +391,7 @@ class NodeConnection(threading.Thread):
 				try:
 					data = ByteStream(self.sock.recv(512))
 				except:
+					# UDP returns a ECONNRESET for IMCP failures, ignore them
 					data = None
 				if data != None:
 					packetType = data.readByte()
@@ -490,6 +491,7 @@ class NodeConnection(threading.Thread):
 				try:
 					data, addr = self.sock.recvfrom(512)
 				except:
+					# UDP returns a ECONNRESET for IMCP failures, ignore them
 					data = None
 				if data == theirSyn:
 					self.state = CS_CONNECTED
