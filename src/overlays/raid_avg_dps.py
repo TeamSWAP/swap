@@ -36,7 +36,7 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Avg. DPS", "%"], [2, 2, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Avg. DPS", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -64,18 +64,15 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 		for player in sorted(raid.playerData, sortf):
 			if player['totalDamage'] == 0:
 				continue
-			if raidTotalDamage > 0:
-				percent = "%.2f"%((float(player['totalDamage']) / float(raidTotalDamage)) * 100.0)
-			else:
-				percent = "%.2f"%0
+
+			dps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			percent = (float(player['totalDamage']) / float(raidTotalDamage)) if raidTotalDamage else 0
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			dps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
-
-			self.addRow([player['name'][1:], locale.format("%.2f", dps, grouping=True), "%s%%"%percent], color)
+			self.addRow([player['name'][1:], locale.format("%.2f", dps, grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()
