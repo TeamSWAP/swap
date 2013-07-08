@@ -306,7 +306,7 @@ class MainFrame(wx.Frame):
 		panelParent = panelParent if panelParent else self.panel
 		
 		self.raidView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-		self.raidView.InsertColumn(0, "C"); self.raidView.SetColumnWidth(0, 20)
+		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 20)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
 		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(1, 100)
 		self.raidView.InsertColumn(3, "Damage Taken"); self.raidView.SetColumnWidth(1, 100)
