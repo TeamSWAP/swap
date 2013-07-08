@@ -67,7 +67,9 @@ class RaidThreatOverlay(BaseListOverlay):
 			if player['totalThreat'] == 0:
 				continue
 
-			percent = (float(player['totalThreat']) / float(raidTotalThreat)) if raidTotalThreat else 0
+			percent = 0
+			if player['totalThreat'] >  0:
+				percent = (float(player['totalThreat']) / float(raidTotalThreat)) if raidTotalThreat else 0
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
