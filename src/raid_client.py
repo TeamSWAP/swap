@@ -40,11 +40,13 @@ class RaidClient(threading.Thread):
 		prnt("RaidClient: Booting up...")
 
 		self.conn = net.node.connect(self.serverNode, "swap:raid")
+		connectionEnded = False
 
 		while not self.stoppedEvent.isSet():
 			if self.conn.recvPending():
 				data = self.conn.recv()
 				if data == None:
+					connectionEnded = True
 					break
 				packet = data.readByte()
 				if packet == REQUEST_RAID_UPDATE:
@@ -58,7 +60,7 @@ class RaidClient(threading.Thread):
 
 		self.conn.close()
 
-		if not self.stoppedEvent.isSet():
+		if connectionEnded:
 			# This means we didn't stop intentionally. Either our connection timed out,
 			# or the host left the raid. Send a new raid join request, so we can connect
 			# to the new host.
