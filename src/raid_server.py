@@ -36,6 +36,7 @@ class RaidServer(threading.Thread):
 		self.stoppedEvent = threading.Event()
 		self.clientList = []
 		self.lastRaidUpdateSent = 0
+		self.lastRaidUpdatePoke = 0
 
 	def run(self):
 		prnt("RaidServer: Booting up...")
@@ -67,13 +68,14 @@ class RaidServer(threading.Thread):
 					data = conn.recv()
 					if data == None:
 						prnt("client closed. removed from list")
+						self.lastRaidUpdatePoke = time()
 						self.clientList.remove(client)
 						continue
 					packetType = data.readByte()
 					if packetType == REQUEST_UPDATE:
 						self.processPlayerUpdate(client, data)
 
-			if now - self.lastRaidUpdateSent > 2:
+			if now - self.lastRaidUpdateSent > 2 and now - self.lastRaidUpdatePoke < 5:
 				self.sendRaidUpdate()
 				self.lastRaidUpdateSent = now
 
@@ -117,6 +119,7 @@ class RaidServer(threading.Thread):
 			'totalHealingReceived': totalHealingReceived,
 			'totalThreat': totalThreat
 		}
+		self.lastRaidUpdatePoke = time()
 
 	def sendRaidUpdate(self):
 		prnt("RaidServer: Sending raid update...")

@@ -34,6 +34,7 @@ class RaidClient(threading.Thread):
 		threading.Thread.__init__(self)
 		self.serverNode = serverNode
 		self.lastUpdateSent = 0
+		self.lastTicks = 1
 		self.stoppedEvent = threading.Event()
 
 	def run(self):
@@ -53,7 +54,11 @@ class RaidClient(threading.Thread):
 					self.gotRaidUpdate(data)
 
 			now = time()
-			if now - self.lastUpdateSent >= 2:
+			if now - self.lastUpdateSent >= 2 and (log_parser.GetThread().parser.inCombat or self.lastTicks >= 1):
+				if not log_parser.GetThread().parser.inCombat:
+					self.lastTicks -= 1
+				else:
+					self.lastTicks = 2
 				self.sendPlayerUpdate()
 				self.lastUpdateSent = now
 			sleep(0.1)
