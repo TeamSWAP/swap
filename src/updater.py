@@ -31,16 +31,16 @@ class UpdaterFrame(wx.Frame):
 		box = wx.BoxSizer(wx.VERTICAL)
 
 		self.title = wx.StaticText(panel, -1, "SWAP")
-		self.title.SetFont(wx.Font(18, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.title.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
 		self.title.SetSize(self.title.GetBestSize())
 		box.Add(self.title, 0, wx.ALL & ~wx.BOTTOM, 10)
 
 		self.status = wx.StaticText(panel, -1, "Contacting server...")
-		self.status.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.NORMAL))
+		self.status.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
 		self.status.SetSize(self.status.GetBestSize())
 		box.Add(self.status, 0, wx.ALL & ~wx.TOP, 10)
 
-		self.progress = wx.Gauge(panel, -1, 100)
+		self.progress = wx.Gauge(panel, -1, 100, size=(0, 20))
 		self.progress.Pulse()
 		box.Add(self.progress, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
