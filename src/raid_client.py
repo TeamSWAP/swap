@@ -58,6 +58,14 @@ class RaidClient(threading.Thread):
 
 		self.conn.close()
 
+		if not self.stoppedEvent.isSet():
+			# This means we didn't stop intentionally. Either our connection timed out,
+			# or the host left the raid. Send a new raid join request, so we can connect
+			# to the new host.
+			prnt("RaidClient: Reconnecting to raid...")
+			raid.RejoinRaid()
+			return
+
 		prnt("RaidClient: Shutting down...")
 
 	def stop(self):

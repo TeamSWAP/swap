@@ -118,6 +118,10 @@ def JoinRaid(key, successFunc, failureFunc):
 	t = threading.Thread(target=thread)
 	t.start()
 
+def RejoinRaid():
+	global currentKey
+	JoinRaid(currentKey, lambda:0, lambda:0)
+
 def LeaveRaid():
 	global currentKey
 
