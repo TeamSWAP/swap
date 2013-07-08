@@ -20,12 +20,14 @@ from constants import *
 from threading import Lock
 from datetime import datetime
 
+DEBUG_TO_FILE = True
+
 threadLock = Lock()
 redirector = None
 
 class LogRedirector:
 	def __init__(self, tag):
-		if IS_COMPILED:
+		if DEBUG_TO_FILE:
 			self.fileOut = open('debug-%s.log'%tag, 'w')
 		else:
 			self.fileOut = None
