@@ -26,7 +26,6 @@ from bytestream import ByteStream
 
 REQUEST_UPDATE = 0x5
 REQUEST_RAID_UPDATE = 0x6
-TUNNEL_TIMEOUT = 10
 
 class RaidServer(threading.Thread):
 	def __init__(self, sock):
