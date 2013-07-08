@@ -67,6 +67,7 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 			failureFunc()
 
 	t = threading.Thread(target=thread)
+	t.daemon = True
 	t.start()
 
 def JoinRaid(key, successFunc, failureFunc):
@@ -116,6 +117,7 @@ def JoinRaid(key, successFunc, failureFunc):
 			sock.close()
 
 	t = threading.Thread(target=thread)
+	t.daemon = True
 	t.start()
 
 def RejoinRaid():
