@@ -73,7 +73,7 @@ class RaidAvgHPSOverlay(BaseListOverlay):
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			hps = (player['totalHealing'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			hps = player['avgHps']
 			percent = (float(player['totalHealing']) / float(raidTotalHealing)) if raidTotalHealing else 0
 
 			color = self.getForegroundColor()

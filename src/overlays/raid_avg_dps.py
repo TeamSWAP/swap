@@ -65,7 +65,7 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 			if player['totalDamage'] == 0:
 				continue
 
-			dps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
+			dps = player['avgDps']
 			percent = (float(player['totalDamage']) / float(raidTotalDamage)) if raidTotalDamage else 0
 
 			color = self.getForegroundColor()
