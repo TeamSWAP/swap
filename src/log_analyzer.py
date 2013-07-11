@@ -49,6 +49,7 @@ class AnalyzerThread(threading.Thread):
 		self.combatDurationLinear = 0
 		self.avgDps = 0
 		self.avgHps = 0
+		self.damageBreakdown = {}
 
 	def run(self):
 		crashCounter = 0
@@ -77,6 +78,7 @@ class AnalyzerThread(threading.Thread):
 				totalHealing = 0
 				totalHealingReceived = 0
 				totalThreat = 0
+				damageBreakdown = {}
 
 				events = self.parser.events
 				for ev in reversed(events):
@@ -93,6 +95,9 @@ class AnalyzerThread(threading.Thread):
 
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
+						if not ev.abilityName in damageBreakdown:
+							damageBreakdown[ev.abilityName] = 0
+						damageBreakdown[ev.abilityName] += ev.damage
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
 						totalDamageTaken += ev.damage
 					if ev.type == GameEvent.TYPE_HEAL and ev.actor == self.parser.me:
@@ -101,6 +106,7 @@ class AnalyzerThread(threading.Thread):
 						totalHealingReceived += ev.healing
 					if ev.actor == self.parser.me:
 						totalThreat += ev.threat
+
 				combatDuration = combatEndTime - combatStartTime
 
 				self.totalDamage = totalDamage
@@ -108,6 +114,7 @@ class AnalyzerThread(threading.Thread):
 				self.totalHealing = totalHealing
 				self.totalHealingReceived = totalHealingReceived
 				self.totalThreat = totalThreat
+				self.damageBreakdown = damageBreakdown
 				self.combatStartTime = combatStartTime
 				self.combatEndTime = combatEndTime
 				self.combatDuration = combatDuration
@@ -121,7 +128,7 @@ class AnalyzerThread(threading.Thread):
 				# Avg DPS calculation
 				self.avgDps = util.div(totalDamage, combatDuration)
 				self.avgHps = util.div(totalHealing, combatDuration)
-				
+
 				now = time.time()
 
 				self.notifyFrames()

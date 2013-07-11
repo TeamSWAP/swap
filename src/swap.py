@@ -173,6 +173,14 @@ class MainFrame(wx.Frame):
 		self.createRaidView(self.raidSizer, self.raidPanel)
 		self.tabs.AddPage(self.raidPanel, "Raid")
 
+		# Create Ability Breakdown tab
+		self.breakdownPanel = wx.Panel(self.tabs)
+		self.breakdownSizer = wx.BoxSizer(wx.VERTICAL)
+		self.breakdownPanel.SetSizer(self.breakdownSizer)
+		self.breakdownPanel.Layout()
+		self.createBreakdownView(self.breakdownSizer, self.breakdownPanel)
+		self.tabs.AddPage(self.breakdownPanel, "Ability Breakdown")
+
 		self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
 		self.panel.SetSizer(self.box)
@@ -351,6 +359,16 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
 
+	def createBreakdownView(self, parent=None, panelParent=None):
+		parent = parent if parent else self.box
+		panelParent = panelParent if panelParent else self.panel
+		
+		self.breakdownView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
+		self.breakdownView.InsertColumn(0, "Ability"); self.breakdownView.SetColumnWidth(0, 200)
+		self.breakdownView.InsertColumn(1, "Damage"); self.breakdownView.SetColumnWidth(1, 100)
+
+		parent.Add(self.breakdownView, 1, wx.EXPAND, 0)
+
 	def createGridView(self, parent=None, panelParent=None):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
@@ -419,6 +437,13 @@ class MainFrame(wx.Frame):
 			self.raidView.SetStringItem(index, 6, locale.format("%d", player['totalHealingReceived'], grouping=True))
 			self.raidView.SetStringItem(index, 7, locale.format("%.2f", avgHps, grouping=True))
 			self.raidView.SetStringItem(index, 8, locale.format("%d", player['totalThreat'], grouping=True))
+			index += 1
+
+		self.breakdownView.DeleteAllItems()
+		index = 0
+		for ability, damage in sorted(analyzer.damageBreakdown.iteritems(), key=lambda x:x[1], reverse=True):
+			self.breakdownView.InsertStringItem(index, ability)
+			self.breakdownView.SetStringItem(index, 1, locale.format("%d", damage, grouping=True))
 			index += 1
 
 		# Update grid

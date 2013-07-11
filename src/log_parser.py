@@ -47,6 +47,7 @@ class GameEvent:
 		self.actor = None
 		self.target = None
 		self.ability = None
+		self.abilityName = None
 		self.damage = 0
 		self.healing = 0
 		self.time = 0
@@ -161,6 +162,7 @@ class Parser:
 					event.actor = actor
 					event.target = target
 					event.ability = abilityId
+					event.abilityName = ability
 					event.inCombat = self.inCombat
 					event.time = actionTime
 					event.threat = threat
