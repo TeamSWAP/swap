@@ -29,6 +29,9 @@ class LogRedirector:
 	def __init__(self, tag):
 		self.fileName = 'debug-%s.log'%tag
 		self.fileLock = Lock()
+		if DEBUG_TO_FILE:
+			f = open(self.fileName, 'w')
+			f.close()
 		self.stdOut = sys.stdout
 		self.stdErr = sys.stderr
 		sys.stdout = self
