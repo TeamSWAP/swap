@@ -45,7 +45,25 @@ class RaidClient(threading.Thread):
 			if self.conn.recvPending():
 				data = self.conn.recv()
 				if data == None:
-					break
+					if self.conn.closedReason != 0:
+						# Fetch new raid info
+						self.serverNode = None
+						self.conn = None
+						while self.serverNode == None or self.conn == None:
+							prnt("RaidClient: Reconnecting...")
+							self.serverNode = raid.GetNewServerNode()
+							if self.serverNode == None:
+								prnt("RaidClient: Failed to get new server node...")
+								sleep(2)
+								continue
+							conn = net.node.connect(self.serverNode, "swap:raid")
+							if conn.state == fuzion.CS_CONNECTED:
+								self.conn = conn
+								continue
+							else:
+								prnt("RaidClient: Failed to connect to new node! Connection state = %d"%conn.state)
+							sleep(2)
+					continue
 				packet = data.readByte()
 				if packet == REQUEST_RAID_UPDATE:
 					self.gotRaidUpdate(data)
@@ -59,14 +77,6 @@ class RaidClient(threading.Thread):
 				self.sendPlayerUpdate()
 				self.lastUpdateSent = now
 			sleep(0.1)
-
-		if self.conn.closedReason != 0 and self.conn.closedReason != fuzion.ERR_CLOSED_BY_SELF:
-			# This means we didn't stop intentionally. Either our connection timed out,
-			# or the host left the raid. Send a new raid join request, so we can connect
-			# to the new host.
-			prnt("RaidClient: Reconnecting to raid...")
-			raid.RejoinRaid()
-			return
 
 		self.conn.close()
 

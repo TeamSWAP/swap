@@ -120,18 +120,52 @@ def JoinRaid(key, successFunc, failureFunc):
 	t.daemon = True
 	t.start()
 
-def RejoinRaid():
-	global currentKey
-	JoinRaid(currentKey, lambda:0, lambda:0)
+def GetNewServerNode():
+	global currentKey, raidServer
+
+	# Connect to server...
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	try:
+		sock.connect(PARSER_SERVER_ADDR)
+	except:
+		failureFunc()
+		return
+
+	# Write data
+	stream = ByteStream()
+	stream.writeByte(REQUEST_JOIN_RAID)
+	stream.writeByte(VERSION_INT)
+	stream.writeString(currentKey)
+	stream.writeString(net.node.getId())
+	sock.send(stream.toString())
+
+	# Read data
+	data = sock.recv(1024)
+	stream = ByteStream(data)
+	
+	# Process data
+	success = stream.readBoolean()
+	if success:
+		isHost = stream.readBoolean()
+		serverNode = net.node.getId()
+		if isHost:
+			prnt("Raid: Became host")
+			raidServer = RaidServer(sock)
+			raidServer.start()
+		else:
+			prnt("Raid: Didn't become host")
+			serverNode = stream.readString()
+			sock.close()
+		return serverNode
+	return None
 
 def LeaveRaid():
 	global currentKey
 
-	# TODO: Stub.
-	if raidServer != None:
-		raidServer.stop()
 	if raidClient != None:
 		raidClient.stop()
+	if raidServer != None:
+		raidServer.stop()
 
 	currentKey = None
 	wasInCombat = False
