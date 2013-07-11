@@ -18,6 +18,7 @@ import wx, wx.grid, random, time, locale, math
 import config
 import log_analyzer
 import raid
+import util
 
 from threading import Thread, Event
 from base_list import BaseListOverlay
@@ -65,7 +66,7 @@ class RaidHealingOverlay(BaseListOverlay):
 			if player['totalHealing'] == 0:
 				continue
 
-			percent = (float(player['totalHealing']) / float(raidTotalHealing)) if raidTotalHealing else 0
+			percent = util.div(player['totalHealing'], raidTotalHealing)
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:

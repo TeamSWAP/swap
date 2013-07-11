@@ -66,3 +66,8 @@ def EnableCombatLogging():
 		config.set("Settings", "cabf_4", long(cabf4) | (1 << 14))
 		with open(ini, 'wb') as configFile:
 			config.write(configFile)
+
+def div(x, y):
+	if y == 0:
+		return 0
+	return float(x) / float(y)

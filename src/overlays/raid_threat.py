@@ -18,6 +18,7 @@ import wx, wx.grid, random, time, locale, math
 import config
 import log_analyzer
 import raid
+import util
 
 from threading import Thread, Event
 from base_list import BaseListOverlay
@@ -69,7 +70,7 @@ class RaidThreatOverlay(BaseListOverlay):
 
 			percent = 0
 			if player['totalThreat'] >  0:
-				percent = (float(player['totalThreat']) / float(raidTotalThreat)) if raidTotalThreat else 0
+				percent = util.div(player['totalThreat'], raidTotalThreat)
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
