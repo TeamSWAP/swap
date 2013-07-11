@@ -405,7 +405,7 @@ class MainFrame(wx.Frame):
 
 		self.raidView.DeleteAllItems()
 		index = 0
-		for player in raid.playerData:
+		for player in sorted(raid.playerData, key=lambda x: x['name']):
 			connectionType = player['connType']
 			name = player['name'][1:]
 			avgDps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
