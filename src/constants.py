@@ -41,6 +41,9 @@ MENU_ID_OVERLAY_SIZE_TO_GRID = wx.NewId()
 MENU_ID_OVERLAY_SNAP = wx.NewId()
 MENU_ID_OVERLAY_RESET = wx.NewId()
 MENU_ID_OVERLAY_CLOSE = wx.NewId()
+MENU_ID_HELP_UPDATES = wx.NewId()
+MENU_ID_HELP_LOG = wx.NewId()
+MENU_ID_HELP_ABOUT = wx.NewId()
 
 # Menu Title
 MENU_TITLE_EXIT = "Exit"
@@ -50,6 +53,9 @@ MENU_TITLE_OVERLAY_SIZE_TO_GRID = "Size Overlays to Grid"
 MENU_TITLE_OVERLAY_SNAP = "Snap Overlays to Edges"
 MENU_TITLE_OVERLAY_RESET = "Reset Overlays"
 MENU_TITLE_OVERLAY_CLOSE = "Close Overlays"
+MENU_TITLE_HELP_UPDATES = "Check for updates..."
+MENU_TITLE_HELP_LOG = "Open SWAP log"
+MENU_TITLE_HELP_ABOUT = "About"
 
 # Menu Tip
 MENU_TIP_EXIT = "Exits the program."
@@ -60,3 +66,6 @@ MENU_TIP_OVERLAY_SNAP = "Toggles snapping overlays to screen edges"
 MENU_TIP_OVERLAY_RESET = "Reset all overlays' position and size"
 MENU_TIP_OVERLAY_CLOSE = "Close all open overlays"
 MENU_TIP_OVERLAY_SELECT = "Toggle selected overlay"
+MENU_TIP_HELP_UPDATES = "Check for updates..."
+MENU_TIP_HELP_LOG = "Open SWAP log"
+MENU_TIP_HELP_ABOUT = "About"

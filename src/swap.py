@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import wx, os, shutil, locale, time
+import wx, os, shutil, locale, time, subprocess
 import overlays, logging, config
 import log_parser, log_analyzer, util, raid, net
 import preferences
@@ -97,6 +97,17 @@ class MainFrame(wx.Frame):
 		m_close = menu.Append(MENU_ID_OVERLAY_CLOSE, MENU_TITLE_OVERLAY_CLOSE, MENU_TIP_OVERLAY_CLOSE)
 		self.Bind(wx.EVT_MENU, self.onCloseOverlays, id=MENU_ID_OVERLAY_CLOSE)
 
+		# Help
+		menu = wx.Menu()
+		menuBar.Append(menu, "&Help")
+		m_checkUpdates = menu.Append(MENU_ID_HELP_UPDATES, MENU_TITLE_HELP_UPDATES, MENU_TIP_HELP_UPDATES)
+		m_openLog = menu.Append(MENU_ID_HELP_LOG, MENU_TITLE_HELP_LOG, MENU_TIP_HELP_LOG)
+		menu.AppendSeparator()
+		m_about = menu.Append(MENU_ID_HELP_ABOUT, MENU_TITLE_HELP_ABOUT, MENU_TIP_HELP_ABOUT)
+		self.Bind(wx.EVT_MENU, self.onCheckUpdates, id=MENU_ID_HELP_UPDATES)
+		self.Bind(wx.EVT_MENU, self.onOpenLog, id=MENU_ID_HELP_LOG)
+		self.Bind(wx.EVT_MENU, self.onAbout, id=MENU_ID_HELP_ABOUT)
+
 		# UI
 		self.panel = wx.Panel(self)
 		self.panel.SetDoubleBuffered(True)
@@ -175,6 +186,28 @@ class MainFrame(wx.Frame):
 	def onPreferences(self, event):
 		dialog = preferences.PreferencesDialog(self)
 		dialog.ShowModal()
+
+	def onCheckUpdates(self, event):
+		if IS_COMPILED:
+			subprocess.Popen(["updater.exe"])
+		else:
+			subprocess.Popen(["python", "updater.py"])
+		self.Destroy()
+
+	def onOpenLog(self, event):
+		os.startfile("debug-swap.log")
+
+	def onAbout(self, event):
+		about = wx.AboutDialogInfo()
+		about.SetName("SWAP")
+		about.SetVersion("v%s"%VERSION)
+		about.SetDescription("""SWAP is a open-source SWTOR combat log parser and analyzer.""")
+		about.SetCopyright("(C) 2013 TeamSWAP")
+		about.SetWebSite("http://github.com/TeamSWAP/swap/wiki")
+		about.AddDeveloper("Solara (at The Bastion)")
+		about.AddDeveloper("Nijiko (at The Bastion)")
+		about.SetLicence("SWAP is licensed under the Apache 2.0 license.")
+		wx.AboutBox(about)
 
 	def onClose(self, event):
 		if raid.IsInRaid():
