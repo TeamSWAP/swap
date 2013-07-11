@@ -27,10 +27,8 @@ redirector = None
 
 class LogRedirector:
 	def __init__(self, tag):
-		if DEBUG_TO_FILE:
-			self.fileOut = open('debug-%s.log'%tag, 'w')
-		else:
-			self.fileOut = None
+		self.fileName = 'debug-%s.log'%tag
+		self.fileLock = Lock()
 		self.stdOut = sys.stdout
 		self.stdErr = sys.stderr
 		sys.stdout = self
@@ -45,15 +43,16 @@ class LogRedirector:
 			text = text[:-1].replace("\n", "\n" + timeTxt) + "\n"
 		else:
 			text = text.replace("\n", "\n" + timeTxt)
-		if self.fileOut:
-			self.fileOut.write("%s"%text)
+		if DEBUG_TO_FILE:
+			with self.fileLock:
+				f = open(self.fileName, 'a+')
+				f.write(text)
+				f.close()
 		self.stdOut.write(text)
 
 	def close(self):
 		sys.stdout = self.stdOut
 		sys.stderr = self.stdErr
-		if self.fileOut:
-			self.fileOut.close()
 		self.closed = True
 
 	def __del__(self):
