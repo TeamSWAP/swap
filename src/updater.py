@@ -61,6 +61,20 @@ class UpdaterFrame(wx.Frame):
 		else:
 			subprocess.Popen(["python", "swap.py"])
 
+	def errorGettingInfo(self):
+		dialog = wx.MessageDialog(self, "Whoops! We couldn't contact our servers to check for updates!", "Error: Couldn't check for update info", wx.ICON_ERROR | wx.OK)
+		dialog.ShowModal()
+		dialog.Destroy()
+
+		self.launch()
+
+	def errorDownloading(self):
+		dialog = wx.MessageDialog(self, "Whoops! We couldn't download that update! Please tell the developers!", "Error: Couldn't download", wx.ICON_ERROR | wx.OK)
+		dialog.ShowModal()
+		dialog.Destroy()
+
+		self.launch()
+
 	def informUpdate(self, version):
 		self.title.SetLabel("Updating to v%s"%version)
 		self.status.SetLabel("Downloading...")
@@ -99,7 +113,7 @@ def checkForUpdates(frame):
 		#print info
 	except HTTPError, e:
 		prnt("ERROR: %s"%e.reason)
-		wx.CallAfter(frame.launch)
+		wx.CallAfter(frame.errorGettingInfo)
 		return
 
 	prnt("Latest version is %s, running %s"%(info['version'], VERSION))
@@ -162,7 +176,7 @@ def downloadUpdate(frame, info):
 		if outputFile != None:
 			outputFile.close()
 		prnt("ERROR: %s"%e.reason)
-		wx.CallAfter(frame.launch)
+		wx.CallAfter(frame.errorDownloading)
 		return
 
 def applyUpdate(frame, info):
