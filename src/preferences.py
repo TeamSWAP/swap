@@ -66,7 +66,7 @@ class PreferencesDialog(wx.Dialog):
 		self.sizer.Add(self.CreateButtonSizer(wx.OK | wx.CANCEL), 0, wx.BOTTOM | wx.ALIGN_RIGHT, 5)
 
 		self.SetSizer(self.sizer)
-		self.Bind(wx.EVT_BUTTON, self.OnOK, id=wx.ID_OK)
+		self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
 
 	def addSliderOption(self, key, label, minValue, maxValue, parent, sizer):
 		box = wx.BoxSizer(wx.HORIZONTAL)
@@ -120,7 +120,7 @@ class PreferencesDialog(wx.Dialog):
 
 		sizer.Add(box, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
-	def OnOK(self, event):
+	def onOK(self, event):
 		for key in self.sliderOptions:
 			config.Set(key, self.sliderOptions[key].GetValue())
 		for key in self.colorOptions:
