@@ -20,6 +20,7 @@ import traceback
 import atexit
 import wx
 import raid
+import util
 
 from log_parser import GameEvent
 from logging import prnt
@@ -109,8 +110,8 @@ class AnalyzerThread(threading.Thread):
 					self.combatDurationLinear = combatDuration
 
 				# Avg DPS calculation
-				self.avgDps = (totalDamage / combatDuration) if combatDuration > 0 else 0
-				self.avgHps = (totalHealing / combatDuration) if combatDuration > 0 else 0
+				self.avgDps = util.div(totalDamage, combatDuration)
+				self.avgHps = util.div(totalHealing, combatDuration)
 				
 				now = time.time()
 
