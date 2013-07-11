@@ -58,14 +58,14 @@ class MainFrame(wx.Frame):
 		menuBar.Append(menu, "&Overlay")
 
 		categoryMenus = {}
-		for category in overlays.GetOverlayCategoryList():
+		for category in overlays.getOverlayCategoryList():
 			name = category['name']
 			title = category['title']
 			categoryMenus[name] = subMenu = wx.Menu()
 			menu.AppendSubMenu(subMenu, title, "")
 
 		self.m_overlays = {}
-		for overlay in overlays.GetOverlayList():
+		for overlay in overlays.getOverlayList():
 			targetMenu = menu
 			if overlay['category'] != None:
 				targetMenu = categoryMenus[overlay['category']]
@@ -74,11 +74,11 @@ class MainFrame(wx.Frame):
 				continue
 			id = wx.NewId()
 			self.m_overlays[id] = targetMenu.AppendCheckItem(id, overlay['title'], MENU_TIP_OVERLAY_SELECT)
-			self.Bind(wx.EVT_MENU, (lambda n: lambda e: overlays.ToggleOverlay(n))(overlay['name']), id=id)
+			self.Bind(wx.EVT_MENU, (lambda n: lambda e: overlays.toggleOverlay(n))(overlay['name']), id=id)
 
 		menu.AppendSeparator()
 		m_dark = menu.AppendCheckItem(MENU_ID_OVERLAY_DARK, MENU_TITLE_OVERLAY_DARK, MENU_TIP_OVERLAY_DARK)
-		m_dark.Check(overlays.IsDarkTheme())
+		m_dark.Check(overlays.isDarkTheme())
 		self.Bind(wx.EVT_MENU, lambda e: overlays.ToggleDarkTheme(), id=MENU_ID_OVERLAY_DARK)
 
 		m_sizeToGrid = menu.AppendCheckItem(MENU_ID_OVERLAY_SIZE_TO_GRID, MENU_TITLE_OVERLAY_SIZE_TO_GRID, MENU_TIP_OVERLAY_SIZE_TO_GRID)
@@ -180,12 +180,12 @@ class MainFrame(wx.Frame):
 		if raid.IsInRaid():
 			raid.LeaveRaid()
 		log_analyzer.Get().unregisterFrame(self)
-		overlays.KillAllOverlays()
+		overlays.killAllOverlays()
 		self.Destroy()
 
 	def OnResetOverlays(self, event):
-		overlays.ResetOverlays()
-		overlays.KillAllOverlays()
+		overlays.resetOverlays()
+		overlays.killAllOverlays()
 		self.updateOverlayList()
 
 	def OnCloseOverlays(self, event):
@@ -353,7 +353,7 @@ class MainFrame(wx.Frame):
 
 	def updateOverlayList(self):
 		for name, item in self.m_overlays.iteritems():
-			if overlays.IsOverlayOpen(name):
+			if overlays.isOverlayOpen(name):
 				item.Check(True)
 			else:
 				item.Check(False)

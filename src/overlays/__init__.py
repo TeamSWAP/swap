@@ -120,15 +120,15 @@ overlayList = [
 openOverlays = {}
 isOverlayBeingDragged = False
 
-def GetOverlayCategoryList():
+def getOverlayCategoryList():
 	global overlayCategories
 	return overlayCategories
 
-def GetOverlayList():
+def getOverlayList():
 	global overlayList
 	return overlayList
 
-def SpawnOverlay(name):
+def spawnOverlay(name):
 	global overlayList, openOverlays
 	class_ = None
 	for overlay in overlayList:
@@ -144,7 +144,7 @@ def SpawnOverlay(name):
 	inst.Show()
 	openOverlays[name] = inst
 
-def KillOverlay(name):
+def killOverlay(name):
 	global openOverlays
 	if not (name in openOverlays.keys()):
 		prnt("ERROR: Overlay '%s' not open."%name)
@@ -153,29 +153,29 @@ def KillOverlay(name):
 	overlay.Destroy()
 	del openOverlays[name]
 
-def KillAllOverlays():
+def killAllOverlays():
 	prnt("Closing overlays...")
 	global openOverlays
 	for name, overlay in openOverlays.iteritems():
 		overlay.Destroy()
 	openOverlays = {}
 
-def IsOverlayOpen(targetName):
+def isOverlayOpen(targetName):
 	for name, overlay in openOverlays.iteritems():
 		if name == targetName:
 			return True
 	return False
 
-def ToggleOverlay(name):
+def toggleOverlay(name):
 	global openOverlays
 	if name in openOverlays.keys():
-		KillOverlay(name)
+		killOverlay(name)
 	else:
-		SpawnOverlay(name)
+		spawnOverlay(name)
 
-def ToggleDarkTheme():
+def toggleDarkTheme():
 	global openOverlays
-	if IsDarkTheme():
+	if isDarkTheme():
 		config.Set("overlayBgColor", 0xFFFFFF)
 		config.Set("overlayFgColor", 0x000000)
 	else:
@@ -184,18 +184,18 @@ def ToggleDarkTheme():
 	for overlay in openOverlays.values():
 		overlay.updateColors()
 
-def IsDarkTheme():
+def isDarkTheme():
 	return config.Get("overlayBgColor") == 0
 
-def SetOverlayBeingDragged(val):
+def setOverlayBeingDragged(val):
 	global isOverlayBeingDragged
 	isOverlayBeingDragged = val
 
-def IsOverlayBeingDragged():
+def isOverlayBeingDragged():
 	global isOverlayBeingDragged
 	return isOverlayBeingDragged
 
-def ResetOverlays():
+def resetOverlays():
 	prnt("Resetting overlays...")
 	for overlay in overlayList:
 		if overlay['name'] == '-':
