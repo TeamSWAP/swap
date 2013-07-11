@@ -140,7 +140,7 @@ class MainFrame(wx.Frame):
 		headerBox.Add(self.keyGenerateButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		headerBox.Add(self.keyJoinButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyVanityCheck, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
-		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
+		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
 		self.box.Add(headerBox, 0, wx.ALL, 10)
 
 		# -----------------------------------
