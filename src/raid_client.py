@@ -84,7 +84,6 @@ class RaidClient(threading.Thread):
 
 	def stop(self):
 		self.stoppedEvent.set()
-		self.join()
 
 	def sendPlayerUpdate(self):
 		prnt("RaidClient: Sending update...")

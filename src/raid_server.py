@@ -90,7 +90,6 @@ class RaidServer(threading.Thread):
 
 	def stop(self):
 		self.stoppedEvent.set()
-		self.join()
 
 	def processPlayerUpdate(self, client, stream):
 		name = stream.readString()
