@@ -78,7 +78,7 @@ class BaseOverlay(wx.Frame):
 			topMostTitle = win32gui.GetWindowText(topMost)
 			if topMostTitle == self.GetTitle() or topMostTitle == 'MSCTFIME UI':
 				return
-			if overlays.IsOverlayBeingDragged():
+			if overlays.isOverlayBeingDragged():
 				return
 			self.PushToTop()
 
@@ -144,7 +144,7 @@ class BaseOverlay(wx.Frame):
 				self.sizePoint = None
 				config.SetXY("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
 				config.SetXY("overlay_%s_size"%self.GetDerivedName(), self.GetSizeTuple())
-				overlays.SetOverlayBeingDragged(False)
+				overlays.setOverlayBeingDragged(False)
 			return
 
 		(sw, sh) = (win32api.GetSystemMetrics(0), win32api.GetSystemMetrics(1))
@@ -154,7 +154,7 @@ class BaseOverlay(wx.Frame):
 		if not self.dragDiff:
 			self.panel.CaptureMouse()
 			self.dragDiff = pos - self.GetPosition()
-			overlays.SetOverlayBeingDragged(True)
+			overlays.setOverlayBeingDragged(True)
 			self.PushToTop()
 
 		if event.ShiftDown():
