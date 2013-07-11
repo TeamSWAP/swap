@@ -18,7 +18,7 @@ import wx, random, time, locale
 import log_analyzer
 
 from threading import Thread, Event
-from base import BaseOverlay
+from overlays.base import BaseOverlay
 
 class HealingDoneOverlay(BaseOverlay):
 	def __init__(self):

@@ -14,16 +14,16 @@
 # limitations under the License.
 #
 
-import wx, random, time, locale, util
+import wx, time, locale, util
 import log_analyzer
 
 from threading import Thread, Event
-from base import BaseOverlay
+from overlays.base import BaseOverlay
 from logging import prnt
 
-class AverageHPSOverlay(BaseOverlay):
+class FightTimerOverlay(BaseOverlay):
 	def __init__(self):
-		BaseOverlay.__init__(self, title="Avg. HPS")
+		BaseOverlay.__init__(self, title="Fight Timer")
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -34,19 +34,19 @@ class AverageHPSOverlay(BaseOverlay):
 	def createUI(self):
 		BaseOverlay.createUI(self)
 
-		# HPS
-		self.hps = wx.StaticText(self.panel, -1, "2100.35")
-		self.hps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.hps.SetSize(self.hps.GetBestSize())
-		self.box.Add(self.hps, 0, wx.ALL, 10)
+		# Timer
+		self.timer = wx.StaticText(self.panel, -1, "")
+		self.timer.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.timer.SetSize(self.timer.GetBestSize())
+		self.box.Add(self.timer, 0, wx.ALL, 10)
 
 	def updateColors(self):
-		self.hps.SetForegroundColour(self.getForegroundColor())
+		self.timer.SetForegroundColour(self.getForegroundColor())
 		BaseOverlay.updateColors(self)
 
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
 	def OnAnalyzerTick(self, analyzer):
-		self.hps.SetLabel(locale.format("%.2f", analyzer.avgHps, grouping=True))
+		self.timer.SetLabel(util.FormatDuration(analyzer.combatDurationLinear))
 

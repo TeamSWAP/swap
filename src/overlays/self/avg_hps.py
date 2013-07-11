@@ -18,12 +18,12 @@ import wx, random, time, locale, util
 import log_analyzer
 
 from threading import Thread, Event
-from base import BaseOverlay
+from overlays.base import BaseOverlay
 from logging import prnt
 
-class AverageDPSOverlay(BaseOverlay):
+class AverageHPSOverlay(BaseOverlay):
 	def __init__(self):
-		BaseOverlay.__init__(self, title="Avg. DPS")
+		BaseOverlay.__init__(self, title="Avg. HPS")
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -34,19 +34,19 @@ class AverageDPSOverlay(BaseOverlay):
 	def createUI(self):
 		BaseOverlay.createUI(self)
 
-		# DPS
-		self.dps = wx.StaticText(self.panel, -1, "2100.35")
-		self.dps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.dps.SetSize(self.dps.GetBestSize())
-		self.box.Add(self.dps, 0, wx.ALL, 10)
+		# HPS
+		self.hps = wx.StaticText(self.panel, -1, "2100.35")
+		self.hps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.hps.SetSize(self.hps.GetBestSize())
+		self.box.Add(self.hps, 0, wx.ALL, 10)
 
 	def updateColors(self):
-		self.dps.SetForegroundColour(self.getForegroundColor())
+		self.hps.SetForegroundColour(self.getForegroundColor())
 		BaseOverlay.updateColors(self)
 
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
 	def OnAnalyzerTick(self, analyzer):
-		self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
+		self.hps.SetLabel(locale.format("%.2f", analyzer.avgHps, grouping=True))
 

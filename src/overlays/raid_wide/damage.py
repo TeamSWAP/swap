@@ -21,12 +21,12 @@ import raid
 import util
 
 from threading import Thread, Event
-from base_list import BaseListOverlay
+from overlays.base_list import BaseListOverlay
 from logging import prnt
 
-class RaidHealingReceivedOverlay(BaseListOverlay):
+class RaidDamageOverlay(BaseListOverlay):
 	def __init__(self):
-		BaseListOverlay.__init__(self, title="Raid Healing Received", size=(300, 150))
+		BaseListOverlay.__init__(self, title="Raid Damage", size=(300, 150))
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -37,7 +37,7 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Healing Received", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Damage", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -48,8 +48,8 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 		self.clearList()
 
 		def sortf(x, y):
-			x = x['totalHealingReceived']
-			y = y['totalHealingReceived']
+			x = x['totalDamage']
+			y = y['totalDamage']
 			if x == y:
 				return 0
 			elif x < y:
@@ -58,21 +58,21 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 				return -1
 
 		index = 0
-		raidTotalHealingReceived = 0
+		raidTotalDamage = 0
 		for player in raid.playerData:
-			raidTotalHealingReceived += player['totalHealingReceived']
+			raidTotalDamage += player['totalDamage']
 
 		for player in sorted(raid.playerData, sortf):
-			if player['totalHealingReceived'] == 0:
+			if player['totalDamage'] == 0:
 				continue
 
-			percent = util.div(player['totalHealingReceived'], raidTotalHealingReceived)
+			percent = util.div(player['totalDamage'], raidTotalDamage)
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalHealingReceived'], grouping=True), percent], color)
+			self.addRow([player['name'][1:], locale.format("%d", player['totalDamage'], grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()

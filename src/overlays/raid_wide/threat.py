@@ -21,12 +21,12 @@ import raid
 import util
 
 from threading import Thread, Event
-from base_list import BaseListOverlay
+from overlays.base_list import BaseListOverlay
 from logging import prnt
 
-class RaidAvgDPSOverlay(BaseListOverlay):
+class RaidThreatOverlay(BaseListOverlay):
 	def __init__(self):
-		BaseListOverlay.__init__(self, title="Raid Avg. DPS", size=(300, 150))
+		BaseListOverlay.__init__(self, title="Raid Threat", size=(300, 150))
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -37,7 +37,7 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Avg. DPS", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Threat", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -48,8 +48,8 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 		self.clearList()
 
 		def sortf(x, y):
-			x = x['totalDamage']
-			y = y['totalDamage']
+			x = x['totalThreat']
+			y = y['totalThreat']
 			if x == y:
 				return 0
 			elif x < y:
@@ -58,22 +58,25 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 				return -1
 
 		index = 0
-		raidTotalDamage = 0
+		raidTotalThreat = 0
 		for player in raid.playerData:
-			raidTotalDamage += player['totalDamage']
+			if player['totalThreat'] < 0:
+				continue
+			raidTotalThreat += player['totalThreat']
 
 		for player in sorted(raid.playerData, sortf):
-			if player['totalDamage'] == 0:
+			if player['totalThreat'] == 0:
 				continue
 
-			dps = player['avgDps']
-			percent = util.div(player['totalDamage'], raidTotalDamage)
+			percent = 0
+			if player['totalThreat'] >  0:
+				percent = util.div(player['totalThreat'], raidTotalThreat)
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%.2f", dps, grouping=True), percent], color)
+			self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()

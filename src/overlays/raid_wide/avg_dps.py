@@ -21,12 +21,12 @@ import raid
 import util
 
 from threading import Thread, Event
-from base_list import BaseListOverlay
+from overlays.base_list import BaseListOverlay
 from logging import prnt
 
-class RaidDamageTakenOverlay(BaseListOverlay):
+class RaidAvgDPSOverlay(BaseListOverlay):
 	def __init__(self):
-		BaseListOverlay.__init__(self, title="Raid Damage Taken", size=(300, 150))
+		BaseListOverlay.__init__(self, title="Raid Avg. DPS", size=(300, 150))
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -37,7 +37,7 @@ class RaidDamageTakenOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Damage Taken", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Avg. DPS", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -48,8 +48,8 @@ class RaidDamageTakenOverlay(BaseListOverlay):
 		self.clearList()
 
 		def sortf(x, y):
-			x = x['totalDamageTaken']
-			y = y['totalDamageTaken']
+			x = x['totalDamage']
+			y = y['totalDamage']
 			if x == y:
 				return 0
 			elif x < y:
@@ -58,21 +58,22 @@ class RaidDamageTakenOverlay(BaseListOverlay):
 				return -1
 
 		index = 0
-		raidTotalDamageTaken = 0
+		raidTotalDamage = 0
 		for player in raid.playerData:
-			raidTotalDamageTaken += player['totalDamageTaken']
+			raidTotalDamage += player['totalDamage']
 
 		for player in sorted(raid.playerData, sortf):
-			if player['totalDamageTaken'] == 0:
+			if player['totalDamage'] == 0:
 				continue
-	
-			percent = util.div(player['totalDamageTaken'], raidTotalDamageTaken)
+
+			dps = player['avgDps']
+			percent = util.div(player['totalDamage'], raidTotalDamage)
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalDamageTaken'], grouping=True), percent], color)
+			self.addRow([player['name'][1:], locale.format("%.2f", dps, grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()

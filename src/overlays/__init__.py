@@ -20,18 +20,8 @@ from base import BaseOverlay
 from logging import prnt
 
 # Import overlay classes
-from avg_dps import AverageDPSOverlay
-from avg_hps import AverageHPSOverlay
-from damage_dealt import DamageDealtOverlay
-from healing_done import HealingDoneOverlay
-from timer import FightTimerOverlay
-from raid_damage import RaidDamageOverlay
-from raid_damage_taken import RaidDamageTakenOverlay
-from raid_healing import RaidHealingOverlay
-from raid_healing_received import RaidHealingReceivedOverlay
-from raid_avg_dps import RaidAvgDPSOverlay
-from raid_avg_hps import RaidAvgHPSOverlay
-from raid_threat import RaidThreatOverlay
+from self import *
+from raid_wide import *
 
 overlayCategories = [
 	{

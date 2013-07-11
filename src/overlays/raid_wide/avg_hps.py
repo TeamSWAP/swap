@@ -21,12 +21,12 @@ import raid
 import util
 
 from threading import Thread, Event
-from base_list import BaseListOverlay
+from overlays.base_list import BaseListOverlay
 from logging import prnt
 
-class RaidThreatOverlay(BaseListOverlay):
+class RaidAvgHPSOverlay(BaseListOverlay):
 	def __init__(self):
-		BaseListOverlay.__init__(self, title="Raid Threat", size=(300, 150))
+		BaseListOverlay.__init__(self, title="Raid Avg. Healing", size=(300, 150))
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
@@ -37,7 +37,7 @@ class RaidThreatOverlay(BaseListOverlay):
 	def createUI(self):
 		BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Threat", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+		self.setColumns(["Player", "Avg. Healing", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
@@ -48,8 +48,8 @@ class RaidThreatOverlay(BaseListOverlay):
 		self.clearList()
 
 		def sortf(x, y):
-			x = x['totalThreat']
-			y = y['totalThreat']
+			x = x['totalHealing']
+			y = y['totalHealing']
 			if x == y:
 				return 0
 			elif x < y:
@@ -58,25 +58,30 @@ class RaidThreatOverlay(BaseListOverlay):
 				return -1
 
 		index = 0
-		raidTotalThreat = 0
+		raidTotalHealing = 0
 		for player in raid.playerData:
-			if player['totalThreat'] < 0:
-				continue
-			raidTotalThreat += player['totalThreat']
+			raidTotalHealing += player['totalHealing']
 
 		for player in sorted(raid.playerData, sortf):
-			if player['totalThreat'] == 0:
+			if player['totalHealing'] == 0:
 				continue
-
-			percent = 0
-			if player['totalThreat'] >  0:
-				percent = util.div(player['totalThreat'], raidTotalThreat)
+			if raidTotalHealing > 0:
+				percent = "%.2f"%((float(player['totalHealing']) / float(raidTotalHealing)) * 100.0)
+			else:
+				percent = "%.2f"%0
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
 				color = config.GetColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), percent], color)
+			hps = player['avgHps']
+			percent = util.div(player['totalHealing'], raidTotalHealing)
+
+			color = self.getForegroundColor()
+			if player['name'] == analyzer.parser.me:
+				color = config.GetColor("overlayListSelfColor")
+
+			self.addRow([player['name'][1:], locale.format("%.2f", hps, grouping=True), percent], color)
 
 			index += 1
 		self.endBatch()
