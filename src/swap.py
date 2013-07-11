@@ -328,12 +328,12 @@ class MainFrame(wx.Frame):
 			detailBlock = wx.BoxSizer(wx.VERTICAL)
 
 			header = wx.StaticText(panelParent, -1, name)
-			header.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+			header.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
 			header.SetSize(header.GetBestSize())
 			detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
 
 			text = wx.StaticText(panelParent, -1, "N/A")
-			text.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+			text.SetFont(wx.Font(24, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
 			text.SetSize(text.GetBestSize())
 			detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
 
