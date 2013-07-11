@@ -315,7 +315,7 @@ class MainFrame(wx.Frame):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
 		
-		self.reportView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+		self.reportView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.reportView.InsertColumn(0, "Name"); self.reportView.SetColumnWidth(0, 300)
 		self.reportView.InsertColumn(1, "Value"); self.reportView.SetColumnWidth(1, 200)
 
@@ -346,7 +346,7 @@ class MainFrame(wx.Frame):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
 		
-		self.raidView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+		self.raidView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 20)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
 		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(1, 100)
