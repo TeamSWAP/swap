@@ -39,7 +39,16 @@ class AnalyzerThread(threading.Thread):
 		self.setDaemon(True)
 
 		self.totalDamage = 0
+		self.totalDamageTaken = 0
+		self.totalHealing = 0
+		self.totalHealingReceived = 0
+		self.totalThreat = 0
+		self.combatStartTime = 0
+		self.combatEndTime = 0
+		self.combatDuration = 0
+		self.combatDurationLinear = 0
 		self.avgDps = 0
+		self.avgHps = 0
 
 	def run(self):
 		crashCounter = 0
