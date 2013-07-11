@@ -45,13 +45,13 @@ class MainFrame(wx.Frame):
 		menu = wx.Menu()
 		menuBar.Append(menu, "&File")
 		m_exit = menu.Append(MENU_ID_EXIT, MENU_TITLE_EXIT, MENU_TIP_EXIT)
-		self.Bind(wx.EVT_MENU, self.OnClose, id=MENU_ID_EXIT)
+		self.Bind(wx.EVT_MENU, self.onClose, id=MENU_ID_EXIT)
 
 		# Tools
 		menu = wx.Menu()
 		menuBar.Append(menu, "&Tools")
 		m_preferences = menu.Append(MENU_ID_PREFERENCES, MENU_TITLE_PREFERENCES, MENU_TIP_PREFERENCES)
-		self.Bind(wx.EVT_MENU, self.OnPreferences, id=MENU_ID_PREFERENCES)
+		self.Bind(wx.EVT_MENU, self.onPreferences, id=MENU_ID_PREFERENCES)
 
 		# Overlay
 		menu = wx.Menu()
@@ -92,10 +92,10 @@ class MainFrame(wx.Frame):
 		menu.AppendSeparator()
 
 		m_reset = menu.Append(MENU_ID_OVERLAY_RESET, MENU_TITLE_OVERLAY_RESET, MENU_TIP_OVERLAY_RESET)
-		self.Bind(wx.EVT_MENU, self.OnResetOverlays, id=MENU_ID_OVERLAY_RESET)
+		self.Bind(wx.EVT_MENU, self.onResetOverlays, id=MENU_ID_OVERLAY_RESET)
 
 		m_close = menu.Append(MENU_ID_OVERLAY_CLOSE, MENU_TITLE_OVERLAY_CLOSE, MENU_TIP_OVERLAY_CLOSE)
-		self.Bind(wx.EVT_MENU, self.OnCloseOverlays, id=MENU_ID_OVERLAY_CLOSE)
+		self.Bind(wx.EVT_MENU, self.onCloseOverlays, id=MENU_ID_OVERLAY_CLOSE)
 
 		# UI
 		self.panel = wx.Panel(self)
@@ -116,10 +116,10 @@ class MainFrame(wx.Frame):
 			self.keyBox.SetValue(lastRaidKey)
 
 		self.keyGenerateButton = wx.Button(self.panel, -1, "Generate")
-		self.keyGenerateButton.Bind(wx.EVT_BUTTON, self.OnGenerateButton)
+		self.keyGenerateButton.Bind(wx.EVT_BUTTON, self.onGenerateButton)
 
 		self.keyJoinButton = wx.Button(self.panel, -1, "Join Raid")
-		self.keyJoinButton.Bind(wx.EVT_BUTTON, self.OnJoinRaidButton)
+		self.keyJoinButton.Bind(wx.EVT_BUTTON, self.onJoinRaidButton)
 
 		self.keyVanityCheck = wx.CheckBox(self.panel, -1, "Generate Vanity Key")
 		self.keyStatus = wx.StaticText(self.panel, -1, "")
@@ -168,31 +168,31 @@ class MainFrame(wx.Frame):
 		self.panel.Layout()
 
 		# Events
-		self.Bind(wx.EVT_CLOSE, self.OnClose)
+		self.Bind(wx.EVT_CLOSE, self.onClose)
 
 		log_analyzer.Get().registerFrame(self)
 
-	def OnPreferences(self, event):
+	def onPreferences(self, event):
 		dialog = preferences.PreferencesDialog(self)
 		dialog.ShowModal()
 
-	def OnClose(self, event):
+	def onClose(self, event):
 		if raid.IsInRaid():
 			raid.LeaveRaid()
 		log_analyzer.Get().unregisterFrame(self)
 		overlays.killAllOverlays()
 		self.Destroy()
 
-	def OnResetOverlays(self, event):
+	def onResetOverlays(self, event):
 		overlays.resetOverlays()
 		overlays.killAllOverlays()
 		self.updateOverlayList()
 
-	def OnCloseOverlays(self, event):
+	def onCloseOverlays(self, event):
 		overlays.KillAllOverlays()
 		self.updateOverlayList()
 
-	def OnGenerateButton(self, event):
+	def onGenerateButton(self, event):
 		vanityKey = None
 		if self.keyVanityCheck.IsChecked():
 			vanityKey = self.keyBox.GetValue()
@@ -203,9 +203,9 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Disable()
 		self.keyVanityCheck.Disable()
 
-		raid.GenerateKey(vanityKey, self.OnGotKey, self.OnFailedToGetKey)
+		raid.GenerateKey(vanityKey, self.onGotKey, self.onFailedToGetKey)
 
-	def OnGotKey(self, key):
+	def onGotKey(self, key):
 		self.keyBox.SetValue(key)
 		self.keyBox.Enable()
 		self.keyStatus.SetLabel("")
@@ -213,7 +213,7 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 
-	def OnFailedToGetKey(self):
+	def onFailedToGetKey(self):
 		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
 		result = dlg.ShowModal()
 		dlg.Destroy()
@@ -223,19 +223,19 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 
-	def OnJoinRaidButton(self, event):
+	def onJoinRaidButton(self, event):
 		if not raid.IsInRaid():
 			self.keyStatus.SetLabel("Joining raid...")
 			self.keyBox.Disable()
 			self.keyJoinButton.Disable()
 			self.keyGenerateButton.Disable()
 			self.keyVanityCheck.Disable()
-			raid.JoinRaid(self.keyBox.GetValue().encode('ascii'), self.OnJoinedRaid, self.OnFailedToJoinRaid)
+			raid.JoinRaid(self.keyBox.GetValue().encode('ascii'), self.onJoinedRaid, self.onFailedToJoinRaid)
 		else:
 			raid.LeaveRaid()
-			self.OnLeftRaid()
+			self.onLeftRaid()
 
-	def OnJoinedRaid(self):
+	def onJoinedRaid(self):
 		self.keyJoinButton.SetLabel("Leave Raid")
 		self.keyJoinButton.Enable()
 		self.keyStatus.SetLabel("")
@@ -243,7 +243,7 @@ class MainFrame(wx.Frame):
 
 		config.Set("lastRaidKey", self.keyBox.GetValue())
 
-	def OnFailedToJoinRaid(self, reason):
+	def onFailedToJoinRaid(self, reason):
 		titles = {
 			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TITLE,
 			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE
@@ -263,7 +263,7 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 
-	def OnLeftRaid(self):
+	def onLeftRaid(self):
 		self.keyJoinButton.SetLabel("Join Raid")
 		self.keyStatus.SetLabel("")
 		self.keyBox.Enable()
