@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import threading, urllib, urllib2, json, socket, struct
+import wx, threading, urllib, urllib2, json, socket, struct
 import log_parser, log_analyzer
 import net
 
@@ -62,9 +62,9 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 		success = stream.readByte() == 1
 		if success:
 			key = stream.readString()
-			successFunc(key)
+			wx.CallAfter(successFunc, key)
 		else:
-			failureFunc()
+			wx.CallAfter(failureFunc)
 
 	t = threading.Thread(target=thread)
 	t.daemon = True
@@ -110,10 +110,10 @@ def JoinRaid(key, successFunc, failureFunc):
 				sock.close()
 			raidClient = RaidClient(serverNode)
 			raidClient.start()
-			successFunc()
+			wx.CallAfter(successFunc)
 		else:
 			reason = stream.readString()
-			failureFunc(reason)
+			wx.CallAfter(failureFunc, reason)
 			sock.close()
 
 	t = threading.Thread(target=thread)
