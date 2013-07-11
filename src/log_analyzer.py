@@ -56,6 +56,10 @@ class AnalyzerThread(threading.Thread):
 		try:
 			stateInCombat = False
 			while not self.stopEvent.isSet():
+				if not self.parser.ready:
+					time.sleep(0.1)
+					continue
+
 				combatStartTime = 0
 				combatEndTime = 0
 				totalDamage = 0

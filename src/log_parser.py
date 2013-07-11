@@ -59,6 +59,7 @@ class Parser:
 		self.linePat = re.compile("^\[(?P<hour>\d{1,2})\:(?P<minute>\d{2})\:(?P<second>\d{2})\.(?P<ms>\d{3})\] \[(?P<actor>[^\[\]]*)\] \[(?P<target>[^\[\]]*)\] \[(?:(?P<ability>[^{}]+))?(?: {(?P<abilityid>\d*)})?\] \[(?P<action>[^{}]+) {(?P<actionid>\d*)}: (?P<actiontype>[^{}]+) {(?P<actiontypeid>\d*)}\] \((?:(?P<result>[^\<\>]+))?\)(?: \<(?P<threat>-?\d*)\>)?$")
 		self.logLocation = None
 		self.events = []
+		self.ready = False
 		self.me = None
 		self.getDocs()
 		pass
@@ -99,6 +100,7 @@ class Parser:
 
 			self.inCombat = False
 			self.events = []
+			self.ready = False
 
 			prnt("Parser: Began parsing %s"%logFile)
 
@@ -123,6 +125,9 @@ class Parser:
 				logCursor = log.tell()
 				line = log.readline()
 				if line == "":
+					# Once we reach EOF mark us as ready for analyzation.
+					if not self.ready:
+						self.ready = True
 					time.sleep(.25)
 					continue
 			
