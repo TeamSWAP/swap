@@ -59,6 +59,7 @@ class RaidClient(threading.Thread):
 							conn = net.node.connect(self.serverNode, "swap:raid")
 							if conn.state == fuzion.CS_CONNECTED:
 								self.conn = conn
+								self.lastTicks = 2
 								continue
 							else:
 								prnt("RaidClient: Failed to connect to new node! Connection state = %d"%conn.state)
