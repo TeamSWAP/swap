@@ -53,10 +53,6 @@ class RaidServer(threading.Thread):
 				stream = ByteStream(data)
 				packetType = stream.readByte()
 
-				if now > self.lastRaidUpdateSent + 2:
-					self.lastRaidUpdateSent = now
-					self.sendRaidUpdate()
-
 			if self.port.connectionPending():
 				conn = self.port.accept()
 				self.clientList.append({ 'conn': conn, 'playerInfo': None })
