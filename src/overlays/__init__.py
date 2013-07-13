@@ -118,7 +118,7 @@ overlayList = [
 # This variable will be filled with overlay objects keyed to the overlay
 # name.
 openOverlays = {}
-isOverlayBeingDragged = False
+overlayBeingDragged = False
 
 def getOverlayCategoryList():
 	global overlayCategories
@@ -188,12 +188,12 @@ def isDarkTheme():
 	return config.Get("overlayBgColor") == 0
 
 def setOverlayBeingDragged(val):
-	global isOverlayBeingDragged
-	isOverlayBeingDragged = val
+	global overlayBeingDragged
+	overlayBeingDragged = val
 
 def isOverlayBeingDragged():
-	global isOverlayBeingDragged
-	return isOverlayBeingDragged
+	global overlayBeingDragged
+	return overlayBeingDragged
 
 def resetOverlays():
 	prnt("Resetting overlays...")
