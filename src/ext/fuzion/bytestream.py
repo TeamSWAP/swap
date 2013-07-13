@@ -46,13 +46,13 @@ class ByteStream:
 		self.data += struct.pack('!i', number)
 
 	def readString(self):
-		length = self.readByte()
+		length = self.readInt()
 		string = self.data[self.position:self.position + length]
 		self.position += length
 		return string
 
 	def writeString(self, string):
-		self.writeByte(len(string))
+		self.writeInt(len(string))
 		self.data += string
 
 	def readFloat(self):

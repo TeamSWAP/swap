@@ -200,7 +200,7 @@ class NodeServer(threading.Thread):
 	# thread-safe
 	def getNewNodeId(self):
 		md = hashlib.md5(str(random.random()) + str("_") + str(time.time())).hexdigest()
-		return md[:4]
+		return md
 
 	# thread-safe
 	def pushNode(self, node):
