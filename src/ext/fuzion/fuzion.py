@@ -429,7 +429,6 @@ class NodeConnection(threading.Thread):
 						self.closeInternal(ERR_CLOSED_BY_REMOTE)
 						break
 					elif packetType == P_KEEP_ALIVE:
-						debug("Got keep alive")
 						pass
 					self.lastPacketReceived = now
 
