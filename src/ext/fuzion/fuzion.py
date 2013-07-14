@@ -75,6 +75,20 @@ def debug(*args):
 	with printLock:
 		print ' '.join(map(lambda x:str(x), args))
 
+def formatError(code):
+	if code == ERR_NO_ERROR:
+		return "ERR_NO_ERROR"
+	elif code == ERR_NO_NODE:
+		return "ERR_NO_NODE"
+	elif code == ERR_REJECTED:
+		return "ERR_REJECTED"
+	elif code == ERR_CLOSED_BY_REMOTE:
+		return "ERR_CLOSED_BY_REMOTE"
+	elif code == ERR_CLOSED_BY_SELF:
+		return "ERR_CLOSED_BY_SELF"
+	elif code == ERR_TIMED_OUT:
+		return "ERR_TIMED_OUT"
+
 class Node:
 	def __init__(self, nodeStateCallback=None):
 		self.id = None

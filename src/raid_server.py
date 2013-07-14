@@ -62,7 +62,8 @@ class RaidServer(threading.Thread):
 				if conn.recvPending():
 					data = conn.recv()
 					if data == None:
-						prnt("client closed. removed from list")
+						playerName = client['playerInfo']['name'] if client['playerInfo'] else "<NoInfo>"
+						prnt("Client (%s) left raid, reason=%s"%(playerName, fuzion.formatError(conn.closedReason)))
 						self.lastRaidUpdatePoke = time()
 						self.clientList.remove(client)
 						continue
