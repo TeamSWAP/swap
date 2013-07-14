@@ -391,10 +391,16 @@ class NodeConnection(threading.Thread):
 			if not self.loopback:
 				# Get tunnel info
 				privIp = socket.gethostbyname(socket.gethostname())
-				(privPort, pubIp, pubPort) = self.node.reflectAddress()
+				while True:
+					(privPort, pubIp, pubPort) = self.node.reflectAddress()
 
-				self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-				self.sock.bind(('', privPort))
+					self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+					try:
+						self.sock.bind(('', privPort))
+					except:
+						debug("Fuzion: Port %d taken, selecting new port."%(privPort))
+						continue
+					break
 
 				debug("Bound at", privPort)
 
