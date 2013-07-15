@@ -377,7 +377,7 @@ class MainFrame(wx.Frame):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
 		
-		self.raidView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
+		self.raidView = SortList(panelParent, 9, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 20)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
 		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(1, 100)
@@ -454,21 +454,25 @@ class MainFrame(wx.Frame):
 
 		self.raidView.DeleteAllItems()
 		index = 0
+		itemDataMap = {}
 		for player in sorted(raid.playerData, key=lambda x: x['name']):
 			connectionType = player['connType']
 			name = player['name'][1:]
-			avgDps = (player['totalDamage'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
-			avgHps = (player['totalHealing'] / analyzer.combatDuration) if analyzer.combatDuration > 0 else 0
 			self.raidView.InsertStringItem(index, connectionType)
 			self.raidView.SetStringItem(index, 1, name)
 			self.raidView.SetStringItem(index, 2, locale.format("%d", player['totalDamage'], grouping=True))
 			self.raidView.SetStringItem(index, 3, locale.format("%d", player['totalDamageTaken'], grouping=True))
-			self.raidView.SetStringItem(index, 4, locale.format("%.2f", avgDps, grouping=True))
+			self.raidView.SetStringItem(index, 4, locale.format("%.2f", player['avgDps'], grouping=True))
 			self.raidView.SetStringItem(index, 5, locale.format("%d", player['totalHealing'], grouping=True))
 			self.raidView.SetStringItem(index, 6, locale.format("%d", player['totalHealingReceived'], grouping=True))
-			self.raidView.SetStringItem(index, 7, locale.format("%.2f", avgHps, grouping=True))
+			self.raidView.SetStringItem(index, 7, locale.format("%.2f", player['avgHps'], grouping=True))
 			self.raidView.SetStringItem(index, 8, locale.format("%d", player['totalThreat'], grouping=True))
+			self.raidView.SetItemData(index, index)
+			itemDataMap[index] = [connectionType, name, player['totalDamage'], player['totalDamageTaken'], player['avgDps'],
+				player['totalHealing'], player['totalHealingReceived'], player['avgHps'], player['totalThreat']]
 			index += 1
+		self.raidView.itemDataMap = itemDataMap
+		self.raidView.SortListItems()
 
 		self.breakdownView.DeleteAllItems()
 		index = 0
