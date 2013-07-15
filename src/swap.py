@@ -14,11 +14,14 @@
 # limitations under the License.
 #
 
-import wx, os, shutil, locale, time, subprocess
+import wx, os, shutil, locale, time, subprocess, traceback, threading
+import urllib2
 import overlays, logging, config
 import log_parser, log_analyzer, util, raid, net
 import preferences
 import ext.fuzion as fuzion
+
+from urllib import urlencode
 
 from constants import *
 from logging import prnt
@@ -102,10 +105,12 @@ class MainFrame(wx.Frame):
 		menuBar.Append(menu, "&Help")
 		m_checkUpdates = menu.Append(MENU_ID_HELP_UPDATES, MENU_TITLE_HELP_UPDATES, MENU_TIP_HELP_UPDATES)
 		m_openLog = menu.Append(MENU_ID_HELP_LOG, MENU_TITLE_HELP_LOG, MENU_TIP_HELP_LOG)
+		m_sendLog = menu.Append(MENU_ID_HELP_SEND_LOG, MENU_TITLE_HELP_SEND_LOG, MENU_TIP_HELP_SEND_LOG)
 		menu.AppendSeparator()
 		m_about = menu.Append(MENU_ID_HELP_ABOUT, MENU_TITLE_HELP_ABOUT, MENU_TIP_HELP_ABOUT)
 		self.Bind(wx.EVT_MENU, self.onCheckUpdates, id=MENU_ID_HELP_UPDATES)
 		self.Bind(wx.EVT_MENU, self.onOpenLog, id=MENU_ID_HELP_LOG)
+		self.Bind(wx.EVT_MENU, self.onSendLog, id=MENU_ID_HELP_SEND_LOG)
 		self.Bind(wx.EVT_MENU, self.onAbout, id=MENU_ID_HELP_ABOUT)
 
 		# UI
@@ -204,6 +209,24 @@ class MainFrame(wx.Frame):
 
 	def onOpenLog(self, event):
 		os.startfile("debug-swap.log")
+
+	def onSendLog(self, event):
+		def t():
+			try:
+				prnt("Sending SWAP log...")
+
+				f = open("debug-swap.log", "r")
+				log = f.read()
+				f.close()
+				
+				request = urllib2.Request(LOG_SEND_URL)
+				request.add_data(urlencode({"u": log}))
+				urllib2.urlopen(request).close()
+
+				prnt("Sent.")
+			except:
+				prnt(traceback.format_exc())
+		threading.Thread(target=t).start()
 
 	def onAbout(self, event):
 		about = wx.AboutDialogInfo()

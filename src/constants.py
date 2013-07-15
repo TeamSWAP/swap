@@ -19,6 +19,7 @@ import wx, os, sys
 VERSION = "0.7.4"
 VERSION_INT = 19
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
+LOG_SEND_URL = "http://faultexception.com/swap/sendlog.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 IS_COMPILED = 'frozen' in dir(sys)
@@ -43,6 +44,7 @@ MENU_ID_OVERLAY_RESET = wx.NewId()
 MENU_ID_OVERLAY_CLOSE = wx.NewId()
 MENU_ID_HELP_UPDATES = wx.NewId()
 MENU_ID_HELP_LOG = wx.NewId()
+MENU_ID_HELP_SEND_LOG = wx.NewId()
 MENU_ID_HELP_ABOUT = wx.NewId()
 
 # Menu Title
@@ -55,6 +57,7 @@ MENU_TITLE_OVERLAY_RESET = "Reset Overlays"
 MENU_TITLE_OVERLAY_CLOSE = "Close Overlays"
 MENU_TITLE_HELP_UPDATES = "Check for updates..."
 MENU_TITLE_HELP_LOG = "Open SWAP log"
+MENU_TITLE_HELP_SEND_LOG = "Send SWAP log"
 MENU_TITLE_HELP_ABOUT = "About"
 
 # Menu Tip
@@ -68,4 +71,5 @@ MENU_TIP_OVERLAY_CLOSE = "Close all open overlays"
 MENU_TIP_OVERLAY_SELECT = "Toggle selected overlay"
 MENU_TIP_HELP_UPDATES = "Check for updates..."
 MENU_TIP_HELP_LOG = "Open SWAP log"
+MENU_TIP_HELP_SEND_LOG = "Send SWAP log"
 MENU_TIP_HELP_ABOUT = "About"
