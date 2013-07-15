@@ -77,6 +77,8 @@ class RaidServer(threading.Thread):
 
 			sleep(0.1)
 
+		self.port.close()
+
 		for client in self.clientList:
 			conn = client['conn']
 			conn.close()

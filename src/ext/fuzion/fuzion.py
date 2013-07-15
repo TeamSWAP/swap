@@ -247,7 +247,7 @@ class Node:
 
 	# thread-safe
 	def bind(self, port):
-		p = NodePort(port)
+		p = NodePort(self, port)
 		with self.portsLock:
 			self.ports[port] = p
 		return p
@@ -347,8 +347,15 @@ class Node:
 		# TODO: signal thread to end
 		pass
 
+	def closePort(self, port):
+		p = self.getPort(port)
+		if p != None:
+			p.closed = True
+			del self.ports[port]
+
 class NodePort:
-	def __init__(self, port):
+	def __init__(self, node, port):
+		self.node = node
 		self.port = port
 		self.pendingConnections = []
 
@@ -359,6 +366,9 @@ class NodePort:
 
 	def connectionPending(self):
 		return len(self.pendingConnections) > 0
+
+	def close(self):
+		self.node.closePort(self.port)
 
 class NodeConnection(threading.Thread):
 	def __init__(self, node, targetId, targetPort):
