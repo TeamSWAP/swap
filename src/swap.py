@@ -22,9 +22,17 @@ import preferences
 import ext.fuzion as fuzion
 
 from urllib import urlencode
+from wx.lib.mixins.listctrl import ColumnSorterMixin
 
 from constants import *
 from logging import prnt
+
+class SortList(wx.ListCtrl, ColumnSorterMixin):
+	def __init__(self, parent, columns, style=wx.LC_REPORT):
+		wx.ListCtrl.__init__(self, parent, style=style)
+		self.itemDataMap = {}
+		self.GetListCtrl = lambda: self
+		ColumnSorterMixin.__init__(self, columns)
 
 class MainFrame(wx.Frame):
 	def __init__(self):
@@ -386,7 +394,7 @@ class MainFrame(wx.Frame):
 		parent = parent if parent else self.box
 		panelParent = panelParent if panelParent else self.panel
 		
-		self.breakdownView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
+		self.breakdownView = SortList(panelParent, 2, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.breakdownView.InsertColumn(0, "Ability"); self.breakdownView.SetColumnWidth(0, 200)
 		self.breakdownView.InsertColumn(1, "Damage"); self.breakdownView.SetColumnWidth(1, 100)
 
@@ -464,10 +472,16 @@ class MainFrame(wx.Frame):
 
 		self.breakdownView.DeleteAllItems()
 		index = 0
+
+		itemDataMap = {}
 		for ability, damage in sorted(analyzer.damageBreakdown.iteritems(), key=lambda x:x[1], reverse=True):
 			self.breakdownView.InsertStringItem(index, ability)
 			self.breakdownView.SetStringItem(index, 1, locale.format("%d", damage, grouping=True))
+			self.breakdownView.SetItemData(index, index)
+			itemDataMap[index] = [ability, damage]
 			index += 1
+		self.breakdownView.itemDataMap = itemDataMap
+		self.breakdownView.SortListItems()
 
 		# Update grid
 		for analyzerUpdater in self.gridUpdaters:
