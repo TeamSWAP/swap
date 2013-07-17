@@ -104,10 +104,10 @@ class RaidServer(threading.Thread):
 
 		conn = client['conn']
 		connType = 'T'
-		if conn.relay:
-			connType = 'R'
-		elif conn.loopback:
+		if conn.loopback:
 			connType = 'L'
+		elif conn.relay:
+			connType = 'R'
 
 		client['playerInfo'] = {
 			'name': name,
