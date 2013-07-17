@@ -193,14 +193,10 @@ class Node:
 				out.writeBoolean(True)
 				self.send(out)
 
-				if targetId == self.id:
-					# loopback
-					pass
-				else:
-					conn = NodeConnection(self, targetId, targetPort)
-					conn.state = CS_ACCEPTED
-					conn.start()
-					self.connections.append(conn)
+				conn = NodeConnection(self, targetId, targetPort, False)
+				conn.state = CS_ACCEPTED
+				conn.start()
+				self.connections.append(conn)
 		elif p == P_CONNECT_RESPONSE:
 			targetId = b.readString()
 			targetPort = b.readString()
@@ -211,7 +207,7 @@ class Node:
 			elif errorCode == ERR_REJECTED:
 				state = CS_FAILED_REJECTED
 
-			self.updateConnectionState(targetId, targetPort, state)
+			self.updateConnectionState(targetId, targetPort, state, True)
 			if state == CS_ACCEPTED:
 				self.startConnection(targetId, targetPort)
 		elif p == P_TUNNEL_INFO:
@@ -272,7 +268,7 @@ class Node:
 		out.writeString(targetPort)
 		self.send(out)
 
-		conn = NodeConnection(self, targetId, targetPort)
+		conn = NodeConnection(self, targetId, targetPort, True)
 		self.connections.append(conn)
 
 		while True:
@@ -288,15 +284,17 @@ class Node:
 		return conn
 
 	# thread-safe
-	def getConnection(self, targetId, targetPort):
+	def getConnection(self, targetId, targetPort, outbound=-1):
 		for conn in self.connections:
 			if conn.targetId == targetId and conn.targetPort == targetPort:
+				if outbound != -1 and outbound != conn.outbound:
+					continue
 				return conn
 
 	# thread-safe
-	def updateConnectionState(self, targetId, targetPort, state):
+	def updateConnectionState(self, targetId, targetPort, state, outbound):
 		for conn in self.connections:
-			if conn.targetId == targetId and conn.targetPort == targetPort:
+			if conn.targetId == targetId and conn.targetPort == targetPort and conn.outbound == outbound:
 				conn.state = state
 
 	# thread-safe
@@ -322,7 +320,13 @@ class Node:
 		self.send(out)
 
 	# thread-safe
-	def sendRelay(self, targetId, targetPort, data):
+	def sendRelay(self, targetId, targetPort, data, fromOutbound):
+		# Loopback
+		if self.id == targetId:
+			# Send it to the opposite connection.
+			conn = self.getConnection(targetId, targetPort, not fromOutbound)
+			conn.injectRelayRead(data)
+			return
 		out = ByteStream()
 		out.writeByte(P_RELAY_PACKET)
 		out.writeString(targetId)
@@ -371,7 +375,7 @@ class NodePort:
 		self.node.closePort(self.port)
 
 class NodeConnection(threading.Thread):
-	def __init__(self, node, targetId, targetPort):
+	def __init__(self, node, targetId, targetPort, outbound):
 		threading.Thread.__init__(self)
 		self.setDaemon(True)
 		
@@ -390,7 +394,10 @@ class NodeConnection(threading.Thread):
 		self.closed = False
 		self.closedReason = 0
 		self.relay = False
+		if self.loopback:
+			self.relay = True
 		self.relayedRead = []
+		self.outbound = outbound
 
 	def start(self):
 		self.threadStarted = True
@@ -421,17 +428,14 @@ class NodeConnection(threading.Thread):
 					self.state = CS_TUNNELING
 			else:
 				self.state = CS_CONNECTED
-				self.pushToPort()
+				if not self.outbound:
+					self.pushToPort()
 
 		while not self.threadStopped.isSet():
 			now = time.time()
 
 			if self.state != CS_CONNECTED:
 				self.updateNotConnected()
-				time.sleep(0.2)
-				continue
-
-			if self.loopback:
 				time.sleep(0.2)
 				continue
 
@@ -479,10 +483,6 @@ class NodeConnection(threading.Thread):
 		if isinstance(data, ByteStream):
 			data = data.toString()
 
-		if self.loopback:
-			self.pendingRecv.append(data)
-			return
-
 		packet = ByteStream()
 		packet.writeByte(P_DATA)
 		packet.writeString(data)
@@ -528,6 +528,8 @@ class NodeConnection(threading.Thread):
 			self.sock.close()
 
 	def pushToPort(self):
+		if self.outbound:
+			return
 		# Push the connection into the listening port, if it's our port
 		p = self.node.getPort(self.targetPort)
 		if p != None:
@@ -544,7 +546,8 @@ class NodeConnection(threading.Thread):
 				debug("Fallback to relay.")
 				self.state = CS_CONNECTED
 				self.relay = True
-				self.pushToPort()
+				if not self.outbound:
+					self.pushToPort()
 				return
 
 			mySyn = ByteStream()
@@ -573,7 +576,8 @@ class NodeConnection(threading.Thread):
 					self.addr = addr
 					self.sock.connect(addr)
 
-					self.pushToPort()
+					if not self.outbound:
+						self.pushToPort()
 
 					debug("Tunnel established.")
 
@@ -592,7 +596,7 @@ class NodeConnection(threading.Thread):
 
 	def _send(self, data):
 		if self.relay:
-			self.node.sendRelay(self.targetId, self.targetPort, data)
+			self.node.sendRelay(self.targetId, self.targetPort, data, self.outbound)
 			return len(data)
 		return self.sock.send(data)
 
