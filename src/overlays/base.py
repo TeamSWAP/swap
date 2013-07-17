@@ -29,6 +29,7 @@ class BaseOverlay(wx.Frame):
 	def __init__(self, title="DPS meter", size=(300, 100)):
 		wx.Frame.__init__(self, None, title=title, size=size, style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
 
+		self.hwnd = self.GetHandle()
 		self.title = title
 
 		# UI
@@ -53,7 +54,6 @@ class BaseOverlay(wx.Frame):
 		self.updateTimer.Start(400)
 		self.Bind(wx.EVT_TIMER, self.OnUpdateTimer, self.updateTimer)
 
-		self.hwnd = self.GetHandle()
 		self.setFocusable(False)
 		self.updateColors()
 
@@ -121,6 +121,7 @@ class BaseOverlay(wx.Frame):
 
 	def updateUI(self):
 		self.titleText.SetFont(wx.Font(config.Get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.setClickThrough(config.Get("overlayClickThrough"))
 		self.updateColors()
 
 	def setFocusable(self, isFocusable):
@@ -129,6 +130,14 @@ class BaseOverlay(wx.Frame):
 			style &= ~WS_EX_NOACTIVATE
 		else:
 			style |= WS_EX_NOACTIVATE
+		win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
+
+	def setClickThrough(self, clickThrough):
+		style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
+		if clickThrough:
+			style |= WS_EX_TRANSPARENT
+		else:
+			style &= ~WS_EX_TRANSPARENT
 		win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
 
 	def setAlpha(self, alpha):

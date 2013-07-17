@@ -100,6 +100,10 @@ class MainFrame(wx.Frame):
 		m_snapOverlays.Check(config.Get("overlaySnap") == True)
 		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlaySnap", m_snapOverlays.IsChecked()), id=MENU_ID_OVERLAY_SNAP)
 
+		m_clickThrough = menu.AppendCheckItem(MENU_ID_OVERLAY_CLICK_THROUGH, MENU_TITLE_OVERLAY_CLICK_THROUGH, MENU_TIP_OVERLAY_CLICK_THROUGH)
+		m_clickThrough.Check(config.Get("overlayClickThrough") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlayClickThrough", m_clickThrough.IsChecked()), id=MENU_ID_OVERLAY_CLICK_THROUGH)
+
 		menu.AppendSeparator()
 
 		m_reset = menu.Append(MENU_ID_OVERLAY_RESET, MENU_TITLE_OVERLAY_RESET, MENU_TIP_OVERLAY_RESET)

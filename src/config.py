@@ -27,6 +27,7 @@ defaults = {
 	'overlayOpacity': 150,
 	'overlayHeaderFontSize': 13,
 	'overlaySizeToGrid': True,
+	'overlayClickThrough': False,
 	'overlaySnap': True
 }
 
