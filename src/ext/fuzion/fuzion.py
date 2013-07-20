@@ -30,7 +30,8 @@ P_TUNNEL_INFO                 = 4
 P_RELAY_PACKET                = 9
 
 # P2P connection messages
-P_TUNNEL_SYNACK               = 5
+P_TUNNEL_SYN                  = 5
+P_TUNNEL_ACK                  = 10
 P_DATA                        = 6
 P_CLOSE                       = 7
 P_KEEP_ALIVE                  = 8
@@ -386,6 +387,7 @@ class NodeConnection(threading.Thread):
 		self.state = CS_REQUESTED
 		self.tunnelSetup = False
 		self.tunnelTicks = 0
+		self.tunnelGotSyn = False
 		self.lastPacketSent = 0
 		self.lastPacketReceived = 0
 		self.pendingRecv = []
@@ -551,16 +553,28 @@ class NodeConnection(threading.Thread):
 				return
 
 			mySyn = ByteStream()
-			mySyn.writeByte(P_TUNNEL_SYNACK)
+			mySyn.writeByte(P_TUNNEL_SYN)
 			mySyn.writeString(self.node.id)
 			mySyn.writeString(self.targetPort)
 			mySyn = mySyn.toString()
+			
+			myAck = ByteStream()
+			myAck.writeByte(P_TUNNEL_ACK)
+			myAck.writeString(self.node.id)
+			myAck.writeString(self.targetPort)
+			myAck = myAck.toString()
 
 			theirSyn = ByteStream()
-			theirSyn.writeByte(P_TUNNEL_SYNACK)
+			theirSyn.writeByte(P_TUNNEL_SYN)
 			theirSyn.writeString(self.targetId)
 			theirSyn.writeString(self.targetPort)
 			theirSyn = theirSyn.toString()
+
+			theirAck = ByteStream()
+			theirAck.writeByte(P_TUNNEL_ACK)
+			theirAck.writeString(self.targetId)
+			theirAck.writeString(self.targetPort)
+			theirAck = theirAck.toString()
 
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
@@ -569,7 +583,10 @@ class NodeConnection(threading.Thread):
 				except:
 					# UDP returns a ECONNRESET for IMCP failures, ignore them
 					data = None
-				if data == theirSyn:
+				if data == theirSyn and not self.tunnelGotSyn:
+					self.tunnelGotSyn = True
+					debug("Got syn for tunnel.")
+				elif data == theirAck and self.tunnelGotSyn:
 					self.state = CS_CONNECTED
 
 					# Lock in the address
@@ -579,11 +596,16 @@ class NodeConnection(threading.Thread):
 					if not self.outbound:
 						self.pushToPort()
 
-					debug("Tunnel established.")
+					debug("Got ack. Tunnel established.")
 
-			debug('Sending priv =', self.tunnelPrivAddr, 'pub =', self.tunnelPubAddr)
+			packetToSend = mySyn
+			if self.tunnelGotSyn:
+				self.sock.sendto(myAck, self.tunnelPrivAddr)
+				self.sock.sendto(myAck, self.tunnelPubAddr)
+				debug("Sending ack...")
 			self.sock.sendto(mySyn, self.tunnelPrivAddr)
 			self.sock.sendto(mySyn, self.tunnelPubAddr)
+			debug("Sending syn...")
 
 	def gotTunnelInfo(self, privIp, privPort, pubIp, pubPort):
 		debug("Got tunnel info")
