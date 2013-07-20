@@ -62,6 +62,7 @@ class Parser:
 		self.events = []
 		self.ready = False
 		self.me = None
+		self.inCombat = False
 		self.getDocs()
 		pass
 
