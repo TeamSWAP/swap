@@ -47,7 +47,7 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 		try:
 			sock.connect(PARSER_SERVER_ADDR)
 		except:
-			failureFunc()
+			wx.CallAter(failureFunc)
 
 		stream = ByteStream()
 		stream.writeByte(REQUEST_GET_KEY)
@@ -74,12 +74,15 @@ def JoinRaid(key, successFunc, failureFunc):
 	def thread():
 		global currentKey, raidServer, raidClient
 
+		net.node.waitForNS()
+
 		# Connect to server...
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.settimeout(5)
 		try:
 			sock.connect(PARSER_SERVER_ADDR)
 		except:
-			failureFunc()
+			wx.CallAfter(failureFunc, "connect_failed")
 			return
 
 		# Write data
@@ -128,7 +131,6 @@ def GetNewServerNode():
 	try:
 		sock.connect(PARSER_SERVER_ADDR)
 	except:
-		failureFunc()
 		return
 
 	# Write data

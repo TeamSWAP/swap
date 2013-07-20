@@ -33,6 +33,8 @@ MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT = "Your SWAP client is too old! Please clos
 MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE = "Error"
 MSG_COMBAT_LOGGING_DISABLED_TEXT = "Combat logging is disabled. If SWTOR is running please enter enable Combat Logging in Preferences. If SWTOR is not running, click OK and we'll take care of it for you."
 MSG_COMBAT_LOGGING_DISABLED_TITLE = "Whoops!"
+MSG_CONNECT_FAILED_TITLE = "Connection failed"
+MSG_CONNECT_FAILED_TEXT = "Failed to connect to SWAP server. Please try again."
 
 # Menu ID
 MENU_ID_EXIT = wx.NewId()

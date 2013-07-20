@@ -322,11 +322,13 @@ class MainFrame(wx.Frame):
 	def onFailedToJoinRaid(self, reason):
 		titles = {
 			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TITLE,
-			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE
+			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE,
+			'connect_failed': MSG_CONNECT_FAILED_TITLE
 		}
 		texts = {
 			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TEXT,
-			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT
+			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT,
+			'connect_failed': MSG_CONNECT_FAILED_TEXT
 		}
 
 		dlg = wx.MessageDialog(self, texts[reason], titles[reason], wx.OK)
