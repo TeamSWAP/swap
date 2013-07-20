@@ -1,9 +1,9 @@
-import sys
+import sys, re
 sys.path.append("..\\src\\")
 import constants
 
 version = constants.VERSION
-vs = version.split(".")
+vs = re.sub("[^0-9.]", "", version).split(".")
 v1 = int(vs[0])
 v2 = int(vs[1])
 v3 = 0

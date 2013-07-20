@@ -1,8 +1,5 @@
 import os, zipfile, sys, shutil
 
-# Perform a build first
-os.system("build.py")
-
 sys.path.append('src')
 import constants
 sys.path = sys.path[:-1]
