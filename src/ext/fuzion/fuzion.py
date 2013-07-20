@@ -218,6 +218,7 @@ class Node:
 			privPort = b.readInt()
 			pubIp = b.readString()
 			pubPort = b.readInt()
+			debug("Got tunnel info for connection to %s"%targetId)
 
 			conn = self.getConnection(targetId, targetPort)
 			conn.gotTunnelInfo(privIp, privPort, pubIp, pubPort)

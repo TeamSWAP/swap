@@ -14,9 +14,10 @@
 # limitations under the License.
 #
 
-import socket, threading, time, hashlib, random
+import socket, threading, time, hashlib, random, sys, traceback
 from select import select
 from bytestream import ByteStream
+from logging import SetupLogging
 
 NODE_SERVER_PORT = 57681
 REFLECTION_SERVER_PORT = 57681
@@ -44,7 +45,9 @@ printLock = threading.Lock()
 def debug(*args):
 	global printLock
 	with printLock:
-		print ' '.join(map(lambda x:str(x), args))
+		sys.stdout.write(' '.join(map(lambda x:str(x), args)) + '\n')
+
+SetupLogging("fuzion_server")
 
 class ConnectionHandler(threading.Thread):
 	def __init__(self, ns, connection, addr):
@@ -63,7 +66,14 @@ class ConnectionHandler(threading.Thread):
 					data = self.recv()
 				except:
 					break
-				self.handlePacket(data)
+				if not data:
+					debug("Connection closed.")
+					break
+				try:
+					self.handlePacket(data)
+				except:
+					debug("handlePacket crashed.")
+					debug(traceback.format_exc())
 			time.sleep(0.01)
 		self.ns.nodeDied(self.id)
 
@@ -78,9 +88,12 @@ class ConnectionHandler(threading.Thread):
 
 	def recv(self):
 		raw = self.sock.recv(2048)
+		if not raw:
+			return None
 		return ByteStream(raw)
 
 	def handlePacket(self, data):
+		debug("Handling packet from ID=%s"%repr(self.id))
 		packet = data.readByte()
 		if packet == P_REGISTER:
 			debug("Registration request received.")
@@ -111,6 +124,7 @@ class ConnectionHandler(threading.Thread):
 			privPort = data.readInt()
 			pubIp = data.readString()
 			pubPort = data.readInt()
+			debug("Fowarding tunnel info from %s to %s"%(self.id, targetId))
 			self.ns.sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort)
 		elif packet == P_RELAY_PACKET:
 			targetId = data.readString()
@@ -180,6 +194,7 @@ class NodeServer(threading.Thread):
 
 	def run(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', NODE_SERVER_PORT))
 		self.sock.listen(1)
 
@@ -259,6 +274,8 @@ class NodeServer(threading.Thread):
 			targetNode = self.findNode(targetId)
 			if targetNode != None:
 				targetNode.sendTunnelInfo(sourceId, targetPort, privIp, privPort, pubIp, pubPort)
+			else:
+				debug("sendTunnelInfo: No such node as %s"%targetNode)
 
 	# thread-safe, called from ConnectionHandler
 	def sendRelayPacket(self, sourceNode, targetId, targetPort, data):
@@ -277,6 +294,7 @@ class ReflectionServer(threading.Thread):
 
 	def run(self):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', REFLECTION_SERVER_PORT))
 
 		debug("Reflection Server listening on %d"%REFLECTION_SERVER_PORT)
