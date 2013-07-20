@@ -424,10 +424,6 @@ class NodeConnection(threading.Thread):
 				debug("Bound at", privPort)
 
 				self.node.sendTunnelInfo(self.targetId, self.targetPort, privIp, privPort, pubIp, pubPort)
-				if self.state == CS_ACCEPTED:
-					self.state = CS_TUNNEL_AWAIT_INFO
-				elif self.state == CS_GOT_TUNNEL_INFO:
-					self.state = CS_TUNNELING
 			else:
 				self.state = CS_CONNECTED
 				if not self.outbound:
@@ -611,10 +607,7 @@ class NodeConnection(threading.Thread):
 		debug("Got tunnel info")
 		self.tunnelPrivAddr = (privIp, privPort)
 		self.tunnelPubAddr = (pubIp, pubPort)
-		if self.state == CS_TUNNEL_AWAIT_INFO:
-			self.state = CS_TUNNELING
-		else:
-			self.state = CS_GOT_TUNNEL_INFO
+		self.state = CS_TUNNELING
 
 	def _send(self, data):
 		if self.relay:
