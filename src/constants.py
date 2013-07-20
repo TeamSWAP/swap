@@ -16,8 +16,8 @@
 
 import wx, os, sys
 
-VERSION = "0.7.7b"
-VERSION_INT = 24
+VERSION = "0.7.8"
+VERSION_INT = 25
 URL_CHECK = "http://faultexception.com/swap/check_updates.php"
 LOG_SEND_URL = "http://faultexception.com/swap/sendlog.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
@@ -35,6 +35,8 @@ MSG_COMBAT_LOGGING_DISABLED_TEXT = "Combat logging is disabled. If SWTOR is runn
 MSG_COMBAT_LOGGING_DISABLED_TITLE = "Whoops!"
 MSG_CONNECT_FAILED_TITLE = "Connection failed"
 MSG_CONNECT_FAILED_TEXT = "Failed to connect to SWAP server. Please try again."
+MSG_NODE_CONNECT_FAILED_TITLE = "Player connection failed"
+MSG_NODE_CONNECT_FAILED_TEXT = "Failed to connect to the player hosting the raid. You may need to generate a new key. Sorry :/"
 
 # Menu ID
 MENU_ID_EXIT = wx.NewId()

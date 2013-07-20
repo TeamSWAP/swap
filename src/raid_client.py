@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import wx
 import threading, socket
 import log_parser, log_analyzer
 import raid, net
@@ -29,17 +30,23 @@ REQUEST_PLAYER_UPDATE = 0x5
 REQUEST_RAID_UPDATE = 0x6
 
 class RaidClient(threading.Thread):
-	def __init__(self, serverNode):
+	def __init__(self, serverNode, failureFunc):
 		threading.Thread.__init__(self)
 		self.serverNode = serverNode
 		self.lastUpdateSent = 0
 		self.lastTicks = 1
 		self.stoppedEvent = threading.Event()
+		self.failureFunc = failureFunc
 
 	def run(self):
 		prnt("RaidClient: Booting up...")
 
 		self.conn = net.node.connect(self.serverNode, "swap:raid")
+		if self.conn.state != fuzion.CS_CONNECTED:
+			raid.LeaveRaid()
+			wx.CallAfter(self.failureFunc, "node_connect_failed")
+			prnt("RaidClient: Connection failed, shutting down...")
+			return
 
 		while not self.stoppedEvent.isSet():
 			if self.conn.recvPending():

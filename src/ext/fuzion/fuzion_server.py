@@ -16,6 +16,8 @@
 
 import socket, threading, time, hashlib, random, sys, traceback
 from select import select
+
+import net_helpers
 from bytestream import ByteStream
 from logging import SetupLogging
 
@@ -55,6 +57,8 @@ class ConnectionHandler(threading.Thread):
 		self.setDaemon(True)
 		self.ns = ns
 		self.sock = connection
+		self.sockQueue = net_helpers.SocketQueue(self.sock)
+		self.sockPacker = net_helpers.Packer()
 		self.addr = addr
 		self.id = None
 
@@ -63,40 +67,38 @@ class ConnectionHandler(threading.Thread):
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
 				try:
-					data = self.recv()
+					data = self.sock.recv(2048)
 				except:
 					break
 				if not data:
-					debug("Connection closed.")
+					if self.id:
+						debug("%s: closed"%self.id)
+					else:
+						debug("lost unknown connection")
 					break
+				self.sockPacker.read(data)
+			packet = self.sockPacker.popPacket()
+			if packet:
+				packet = ByteStream(packet)
 				try:
-					self.handlePacket(data)
+					self.handlePacket(packet)
 				except:
 					debug("handlePacket crashed.")
 					debug(traceback.format_exc())
+			if w:
+				self.sockQueue.processNext()
 			time.sleep(0.01)
 		self.ns.nodeDied(self.id)
 
 	def send(self, data):
 		if isinstance(data, ByteStream):
 			data = data.toString()
-		tries = 0
-		size = len(data)
-		sent = 0
-		while sent < size and tries < 20:
-			sent += self.sock.send(data[sent:])
-
-	def recv(self):
-		raw = self.sock.recv(2048)
-		if not raw:
-			return None
-		return ByteStream(raw)
+		self.sockQueue.push(self.sockPacker.pack(data))
 
 	def handlePacket(self, data):
-		debug("Handling packet from ID=%s"%repr(self.id))
 		packet = data.readByte()
+		#debug("Handling packet (%d) from ID=%s"%(packet, repr(self.id)))
 		if packet == P_REGISTER:
-			debug("Registration request received.")
 			self.id = self.ns.pushNode(self)
 
 			out = ByteStream()
@@ -107,16 +109,18 @@ class ConnectionHandler(threading.Thread):
 			# from source node
 			targetId = data.readString()
 			targetPort = data.readString()
+			debug("%s: requesting connect to %s"%(self.id, targetId))
 			self.ns.sendConnectRequest(self, targetId, targetPort)
 		elif packet == P_CONNECT_RESPONSE:
-			# from target node
+			# from target nodef
 			targetId = data.readString()
 			targetPort = data.readString()
 			accepted = data.readBoolean()
+			debug("%s: response for %s=%s"%(self.id, targetId, repr(accepted)))
 			if accepted:
 				self.ns.sendConnectSuccess(self, targetId, targetPort)
 			else:
-				self.ns.sendConnectRejected(self, targetId, targetPort)
+				self.ns.sendConnectRejected(self, targetId, tagretPort)
 		elif packet == P_TUNNEL_INFO:
 			targetId = data.readString()
 			targetPort = data.readString()
@@ -124,7 +128,7 @@ class ConnectionHandler(threading.Thread):
 			privPort = data.readInt()
 			pubIp = data.readString()
 			pubPort = data.readInt()
-			debug("Fowarding tunnel info from %s to %s"%(self.id, targetId))
+			debug("%s: sending tunnel info to %s"%(self.id, targetId))
 			self.ns.sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort)
 		elif packet == P_RELAY_PACKET:
 			targetId = data.readString()
@@ -246,6 +250,7 @@ class NodeServer(threading.Thread):
 			if targetNode != None:
 				targetNode.sendConnectRequest(sourceId, targetPort)
 			else:
+				debug("No such node...")
 				sourceNode.sendConnectFailed(targetId, targetPort, ERR_NO_NODE)
 
 	# thread-safe, called from the target ConnectionHandler
@@ -312,7 +317,6 @@ class ReflectionServer(threading.Thread):
 				out.writeString(ip)
 				out.writeInt(port)
 				self.sock.sendto(out.toString(), addr)
-				debug("Reflect handled.")
 			time.sleep(0.01)
 		self.sock.close()
 

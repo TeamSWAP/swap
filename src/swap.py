@@ -323,21 +323,24 @@ class MainFrame(wx.Frame):
 		titles = {
 			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TITLE,
 			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TITLE,
-			'connect_failed': MSG_CONNECT_FAILED_TITLE
+			'connect_failed': MSG_CONNECT_FAILED_TITLE,
+			'node_connect_failed': MSG_NODE_CONNECT_FAILED_TITLE
 		}
 		texts = {
 			'key_invalid': MSG_FAILED_JOIN_INVALID_KEY_TEXT,
 			'update_required': MSG_FAILED_JOIN_UPDATE_REQUIRED_TEXT,
-			'connect_failed': MSG_CONNECT_FAILED_TEXT
+			'connect_failed': MSG_CONNECT_FAILED_TEXT,
+			'node_connect_failed': MSG_NODE_CONNECT_FAILED_TEXT
 		}
 
-		dlg = wx.MessageDialog(self, texts[reason], titles[reason], wx.OK)
+		dlg = wx.MessageDialog(self, texts[reason], titles[reason], wx.OK | wx.ICON_ERROR)
 		result = dlg.ShowModal()
 		dlg.Destroy()
 		
 		self.keyStatus.SetLabel("")
 		self.keyBox.Enable()
 		self.keyJoinButton.Enable()
+		self.keyJoinButton.SetLabel("Join Raid")
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 

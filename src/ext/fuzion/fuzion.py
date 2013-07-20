@@ -16,6 +16,8 @@
 
 import socket, threading, time
 from select import select
+
+import net_helpers
 from bytestream import ByteStream
 
 FUZION_VERSION = 0
@@ -90,7 +92,7 @@ def formatError(code):
 	elif code == ERR_TIMED_OUT:
 		return "ERR_TIMED_OUT"
 
-class Node:
+class Node(object):
 	def __init__(self, nodeStateCallback=None):
 		self.id = None
 		self.ports = {}
@@ -121,19 +123,13 @@ class Node:
 	def send(self, data):
 		if isinstance(data, ByteStream):
 			data = data.toString()
-		tries = 0
-		size = len(data)
-		sent = 0
-		while sent < size and tries < 20:
-			sent += self.sock.send(data[sent:])
-
-	def recv(self):
-		raw = self.sock.recv(2048)
-		return ByteStream(raw)
+		self.sockQueue.push(self.sockPacker.pack(data))
 
 	def mainLoop(self):
 		debug("Connecting to node server @ %s"%repr(self.nodeServer))
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sockQueue = net_helpers.SocketQueue(self.sock)
+		self.sockPacker = net_helpers.Packer()
 
 		while True:
 			self.updateNodeState(NS_CONNECTING)
@@ -158,8 +154,14 @@ class Node:
 			# communication with node server
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
-				d = self.recv()
-				self.gotDataFromNodeServer(d)
+				d = self.sock.recv(2048)
+				self.sockPacker.read(d)
+			packet = self.sockPacker.popPacket()
+			if packet:
+				packet = ByteStream(packet)
+				self.gotDataFromNodeServer(packet)
+			if w:
+				self.sockQueue.processNext()
 			time.sleep(0.001)
 
 		self.sock.close()
@@ -218,10 +220,12 @@ class Node:
 			privPort = b.readInt()
 			pubIp = b.readString()
 			pubPort = b.readInt()
-			debug("Got tunnel info for connection to %s"%targetId)
 
 			conn = self.getConnection(targetId, targetPort)
-			conn.gotTunnelInfo(privIp, privPort, pubIp, pubPort)
+			if conn != None:
+				conn.gotTunnelInfo(privIp, privPort, pubIp, pubPort)
+			else:
+				debug("Got connection info for non existant connection to %s:%s"%(targetId, targetPort))
 		elif p == P_RELAY_PACKET:
 			targetId = b.readString()
 			targetPort = b.readString()
