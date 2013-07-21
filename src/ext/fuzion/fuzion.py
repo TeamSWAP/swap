@@ -471,9 +471,10 @@ class NodeConnection(threading.Thread):
 			if r:
 				try:
 					data = ByteStream(self._recv())
-				except:
-					# UDP returns a ECONNRESET for IMCP failures, ignore them
-					data = None
+				except socket.error as e:
+					if e.errno == 10054:
+						# UDP returns a ECONNRESET for IMCP failures, ignore them
+						data = None
 				if data != None:
 					packetType = data.readByte()
 					if packetType == P_DATA:
@@ -597,9 +598,10 @@ class NodeConnection(threading.Thread):
 			if r:
 				try:
 					data, addr = self.sock.recvfrom(512)
-				except:
-					# UDP returns a ECONNRESET for IMCP failures, ignore them
-					data = None
+				except socket.error as e:
+					if e.errno == 10054:
+						# UDP returns a ECONNRESET for IMCP failures, ignore them
+						data = None
 				if data == theirSyn and not self.tunnelGotSyn:
 					self.tunnelGotSyn = True
 					debug("Got syn for tunnel.")
