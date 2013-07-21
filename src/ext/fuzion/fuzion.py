@@ -212,7 +212,9 @@ class Node(object):
 
 			self.updateConnectionState(targetId, targetPort, state, True)
 			if state == CS_ACCEPTED:
-				self.startConnection(targetId, targetPort)
+				self.startConnection(targetId, targetPort, True)
+			else:
+				self.removeConnection(targetId, targetPort, True)
 		elif p == P_TUNNEL_INFO:
 			targetId = b.readString()
 			targetPort = b.readString()
@@ -266,6 +268,13 @@ class Node(object):
 	def connect(self, targetId, targetPort):
 		self.waitForNS()
 
+		# Prevent connecting if there is already a outbound connection.
+		if self.getConnection(targetId, targetPort, True):
+			debug("Duplicate connection to %s:%s found."%(targetId, targetPort))
+			# Yes, this may throw an error in the app, but they shouldn't
+			# be creating duplicate connections anyway, so it doesn't matter.
+			return None
+
 		debug("Connecting to %s"%targetId)
 
 		out = ByteStream()
@@ -304,10 +313,17 @@ class Node(object):
 				conn.state = state
 
 	# thread-safe
-	def startConnection(self, targetId, targetPort):
+	def startConnection(self, targetId, targetPort, outbound):
 		for conn in self.connections:
-			if conn.targetId == targetId and conn.targetPort == targetPort and not conn.threadStarted:
+			if conn.targetId == targetId and conn.targetPort == targetPort and not conn.threadStarted and conn.outbound == outbound:
 				conn.start()
+
+	# thread-safe
+	def removeConnection(self, targetId, targetPort, outbound):
+		for conn in self.connections:
+			if conn.targetId == targetId and conn.targetPort == targetPort and not conn.threadStarted and conn.outbound == outbound:
+				self.connections.remove(conn)
+				break
 
 	# thread-safe
 	def connectionDied(self, connection):
