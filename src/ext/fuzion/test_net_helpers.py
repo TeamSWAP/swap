@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	packer = net_helpers.Packer()
 	packets = []
 	for i in range(1, 1024):
-		packets.append(hashlib.md5(str(random.random())).hexdigest()[:1] * i)
+		packets.append(hashlib.md5(str(random.random())).hexdigest())
 	stream = ""
 	for p in packets:
 		stream += packer.pack(p)
