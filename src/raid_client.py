@@ -36,6 +36,7 @@ class RaidClient(threading.Thread):
 		self.lastUpdateSent = 0
 		self.lastTicks = 1
 		self.stoppedEvent = threading.Event()
+		self.pausedEvent = threading.Event()
 		self.failureFunc = failureFunc
 
 	def run(self):
@@ -49,11 +50,20 @@ class RaidClient(threading.Thread):
 			return
 
 		while not self.stoppedEvent.isSet():
+			if self.pausedEvent.isSet():
+				sleep(0.4)
+				continue
+
 			if self.conn.recvPending():
 				data = self.conn.recv()
 				if data == None:
 					if self.conn.closedReason != 0:
+						# If we're paused, we don't want to reconnect yet.
+						if self.pausedEvent.isSet():
+							continue
+
 						prnt("RaidClient: Connection lost, reason=%s"%fuzion.formatError(self.conn.closedReason))
+
 						# Fetch new raid info
 						self.serverNode = None
 						self.conn = None
@@ -90,6 +100,12 @@ class RaidClient(threading.Thread):
 		self.conn.close()
 
 		prnt("RaidClient: Shutting down...")
+
+	def pause(self):
+		self.pausedEvent.set()
+
+	def resume(self):
+		self.pausedEvent.clear()
 
 	def stop(self):
 		self.stoppedEvent.set()

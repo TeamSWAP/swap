@@ -16,14 +16,23 @@
 
 import ext.fuzion as fuzion
 
+import raid
 from constants import *
 from logging import prnt
 
 node = None
+
+def onNodeDisconnected():
+	raid.onNodeDisconnected()
+
+def onNodeReconnected():
+	raid.onNodeReconnected()
 
 def Init():
 	global node
 
 	fuzion.setDebug(lambda *x: prnt("Fuzion:", *x))
 	node = fuzion.Node()
+	node.bindDisconnect(onNodeDisconnected)
+	node.bindReconnect(onNodeReconnected)
 	node.setNodeServer(NODE_SERVER_ADDR)

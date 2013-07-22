@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import socket, threading, time
+import socket, threading, time, traceback
 from select import select
 
 import net_helpers
@@ -100,7 +100,12 @@ class Node(object):
 		self.connections = []
 		self.stateLock = threading.Lock()
 		self.nodeState = NS_NOT_CONNECTED
+		self.sock = None
+
+		# Callbacks
 		self.nodeStateCallback = nodeStateCallback
+		self.disconnectCallbacks = []
+		self.reconnectCallbacks = []
 
 	# thread-safe: but only call once!
 	def setNodeServer(self, server, reflectionServer=None):
@@ -115,6 +120,28 @@ class Node(object):
 		if self.nodeStateCallback:
 			self.nodeStateCallback(self.nodeState)
 
+	def bindDisconnect(self, cb):
+		self.disconnectCallbacks.append(cb)
+
+	def unbindDisconnect(self, cb):
+		if cb in self.disconnectCallbacks:
+			self.disconnectCallbacks.remove(cb)
+
+	def invokeDisconnectEvent(self):
+		for cb in self.disconnectCallbacks:
+			cb()
+
+	def bindReconnect(self, cb):
+		self.reconnectCallbacks.append(cb)
+
+	def unbindReconnect(self, cb):
+		if cb in self.reconnectCallbacks:
+			self.reconnectCallbacks.remove(cb)
+
+	def invokeReconnectEvent(self):
+		for cb in self.reconnectCallbacks:
+			cb()
+
 	def startThread(self):
 		t = threading.Thread(target=self.mainLoop, args=[])
 		t.setDaemon(True)
@@ -126,35 +153,20 @@ class Node(object):
 		self.sockQueue.push(self.sockPacker.pack(data))
 
 	def mainLoop(self):
-		debug("Connecting to node server @ %s"%repr(self.nodeServer))
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sockQueue = net_helpers.SocketQueue(self.sock)
-		self.sockPacker = net_helpers.Packer()
-
-		while True:
-			self.updateNodeState(NS_CONNECTING)
-			try:
-				self.sock.connect(self.nodeServer)
-				break
-			except:
-				debug("Connect failed, trying again in 5s...")
-				self.updateNodeState(NS_FAILED)
-			time.sleep(5)
-
-		self.updateNodeState(NS_CONNECTED)
-		debug("Connected.")
-		
-		# send register packet
-		debug("Registering with node server...")
-		b = ByteStream()
-		b.writeByte(P_REGISTER)
-		self.send(b)
+		self.connectToNodeServer()
 
 		while True:
 			# communication with node server
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
 				d = self.sock.recv(2048)
+				if not d:
+					# Disconnected.
+					debug("Disconnected.")
+					self.invokeDisconnectEvent()
+					self.connectToNodeServer()
+					self.invokeReconnectEvent()
+					continue
 				self.sockPacker.read(d)
 			packet = self.sockPacker.popPacket()
 			if packet:
@@ -165,6 +177,31 @@ class Node(object):
 			time.sleep(0.001)
 
 		self.sock.close()
+
+	def connectToNodeServer(self):
+		debug("Connecting to node server @ %s"%repr(self.nodeServer))
+		while True:
+			self.updateNodeState(NS_CONNECTING)
+			if self.sock != None:
+				self.sock.close()
+			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.sockQueue = net_helpers.SocketQueue(self.sock)
+			self.sockPacker = net_helpers.Packer()
+			try:
+				self.sock.connect(self.nodeServer)
+				break
+			except:
+				debug("Connect failed, trying again in 5s...")
+				self.updateNodeState(NS_FAILED)
+			time.sleep(5)
+		self.updateNodeState(NS_CONNECTED)
+		debug("Connected.")
+
+		# send register packet
+		debug("Registering with node server...")
+		b = ByteStream()
+		b.writeByte(P_REGISTER)
+		self.send(b)
 
 	def gotDataFromNodeServer(self, b):
 		p = b.readByte()
@@ -347,8 +384,15 @@ class Node(object):
 		if self.id == targetId:
 			# Send it to the opposite connection.
 			conn = self.getConnection(targetId, targetPort, not fromOutbound)
-			conn.injectRelayRead(data)
+			if conn:
+				conn.injectRelayRead(data)
+			else:
+				debug("sendRelay: Loopback endpoint not found.")
 			return
+
+		if self.state != NS_CONNECTED:
+			return
+
 		out = ByteStream()
 		out.writeByte(P_RELAY_PACKET)
 		out.writeString(targetId)
@@ -532,10 +576,9 @@ class NodeConnection(threading.Thread):
 		if self.closed:
 			return
 		
-		if not self.loopback:
-			packet = ByteStream()
-			packet.writeByte(P_CLOSE)
-			self._send(packet.toString())
+		packet = ByteStream()
+		packet.writeByte(P_CLOSE)
+		self._send(packet.toString())
 
 		self.closeInternal(ERR_CLOSED_BY_SELF)
 

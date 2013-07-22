@@ -174,5 +174,21 @@ def LeaveRaid():
 	playerData = []
 	extraTicks = 0
 
+def onNodeDisconnected():
+	global currentKey
+	if currentKey != None:
+		prnt("Raid: Fuzion node disconnected, dropping server and pausing client.")
+		if raidClient != None:
+			raidClient.pause()
+		if raidServer != None:
+			raidServer.stop()
+
+def onNodeReconnected():
+	global currentKey
+	if currentKey != None:
+		prnt("Raid: Fuzion node reconnected, resuming client.")
+		if raidClient != None:
+			raidClient.resume()
+
 def IsInRaid():
 	return currentKey != None
