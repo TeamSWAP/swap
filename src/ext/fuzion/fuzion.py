@@ -534,7 +534,7 @@ class NodeConnection(threading.Thread):
 						pass
 					self.lastPacketReceived = now
 
-			if now - self.lastPacketSent > 10:
+			if now - self.lastPacketSent > 5:
 				packet = ByteStream()
 				packet.writeByte(P_KEEP_ALIVE)
 				self._send(packet.toString())
@@ -608,8 +608,8 @@ class NodeConnection(threading.Thread):
 			debug("Tunneling")
 			self.tunnelTicks += 1
 
-			# 0.2 x 10 = 2s for tunnel establishment
-			if self.tunnelTicks == 11:
+			# 0.2 x 20 = 4s for tunnel establishment
+			if self.tunnelTicks == 21:
 				# Switch to relay for now :(
 				debug("Fallback to relay.")
 				self.state = CS_CONNECTED
@@ -642,28 +642,32 @@ class NodeConnection(threading.Thread):
 			theirAck.writeString(self.targetPort)
 			theirAck = theirAck.toString()
 
-			r, w, e = select([self.sock], [self.sock], [], 0)
-			if r:
-				try:
-					data, addr = self.sock.recvfrom(512)
-				except socket.error as e:
-					if e.errno == 10054:
-						# UDP returns a ECONNRESET for IMCP failures, ignore them
-						data = None
-				if data == theirSyn and not self.tunnelGotSyn:
-					self.tunnelGotSyn = True
-					debug("Got syn for tunnel.")
-				elif data == theirAck and self.tunnelGotSyn:
-					self.state = CS_CONNECTED
+			while True:
+				r, w, e = select([self.sock], [self.sock], [], 0)
+				if r:
+					try:
+						data, addr = self.sock.recvfrom(512)
+					except socket.error as e:
+						if e.errno == 10054:
+							# UDP returns a ECONNRESET for IMCP failures, ignore them
+							data = None
+					if data == theirSyn and not self.tunnelGotSyn:
+						self.tunnelGotSyn = True
+						debug("Got syn for tunnel.")
+					elif data == theirAck and self.tunnelGotSyn:
+						self.state = CS_CONNECTED
 
-					# Lock in the address
-					self.addr = addr
-					self.sock.connect(addr)
+						# Lock in the address
+						self.addr = addr
+						self.sock.connect(addr)
 
-					if not self.outbound:
-						self.pushToPort()
+						if not self.outbound:
+							self.pushToPort()
 
-					debug("Got ack. Tunnel established.")
+						debug("Got ack. Tunnel established.")
+						break
+				else:
+					break
 
 			packetToSend = mySyn
 			if self.tunnelGotSyn:
