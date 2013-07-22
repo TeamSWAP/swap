@@ -98,6 +98,7 @@ class Node(object):
 		self.ports = {}
 		self.portsLock = threading.Lock()
 		self.connections = []
+		self.connectionsLock = threading.Lock()
 		self.stateLock = threading.Lock()
 		self.nodeState = NS_NOT_CONNECTED
 		self.sock = None
@@ -364,7 +365,9 @@ class Node(object):
 
 	# thread-safe
 	def connectionDied(self, connection):
-		self.connections.remove(connection)
+		with self.connectionsLock:
+			if connection in self.connections:
+				self.connections.remove(connection)
 
 	# thread-safe
 	def sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort):
@@ -460,6 +463,7 @@ class NodeConnection(threading.Thread):
 		self.threadStopped = threading.Event()
 		self.closed = False
 		self.closedReason = 0
+		self.closedLock = threading.Lock()
 		self.relay = False
 		if self.loopback:
 			self.relay = True
@@ -573,22 +577,23 @@ class NodeConnection(threading.Thread):
 		return len(self.pendingRecv) > 0
 
 	def close(self):
-		if self.closed:
-			return
-		
-		packet = ByteStream()
-		packet.writeByte(P_CLOSE)
-		self._send(packet.toString())
-
 		self.closeInternal(ERR_CLOSED_BY_SELF)
 
 	def closeInternal(self, reason):
-		self.threadStopped.set()
-		self.node.connectionDied(self)
-		self.closed = True
-		self.closedReason = reason
-		if not self.loopback and not self.relay:
-			self.sock.close()
+		with self.closedLock:
+			if self.closed:
+				return
+			if reason == ERR_CLOSED_BY_SELF:
+				packet = ByteStream()
+				packet.writeByte(P_CLOSE)
+				self._send(packet.toString())
+
+			self.threadStopped.set()
+			self.node.connectionDied(self)
+			self.closed = True
+			self.closedReason = reason
+			if not self.loopback and not self.relay:
+				self.sock.close()
 
 	def pushToPort(self):
 		if self.outbound:
