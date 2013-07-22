@@ -274,7 +274,7 @@ class MainFrame(wx.Frame):
 			vanityKey = self.keyBox.GetValue()
 
 		self.keyStatus.SetLabel("Generating key...")
-		self.keyBox.Disable()
+		self.keyBox.SetEditable(False)
 		self.keyJoinButton.Disable()
 		self.keyGenerateButton.Disable()
 		self.keyVanityCheck.Disable()
@@ -283,7 +283,7 @@ class MainFrame(wx.Frame):
 
 	def onGotKey(self, key):
 		self.keyBox.SetValue(key)
-		self.keyBox.Enable()
+		self.keyBox.SetEditable(True)
 		self.keyStatus.SetLabel("")
 		self.keyJoinButton.Enable()
 		self.keyGenerateButton.Enable()
@@ -293,7 +293,7 @@ class MainFrame(wx.Frame):
 		dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
 		result = dlg.ShowModal()
 		dlg.Destroy()
-		self.keyBox.Enable()
+		self.keyBox.SetEditable(True)
 		self.keyStatus.SetLabel("")
 		self.keyJoinButton.Enable()
 		self.keyGenerateButton.Enable()
@@ -302,7 +302,7 @@ class MainFrame(wx.Frame):
 	def onJoinRaidButton(self, event):
 		if not raid.IsInRaid():
 			self.keyStatus.SetLabel("Joining raid...")
-			self.keyBox.Disable()
+			self.keyBox.SetEditable(False)
 			self.keyJoinButton.Disable()
 			self.keyGenerateButton.Disable()
 			self.keyVanityCheck.Disable()
@@ -315,7 +315,6 @@ class MainFrame(wx.Frame):
 		self.keyJoinButton.SetLabel("Leave Raid")
 		self.keyJoinButton.Enable()
 		self.keyStatus.SetLabel("")
-		self.keyBox.Disable()
 
 		config.Set("lastRaidKey", self.keyBox.GetValue())
 
@@ -338,7 +337,7 @@ class MainFrame(wx.Frame):
 		dlg.Destroy()
 		
 		self.keyStatus.SetLabel("")
-		self.keyBox.Enable()
+		self.keyBox.SetEditable(True)
 		self.keyJoinButton.Enable()
 		self.keyJoinButton.SetLabel("Join Raid")
 		self.keyGenerateButton.Enable()
@@ -347,7 +346,7 @@ class MainFrame(wx.Frame):
 	def onLeftRaid(self):
 		self.keyJoinButton.SetLabel("Join Raid")
 		self.keyStatus.SetLabel("")
-		self.keyBox.Enable()
+		self.keyBox.SetEditable(True)
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 
