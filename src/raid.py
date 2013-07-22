@@ -162,7 +162,7 @@ def GetNewServerNode():
 	return None
 
 def LeaveRaid():
-	global currentKey
+	global currentKey, playerData
 
 	if raidClient != None:
 		raidClient.stop()
@@ -171,6 +171,7 @@ def LeaveRaid():
 
 	currentKey = None
 	wasInCombat = False
+	playerData = []
 	extraTicks = 0
 
 def IsInRaid():

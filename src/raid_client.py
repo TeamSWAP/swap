@@ -53,6 +53,7 @@ class RaidClient(threading.Thread):
 				data = self.conn.recv()
 				if data == None:
 					if self.conn.closedReason != 0:
+						prnt("RaidClient: Connection lost, reason=%s"%fuzion.formatError(self.conn.closedReason))
 						# Fetch new raid info
 						self.serverNode = None
 						self.conn = None

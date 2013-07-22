@@ -69,6 +69,8 @@ class ConnectionHandler(threading.Thread):
 				try:
 					data = self.sock.recv(2048)
 				except:
+					debug("%s: .recv() crashed!"%self.id)
+					debug(traceback.format_exc())
 					break
 				if not data:
 					if self.id:
