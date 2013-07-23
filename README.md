@@ -6,7 +6,7 @@ written in the [Python programming language](http://python.org).
 ## Running
 SWAP requires a few dependencies for you to be able to run it directly:
 
-* Python 2.7+ recommended
+* [Python 2.7+](http://python.org) recommended (3.0+ is not supported)
 * [wxPython](http://wxpython.org) for Python 2.7
 * [pywin32](http://sourceforge.net/projects/pywin32/) for Python 2.7
 
