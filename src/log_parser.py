@@ -52,6 +52,8 @@ class GameEvent:
 		self.healing = 0
 		self.time = 0
 		self.threat = 0
+		self.enterEvent = False
+		self.exitEvent = False
 
 class Parser:
 	"""docstring for Parser"""
@@ -167,10 +169,19 @@ class Parser:
 					event.inCombat = self.inCombat
 					event.time = actionTime
 					event.threat = threat
+					event.enterEvent = False
+					event.exitEvent = False
 
 					if event.type == GameEvent.TYPE_ENTER_COMBAT:
-						self.inCombat = True
+						event.enterEvent = True
 					elif event.type == GameEvent.TYPE_EXIT_COMBAT:
+						event.exitEvent = True
+					elif event.type == GameEvent.TYPE_DEATH and self.inCombat and event.target == self.me:
+						event.exitEvent = True
+
+					if event.enterEvent:
+						self.inCombat = True
+					elif event.exitEvent:
 						self.inCombat = False
 
 					if event.type == GameEvent.TYPE_DAMAGE:
@@ -198,14 +209,6 @@ class Parser:
 						if heal.endswith('*'):
 							heal = heal[:-1]
 						event.healing = int(heal)
-
-					# Inject TYPE_EXIT_COMBAT event on death
-					if event.type == GameEvent.TYPE_DEATH and event.target == self.me:
-						ec = GameEvent()
-						ec.type = GameEvent.TYPE_EXIT_COMBAT
-						ec.time = event.time
-						self.events.append(ec)
-						self.inCombat = False
 
 					self.events.append(event)
 				elif line[-1] != '\n' and line[-1] != '\r':

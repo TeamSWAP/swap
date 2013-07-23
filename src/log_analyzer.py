@@ -85,10 +85,10 @@ class AnalyzerThread(threading.Thread):
 
 				events = self.parser.events
 				for ev in reversed(events):
-					if not stateInCombat and (ev.type == GameEvent.TYPE_EXIT_COMBAT or (combatEndTime == 0 and self.parser.inCombat)):
+					if not stateInCombat and (ev.exitEvent or self.parser.inCombat):
 						combatEndTime = ev.time
 						stateInCombat = True
-					elif ev.type == GameEvent.TYPE_ENTER_COMBAT:
+					elif ev.enterEvent:
 						combatStartTime = ev.time
 						stateInCombat = False
 						break
