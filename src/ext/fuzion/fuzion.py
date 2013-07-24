@@ -160,7 +160,14 @@ class Node(object):
 			# communication with node server
 			r, w, e = select([self.sock], [self.sock], [], 0)
 			if r:
-				d = self.sock.recv(2048)
+				try:
+					d = self.sock.recv(2048)
+				except socket.error as e:
+					d = None
+					if e.errno == 10053:
+						debug("Connection aborted by software, maybe firewall?")
+					else:
+						debug("recv() error: errno=%d"%e.errno)
 				if not d:
 					# Disconnected.
 					debug("Disconnected.")
