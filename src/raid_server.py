@@ -143,7 +143,10 @@ class RaidServer(threading.Thread):
 			playerList.append(playerInfo)
 
 			combatStartTime = playerInfo['combatStartTime']
-			firstCombat = min(firstCombat, combatStartTime)
+			if firstCombat == 0:
+				firstCombat = combatStartTime
+			else:
+				firstCombat = min(firstCombat, combatStartTime)
 
 		stream.writeByte(len(playerList))
 		for player in playerList:
