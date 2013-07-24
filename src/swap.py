@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import wx, os, shutil, locale, time, subprocess, traceback, threading
+import wx, os, shutil, locale, time, subprocess, traceback, threading, sys
 import urllib2
 import overlays, logging, config
 import log_parser, log_analyzer, util, raid, net
@@ -503,6 +503,11 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
 	logging.SetupLogging("swap")
 	locale.setlocale(locale.LC_ALL, '')
+
+	if IS_COMPILED:
+		if len(sys.argv) != 2 or sys.argv[1] != '--from-updater':
+			subprocess.Popen(["updater.exe"])
+			exit()
 
 	prnt("SWAP v%s booting up..."%VERSION)
 
