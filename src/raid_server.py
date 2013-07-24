@@ -103,6 +103,7 @@ class RaidServer(threading.Thread):
 		totalHealingReceived = stream.readInt()
 		avgHps = stream.readFloat()
 		totalThreat = stream.readInt()
+		combatStartTime = stream.readUnsignedInt()
 
 		prnt("RaidServer: Got player update from %s!"%name)
 
@@ -122,7 +123,8 @@ class RaidServer(threading.Thread):
 			'totalHealing': totalHealing,
 			'totalHealingReceived': totalHealingReceived,
 			'avgHps': avgHps,
-			'totalThreat': totalThreat
+			'totalThreat': totalThreat,
+			'combatStartTime': combatStartTime
 		}
 		self.lastRaidUpdatePoke = time()
 
@@ -133,11 +135,15 @@ class RaidServer(threading.Thread):
 		stream.writeByte(REQUEST_RAID_UPDATE)
 
 		playerList = []
+		firstCombat = 0
 		for client in self.clientList:
 			playerInfo = client['playerInfo']
 			if playerInfo == None:
 				continue
 			playerList.append(playerInfo)
+
+			combatStartTime = playerInfo['combatStartTime']
+			firstCombat = min(firstCombat, combatStartTime)
 
 		stream.writeByte(len(playerList))
 		for player in playerList:
@@ -150,6 +156,7 @@ class RaidServer(threading.Thread):
 			stream.writeInt(player['totalHealingReceived'])
 			stream.writeFloat(player['avgHps'])
 			stream.writeInt(player['totalThreat'])
+		stream.writeUnsignedInt(firstCombat)
 
 		for client in self.clientList:
 			conn = client['conn']

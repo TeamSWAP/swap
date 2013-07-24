@@ -45,6 +45,14 @@ class ByteStream:
 	def writeInt(self, number):
 		self.data += struct.pack('!i', number)
 
+	def readUnsignedInt(self):
+		number = struct.unpack('!I', self.data[self.position:self.position + 4])[0]
+		self.position += 4
+		return number
+
+	def writeUnsignedInt(self, number):
+		self.data += struct.pack('!I', number)
+
 	def readString(self):
 		length = self.readByte()
 		string = self.data[self.position:self.position + length]

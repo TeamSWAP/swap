@@ -91,9 +91,11 @@ class AnalyzerThread(threading.Thread):
 						combatEndTime = ev.time
 						stateInCombat = True
 					elif ev.enterEvent:
-						combatStartTime = ev.time
-						stateInCombat = False
-						break
+						if raid.combatThreshold == 0 or abs(raid.combatThreshold - ev.time) < 5:
+							combatStartTime = ev.time
+							stateInCombat = False
+							break
+						continue
 
 					if not stateInCombat:
 						continue

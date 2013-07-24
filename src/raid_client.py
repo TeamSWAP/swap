@@ -127,6 +127,7 @@ class RaidClient(threading.Thread):
 		stream.writeInt(analyzer.totalHealingReceived)
 		stream.writeFloat((float(analyzer.totalHealing) / float(analyzer.combatDuration)) if analyzer.combatDuration else 0)
 		stream.writeInt(analyzer.totalThreat)
+		stream.writeUnsignedInt(analyzer.combatStartTime)
 		self.conn.send(stream)
 
 	def gotRaidUpdate(self, stream):
@@ -147,5 +148,8 @@ class RaidClient(threading.Thread):
 			player['totalThreat'] = stream.readInt()
 			playerList.append(player)
 
+		combatThreshold = stream.readUnsignedInt()
+
 		raid.playerData = playerList
+		raid.combatThreshold = combatThreshold
 		log_analyzer.Get().notifyFrames()

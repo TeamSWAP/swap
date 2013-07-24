@@ -36,6 +36,7 @@ REQUEST_JOIN_RAID = 0x2
 # Global variables
 currentKey = None
 playerData = []
+combatThreshold = 0
 wasInCombat = True
 extraTicks = 2
 
@@ -178,6 +179,7 @@ def LeaveRaid():
 	currentKey = None
 	wasInCombat = False
 	playerData = []
+	combatThreshold = 0
 	extraTicks = 0
 
 def onNodeDisconnected():
