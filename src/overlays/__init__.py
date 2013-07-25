@@ -15,13 +15,12 @@
 #
 
 import config
-
-from base import BaseOverlay
 from logging import prnt
+from overlays.base import BaseOverlay
 
 # Import overlay classes
-from self import *
-from raid_wide import *
+from overlays.self import *
+from overlays.raid_wide import *
 
 overlayCategories = [
 	{

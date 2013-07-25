@@ -17,8 +17,8 @@
 import fuzion
 
 # Add everything to namespace
-from fuzion import *
 from bytestream import ByteStream
+from fuzion import *
 
 def setDebug(func):
 	if not func:

@@ -14,14 +14,16 @@
 # limitations under the License.
 #
 
-import os, time
+import atexit
+import os
+import time
 import threading
 import traceback
-import atexit
+
 import wx
+
 import raid
 import util
-
 from log_parser import GameEvent
 from logging import prnt
 

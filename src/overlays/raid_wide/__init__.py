@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 
-from avg_dps import RaidAvgDPSOverlay
-from avg_hps import RaidAvgHPSOverlay
-from damage import RaidDamageOverlay
-from damage_taken import RaidDamageTakenOverlay
-from healing import RaidHealingOverlay
-from healing_received import RaidHealingReceivedOverlay
-from threat import RaidThreatOverlay
+from overlays.raid_wide.avg_dps import RaidAvgDPSOverlay
+from overlays.raid_wide.avg_hps import RaidAvgHPSOverlay
+from overlays.raid_wide.damage import RaidDamageOverlay
+from overlays.raid_wide.damage_taken import RaidDamageTakenOverlay
+from overlays.raid_wide.healing import RaidHealingOverlay
+from overlays.raid_wide.healing_received import RaidHealingReceivedOverlay
+from overlays.raid_wide.threat import RaidThreatOverlay

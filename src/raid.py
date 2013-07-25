@@ -14,10 +14,16 @@
 # limitations under the License.
 #
 
-import wx, threading, urllib, urllib2, json, socket, struct
+import threading
+import urllib
+import urllib2
+import json
+import socket
+import struct
+
+import wx
 import log_parser, log_analyzer
 import net
-
 from logging import prnt
 from constants import *
 from bytestream import ByteStream

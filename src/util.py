@@ -14,9 +14,11 @@
 # limitations under the License.
 #
 
-import os, ctypes, ConfigParser
-
+import os
+import ctypes
+import ConfigParser
 from ctypes.wintypes import MAX_PATH
+
 from logging import prnt
 
 def FormatDuration(s):

@@ -14,8 +14,12 @@
 # limitations under the License.
 #
 
+import atexit
+import json
+import traceback
+import os
+
 import wx
-import atexit, json, traceback, os
 
 from logging import prnt
 

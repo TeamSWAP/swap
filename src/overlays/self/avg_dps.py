@@ -14,10 +14,15 @@
 # limitations under the License.
 #
 
-import wx, random, time, locale, util
-import log_analyzer
-
+import random
+import time
+import locale
 from threading import Thread, Event
+
+import wx
+
+import log_analyzer
+import util
 from overlays.base import BaseOverlay
 from logging import prnt
 

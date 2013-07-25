@@ -14,13 +14,18 @@
 # limitations under the License.
 #
 
-import wx, wx.grid, random, time, locale, math
+import random
+import time
+import locale
+import math
+from threading import Thread, Event
+
+import wx
+
 import config
 import log_analyzer
 import raid
 import util
-
-from threading import Thread, Event
 from overlays.base_list import BaseListOverlay
 from logging import prnt
 

@@ -15,11 +15,13 @@
 #
 
 import wx
-import win32gui, win32api, win32process
+import win32gui
+import win32api
+import win32process
+from win32con import *
+
 import config
 import overlays
-
-from win32con import *
 from logging import prnt
 
 class BaseOverlay(wx.Frame):

@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-from avg_dps import AverageDPSOverlay
-from avg_hps import AverageHPSOverlay
-from damage_dealt import DamageDealtOverlay
-from healing_done import HealingDoneOverlay
-from timer import FightTimerOverlay
+from overlays.self.avg_dps import AverageDPSOverlay
+from overlays.self.avg_hps import AverageHPSOverlay
+from overlays.self.damage_dealt import DamageDealtOverlay
+from overlays.self.healing_done import HealingDoneOverlay
+from overlays.self.timer import FightTimerOverlay

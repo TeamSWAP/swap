@@ -14,12 +14,17 @@
 # limitations under the License.
 #
 
-import wx, time, subprocess, json, os, traceback
+import wx
+import time
+import subprocess
+import json
+import os
+import traceback
 import logging
-
 from zipfile import ZipFile
 from threading import Thread
 from urllib2 import urlopen, HTTPError
+
 from constants import *
 from logging import prnt
 

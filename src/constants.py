@@ -14,7 +14,10 @@
 # limitations under the License.
 #
 
-import wx, os, sys
+import os
+import sys
+
+import wx
 
 VERSION = "0.8.1"
 VERSION_INT = 27

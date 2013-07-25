@@ -14,16 +14,30 @@
 # limitations under the License.
 #
 
-import wx, os, shutil, locale, time, subprocess, traceback, threading, sys
+import os
+import shutil
+import locale
+import time
+import subprocess
+import traceback
+import threading
+import sys
 import urllib2
-import overlays, logging, config
-import log_parser, log_analyzer, util, raid, net
-import preferences
-import ext.fuzion as fuzion
-
 from urllib import urlencode
+
+import wx
 from wx.lib.mixins.listctrl import ColumnSorterMixin
 
+import config
+import overlays
+import logging
+import log_parser
+import log_analyzer
+import util
+import raid
+import net
+import preferences
+import ext.fuzion as fuzion
 from constants import *
 from logging import prnt
 

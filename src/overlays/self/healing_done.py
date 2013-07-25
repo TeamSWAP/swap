@@ -14,10 +14,14 @@
 # limitations under the License.
 #
 
-import wx, random, time, locale
-import log_analyzer
-
+import random
+import time
+import locale
 from threading import Thread, Event
+
+import wx
+
+import log_analyzer
 from overlays.base import BaseOverlay
 
 class HealingDoneOverlay(BaseOverlay):

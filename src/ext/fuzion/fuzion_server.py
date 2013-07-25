@@ -14,7 +14,14 @@
 # limitations under the License.
 #
 
-import socket, threading, time, hashlib, random, sys, traceback
+import socket
+import threading
+import time
+import hashlib
+import random
+import sys
+import traceback
+import BaseHTTPServer
 from select import select
 
 import net_helpers
@@ -23,6 +30,7 @@ from logging import SetupLogging
 
 NODE_SERVER_PORT = 57681
 REFLECTION_SERVER_PORT = 57681
+STATS_SERVER_PORT = 57682
 
 FUZION_VERSION_REQUIRED = 0
 FUZION_SERVER_VERSION = "0.1"
@@ -322,6 +330,32 @@ class ReflectionServer(threading.Thread):
 			time.sleep(0.01)
 		self.sock.close()
 
+class StatsServer(threading.Thread):
+	def __init__(self, ns):
+		threading.Thread.__init__(self)
+		self.ns = ns
+		self.setDaemon(True)
+
+	def run(self):
+		debug("Stats Server starting on %d"%STATS_SERVER_PORT)
+		httpd = BaseHTTPServer.HTTPServer(('', STATS_SERVER_PORT), lambda *x: StatsServer.StatsHandler(self.ns, *x))
+		httpd.serve_forever()
+		httpd.close_server()
+
+	class StatsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+		def __init__(self, ns, *args):
+			self.ns = ns
+			BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args)
+
+		def log_request(self, *args):
+			pass
+
+		def do_GET(self):
+			self.send_response(200)
+			self.send_header("Content-Type", "text/html")
+			self.end_headers()
+			self.wfile.write("%d nodes connected."%len(self.ns.nodes))
+
 if __name__ == '__main__':
 	debug("Fuzion Server v%s starting"%FUZION_SERVER_VERSION)
 
@@ -330,6 +364,9 @@ if __name__ == '__main__':
 
 	rs = ReflectionServer()
 	rs.start()
+
+	ss = StatsServer(ns)
+	ss.start()
 
 	# Breakable!
 	while True:

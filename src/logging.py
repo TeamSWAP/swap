@@ -14,11 +14,12 @@
 # limitations under the License.
 #
 
-import sys, atexit
+import sys
+import atexit
+from datetime import datetime
+from threading import Lock
 
 from constants import *
-from threading import Lock
-from datetime import datetime
 
 DEBUG_TO_FILE = True
 

@@ -14,12 +14,16 @@
 # limitations under the License.
 #
 
-import threading, socket
-import log_parser, log_analyzer, net
-import ext.fuzion as fuzion
-
+import threading
+import socket
 from time import sleep, time
 from select import select
+
+import ext.fuzion as fuzion
+
+import log_parser
+import log_analyzer
+import net
 from logging import prnt
 from constants import *
 from bytestream import ByteStream

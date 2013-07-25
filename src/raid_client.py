@@ -14,14 +14,18 @@
 # limitations under the License.
 #
 
-import wx
-import threading, socket
-import log_parser, log_analyzer
-import raid, net
-import ext.fuzion as fuzion
-
+import threading
+import socket
 from time import sleep, time
 from select import select
+
+import ext.fuzion as fuzion
+import wx
+
+import log_parser
+import log_analyzer
+import raid
+import net
 from logging import prnt
 from constants import *
 from bytestream import ByteStream

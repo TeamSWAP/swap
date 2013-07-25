@@ -15,9 +15,9 @@
 #
 
 import wx
+
 import config
 import log_parser
-
 from constants import *
 from logging import prnt
 
