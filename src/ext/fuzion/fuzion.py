@@ -403,7 +403,8 @@ class Node(object):
 				debug("sendRelay: Loopback endpoint not found.")
 			return
 
-		if self.nodeState != NS_CONNECTED:
+		if self.nodeState != NS_REGISTERED:
+			debug("sendRelay: Node not registered. State is %d"%self.nodeState)
 			return
 
 		out = ByteStream()
