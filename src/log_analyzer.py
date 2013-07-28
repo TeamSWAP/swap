@@ -83,6 +83,7 @@ class AnalyzerThread(threading.Thread):
 				totalHealing = 0
 				totalHealingReceived = 0
 				totalThreat = 0
+				eventTimeDelta = 0
 				damageBreakdown = {}
 
 				events = self.parser.events
@@ -112,14 +113,7 @@ class AnalyzerThread(threading.Thread):
 					if ev.actor == self.parser.me:
 						totalThreat += ev.threat
 
-				# The combat log times are inaccurate, so (if possible) we record the
-				# local time that combat began, so as to provide a smooth time scale.
-				if not wasInCombat and self.parser.inCombat:
-					combatStartLinearTime = time.time()
-				# If not possible, switch to the log's time.
-				if combatStartLinearTime == 0:
-					combatStartLinearTime = combatStartTime
-				wasInCombat = self.parser.inCombat
+					eventTimeDelta = ev.time - ev.readTime
 
 				combatDuration = combatEndTime - combatStartTime
 
@@ -133,7 +127,8 @@ class AnalyzerThread(threading.Thread):
 				self.combatEndTime = combatEndTime
 				self.combatDuration = combatDuration
 				if len(events) > 0 and self.parser.inCombat:
-					self.combatDurationLinear = time.time() - combatStartLinearTime
+					combatNow = time.time() + eventTimeDelta
+					self.combatDurationLinear = round(combatNow - combatStartTime)
 					if self.combatDurationLinear < 0:
 						self.combatDurationLinear = combatDuration
 				else:

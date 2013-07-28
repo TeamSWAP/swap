@@ -53,6 +53,7 @@ class GameEvent:
 		self.damage = 0
 		self.healing = 0
 		self.time = 0
+		self.readTime = 0
 		self.threat = 0
 		self.enterEvent = False
 		self.exitEvent = False
@@ -170,6 +171,7 @@ class Parser:
 					event.abilityName = ability
 					event.inCombat = self.inCombat
 					event.time = actionTime
+					event.readTime = time.time()
 					event.threat = threat
 					event.enterEvent = False
 					event.exitEvent = False
