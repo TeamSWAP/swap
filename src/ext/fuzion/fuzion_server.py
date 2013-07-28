@@ -22,6 +22,7 @@ import random
 import sys
 import traceback
 import BaseHTTPServer
+import urllib2
 from select import select
 
 import net_helpers
@@ -36,7 +37,10 @@ FUZION_VERSION_REQUIRED = 0
 FUZION_SERVER_VERSION = "0.1"
 
 SERVER_GATEWAY_IP = "192.168.1.1"
-SERVER_PUBLIC_IP = "76.92.129.164"
+SERVER_PUBLIC_IP = ""
+
+PUBLIC_IP_UPDATE_INTERVAL = 60 * 60
+PUBLIC_IP_UPDATE_LAST = 0
 
 # Packet codes
 P_REGISTER                    = 1
@@ -56,6 +60,18 @@ def debug(*args):
 	global printLock
 	with printLock:
 		sys.stdout.write(' '.join(map(lambda x:str(x), args)) + '\n')
+
+def refreshPublicIP():
+	global SERVER_PUBLIC_IP
+	debug("Getting public IP...")
+	u = urllib2.urlopen("http://curlmyip.com")
+	ip = u.read().strip()
+	u.close()
+	if ip.count('.') != 3:
+		debug("refreshPublicIP: ip returned not valid=%s"%ip)
+		return
+	SERVER_PUBLIC_IP = ip
+	debug("IP is now %s"%ip)
 
 SetupLogging("fuzion_server")
 
@@ -308,11 +324,15 @@ class ReflectionServer(threading.Thread):
 		self.setDaemon(True)
 
 	def run(self):
+		global PUBLIC_IP_UPDATE_LAST
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', REFLECTION_SERVER_PORT))
 
 		debug("Reflection Server listening on %d"%REFLECTION_SERVER_PORT)
+
+		refreshPublicIP()
+		PUBLIC_IP_UPDATE_LAST = time.time()
 
 		while True:
 			r, w, e = select([self.sock], [self.sock], [], 0)
@@ -327,6 +347,12 @@ class ReflectionServer(threading.Thread):
 				out.writeString(ip)
 				out.writeInt(port)
 				self.sock.sendto(out.toString(), addr)
+
+			now = time.time()
+			if now - PUBLIC_IP_UPDATE_LAST > PUBLIC_IP_UPDATE_INTERVAL:
+				PUBLIC_IP_UPDATE_LAST = now
+				threading.Thread(target=refreshPublicIP).start()
+
 			time.sleep(0.01)
 		self.sock.close()
 
