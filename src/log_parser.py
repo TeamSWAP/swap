@@ -50,6 +50,8 @@ class GameEvent:
 		self.target = None
 		self.ability = None
 		self.abilityName = None
+		self.actionType = None
+		self.actionTypeName = None
 		self.damage = 0
 		self.healing = 0
 		self.time = 0
@@ -57,6 +59,7 @@ class GameEvent:
 		self.threat = 0
 		self.enterEvent = False
 		self.exitEvent = False
+		self.inCombat = False
 
 class Parser:
 	"""docstring for Parser"""
@@ -169,6 +172,8 @@ class Parser:
 					event.target = target
 					event.ability = abilityId
 					event.abilityName = ability
+					event.actionType = actionTypeId
+					event.actionTypeName = actionType
 					event.inCombat = self.inCombat
 					event.time = actionTime
 					event.readTime = time.time()
@@ -249,6 +254,10 @@ class Parser:
 				return GameEvent.TYPE_DAMAGE
 			elif actionTypeId == '836045448945500':
 				return GameEvent.TYPE_HEAL
+			else:
+				return GameEvent.TYPE_APPLY_BUFF
+		elif actionId == '836045448945478': # RemoveEffect
+			return GameEvent.TYPE_REMOVE_BUFF
 		return None
 
 class ParserThread(threading.Thread):

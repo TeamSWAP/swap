@@ -67,9 +67,8 @@ class AnalyzerThread(threading.Thread):
 	def analyze(self):
 		prnt("Analyzer: Starting...")
 		try:
-			stateInCombat = False
-			wasInCombat = self.parser.inCombat if self.parser.ready else False
 			combatStartLinearTime = 0
+			eventTimeDelta = 0
 			while not self.stopEvent.isSet():
 				if not self.parser.ready:
 					time.sleep(0.1)
@@ -85,20 +84,27 @@ class AnalyzerThread(threading.Thread):
 				totalThreat = 0
 				eventTimeDelta = 0
 				damageBreakdown = {}
+				buffs = []
 
 				events = self.parser.events
+				combatEvents = []
+
+				stateInCombat = False
 				for ev in reversed(events):
-					if not stateInCombat and (ev.exitEvent or self.parser.inCombat):
-						combatEndTime = ev.time
+					if ev.exitEvent or (ev.inCombat and not stateInCombat):
 						stateInCombat = True
 					elif ev.enterEvent:
-						combatStartTime = ev.time
 						stateInCombat = False
 						break
-
 					if not stateInCombat:
 						continue
+					combatEvents.insert(0, ev)
 
+				if combatEvents:
+					combatStartTime = combatEvents[0].time
+					combatEndTime = combatEvents[-1].time
+
+				for ev in combatEvents:
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
 						if not ev.abilityName in damageBreakdown:
@@ -113,7 +119,14 @@ class AnalyzerThread(threading.Thread):
 					if ev.actor == self.parser.me:
 						totalThreat += ev.threat
 
-					eventTimeDelta = ev.time - ev.readTime
+					if ev.type == GameEvent.TYPE_APPLY_BUFF:
+						buffs.append(ev.actionType)
+					elif ev.type == GameEvent.TYPE_REMOVE_BUFF:
+						if ev.actionType in buffs:
+							buffs.remove(ev.actionType)
+
+					if not eventTimeDelta:
+						eventTimeDelta = ev.time - ev.readTime
 
 				combatDuration = combatEndTime - combatStartTime
 
@@ -128,7 +141,7 @@ class AnalyzerThread(threading.Thread):
 				self.combatDuration = combatDuration
 				if len(events) > 0 and self.parser.inCombat:
 					combatNow = time.time() + eventTimeDelta
-					self.combatDurationLinear = round(combatNow - combatStartTime)
+					self.combatDurationLinear = combatNow - combatStartTime
 					if self.combatDurationLinear < 0:
 						self.combatDurationLinear = combatDuration
 				else:
@@ -137,8 +150,6 @@ class AnalyzerThread(threading.Thread):
 				# Avg DPS calculation
 				self.avgDps = util.div(totalDamage, combatDuration)
 				self.avgHps = util.div(totalHealing, combatDuration)
-
-				now = time.time()
 
 				self.notifyFrames()
 
