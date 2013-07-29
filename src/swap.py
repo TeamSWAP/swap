@@ -452,6 +452,8 @@ class MainFrame(wx.Frame):
 		createDetailBlock("Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
 		createDetailBlock("Avg. HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
 		createDetailBlock("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+		createDetailBlock("Rolling DPS", lambda a: locale.format("%.2f", a.dps, grouping=True))
+		createDetailBlock("Rolling HPS", lambda a: locale.format("%.2f", a.hps, grouping=True))
 
 		parent.Add(self.detailGrid, 0, wx.EXPAND | wx.ALL, 10)
 

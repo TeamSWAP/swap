@@ -19,3 +19,5 @@ from overlays.self.avg_hps import AverageHPSOverlay
 from overlays.self.damage_dealt import DamageDealtOverlay
 from overlays.self.healing_done import HealingDoneOverlay
 from overlays.self.timer import FightTimerOverlay
+from overlays.self.rolling_dps import RollingDPSOverlay
+from overlays.self.rolling_hps import RollingHPSOverlay

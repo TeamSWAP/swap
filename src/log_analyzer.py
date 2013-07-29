@@ -27,6 +27,8 @@ import util
 from log_parser import GameEvent
 from logging import prnt
 
+ROLLING_SAMPLE = 20
+
 analyzerThread = None
 
 class AnalyzerThread(threading.Thread):
@@ -52,6 +54,8 @@ class AnalyzerThread(threading.Thread):
 		self.avgDps = 0
 		self.avgHps = 0
 		self.damageBreakdown = {}
+		self.dps = 0
+		self.hps = 0
 
 		self.tfbOrb = 0
 
@@ -88,7 +92,10 @@ class AnalyzerThread(threading.Thread):
 				totalThreat = 0
 				eventTimeDelta = 0
 				damageBreakdown = {}
+				sampleDamage = 0
+				sampleHeal = 0
 				buffs = []
+				now = time.time()
 
 				if self.parser.fights:
 					events = self.parser.fights[self.fightId].events
@@ -103,6 +110,8 @@ class AnalyzerThread(threading.Thread):
 				for ev in events:
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
+						if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
+							sampleDamage += ev.damage 
 						if not ev.abilityName in damageBreakdown:
 							damageBreakdown[ev.abilityName] = 0
 						damageBreakdown[ev.abilityName] += ev.damage
@@ -110,6 +119,8 @@ class AnalyzerThread(threading.Thread):
 						totalDamageTaken += ev.damage
 					if ev.type == GameEvent.TYPE_HEAL and ev.actor == self.parser.me:
 						totalHealing += ev.healing
+						if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
+							sampleHeal += ev.healing 
 					if ev.type == GameEvent.TYPE_HEAL and ev.target == self.parser.me:
 						totalHealingReceived += ev.healing
 					if ev.actor == self.parser.me:
@@ -145,6 +156,10 @@ class AnalyzerThread(threading.Thread):
 				# Avg DPS calculation
 				self.avgDps = util.div(totalDamage, combatDuration)
 				self.avgHps = util.div(totalHealing, combatDuration)
+
+				# Rolling calculations
+				self.dps = util.div(sampleDamage, min(combatDuration, ROLLING_SAMPLE))
+				self.hps = util.div(sampleHeal, min(combatDuration, ROLLING_SAMPLE))
 
 				# -----------------------------------
 				# Mechanics

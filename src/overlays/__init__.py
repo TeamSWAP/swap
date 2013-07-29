@@ -52,6 +52,12 @@ overlayList = [
 		'category': 'self',
 		'class': AverageDPSOverlay
 	},
+	{
+		'name': 'rolling_dps',
+		'title': 'Rolling DPS',
+		'category': 'self',
+		'class': RollingDPSOverlay
+	},
 	{ 'name': '-', 'category': 'self' },
 	{
 		'name': 'healing_done',
@@ -64,6 +70,12 @@ overlayList = [
 		'title': 'Avg. HPS',
 		'category': 'self',
 		'class': AverageHPSOverlay
+	},
+	{
+		'name': 'rolling_hps',
+		'title': 'Rolling HPS',
+		'category': 'self',
+		'class': RollingHPSOverlay
 	},
 	{ 'name': '-', 'category': 'self' },
 	{
