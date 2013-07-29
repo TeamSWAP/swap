@@ -171,9 +171,9 @@ class AnalyzerThread(threading.Thread):
 					self.tfbOrb = 1
 				elif '2958167315054592' in buffs: # Orange
 					self.tfbOrb = 2
-				elif '2993785478840320' in buffs: # Purple (FIXME: id is probably wrong)
+				elif '2958188789891072' in buffs: # Purple
 					self.tfbOrb = 3
-				elif '2993789773807616' in buffs: # Yellow (FIXME: id is probably wrong)
+				elif '2958193084858368' in buffs: # Yellow
 					self.tfbOrb = 4
 
 				self.notifyFrames()
