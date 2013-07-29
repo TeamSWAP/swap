@@ -161,7 +161,7 @@ class Node(object):
 
 		while True:
 			# communication with node server
-			r, w, e = select([self.sock], [self.sock], [], 0)
+			r, w, e = select([self.sock], [self.sock], [self.sock], 0)
 			if r or e:
 				try:
 					d = self.sock.recv(2048)

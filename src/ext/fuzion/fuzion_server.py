@@ -88,7 +88,7 @@ class ConnectionHandler(threading.Thread):
 
 	def run(self):
 		while True:
-			r, w, e = select([self.sock], [self.sock], [], 0)
+			r, w, e = select([self.sock], [self.sock], [self.sock], 0)
 			if r or e:
 				try:
 					data = self.sock.recv(2048)
