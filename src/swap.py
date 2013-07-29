@@ -279,7 +279,7 @@ class MainFrame(wx.Frame):
 		self.updateOverlayList()
 
 	def onCloseOverlays(self, event):
-		overlays.KillAllOverlays()
+		overlays.killAllOverlays()
 		self.updateOverlayList()
 
 	def onGenerateButton(self, event):
