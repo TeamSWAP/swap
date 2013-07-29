@@ -68,6 +68,8 @@ class AnalyzerThread(threading.Thread):
 
 	def analyze(self):
 		prnt("Analyzer: Starting...")
+		
+		self.fightId = -1
 		try:
 			combatStartLinearTime = 0
 			eventTimeDelta = 0
@@ -88,27 +90,17 @@ class AnalyzerThread(threading.Thread):
 				damageBreakdown = {}
 				buffs = []
 
-				events = self.parser.events
-				combatEvents = []
+				if self.parser.fights:
+					events = self.parser.fights[self.fightId].events
+				else:
+					events = []
 
-				stateInCombat = False
-				startWasRecent = False
-				for ev in reversed(events):
-					if ev.exitEvent or (ev.inCombat and not stateInCombat):
-						stateInCombat = True
-					elif ev.enterEvent:
-						stateInCombat = False
-						startWasRecent = ev.recent
-						break
-					if not stateInCombat:
-						continue
-					combatEvents.insert(0, ev)
+				if events:
+					combatStartTime = events[0].time
+					combatEndTime = events[-1].time
+					startWasRecent = events[0].recent
 
-				if combatEvents:
-					combatStartTime = combatEvents[0].time
-					combatEndTime = combatEvents[-1].time
-
-				for ev in combatEvents:
+				for ev in events:
 					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
 						totalDamage += ev.damage
 						if not ev.abilityName in damageBreakdown:

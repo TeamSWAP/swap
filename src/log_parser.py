@@ -31,7 +31,7 @@ from logging import prnt
 # Global variables
 parserThread = None
 
-class GameEvent:
+class GameEvent(object):
 	TYPE_ABILITY_ACTIVATE   = 0x1
 	TYPE_ABILITY_DEACTIVATE = 0x2
 	TYPE_ABILITY_CANCEL     = 0x3
@@ -62,13 +62,21 @@ class GameEvent:
 		self.inCombat = False
 		self.recent = False
 
-class Parser:
+class Fight(object):
+	def __init__(self):
+		self.events = []
+		self.enterEvent = None
+		self.enterTime = 0
+		self.exitEvent = None
+		self.exitTime = 0
+
+class Parser(object):
 	"""docstring for Parser"""
 
 	def __init__(self):
 		self.linePat = re.compile("^\[(?P<hour>\d{1,2})\:(?P<minute>\d{2})\:(?P<second>\d{2})\.(?P<ms>\d{3})\] \[(?P<actor>[^\[\]]*)\] \[(?P<target>[^\[\]]*)\] \[(?:(?P<ability>[^{}]+))?(?: {(?P<abilityid>\d*)})?\] \[(?P<action>[^{}]+) {(?P<actionid>\d*)}: (?P<actiontype>[^{}]+) {(?P<actiontypeid>\d*)}\] \((?:(?P<result>[^\<\>]+))?\)(?: \<(?P<threat>-?\d*)\>)?$")
 		self.logLocation = None
-		self.events = []
+		self.fights = []
 		self.ready = False
 		self.me = None
 		self.inCombat = False
@@ -110,7 +118,8 @@ class Parser:
 			logCursor = 0
 
 			self.inCombat = False
-			self.events = []
+			self.fights = []
+			self.fight = None
 			self.ready = False
 
 			prnt("Parser: Began parsing %s"%logFile)
@@ -128,7 +137,7 @@ class Parser:
 
 						# Reset vars
 						inCombat = False
-						self.events = []
+						self.fights = []
 
 						# Ensure we determine who "we" are again.
 						self.me = None
@@ -194,6 +203,11 @@ class Parser:
 						event.exitEvent = True
 
 					if event.enterEvent:
+						fight = Fight()
+						fight.enterEvent = event
+						fight.enterTime = event.time
+						self.fights.append(fight)
+						self.fight = fight
 						self.inCombat = True
 					elif event.exitEvent:
 						self.inCombat = False
@@ -224,7 +238,13 @@ class Parser:
 							heal = heal[:-1]
 						event.healing = int(heal)
 
-					self.events.append(event)
+					if self.fight != None:
+						self.fight.events.append(event)
+					
+					if event.exitEvent:
+						self.fight.exitEvent = event
+						self.fight.exitTime = event.time
+						self.fight = None
 				elif line[-1] != '\n' and line[-1] != '\r':
 					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
 					log.seek(logCursor)
