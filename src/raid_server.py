@@ -103,6 +103,7 @@ class RaidServer(threading.Thread):
 		totalHealingReceived = stream.readInt()
 		avgHps = stream.readFloat()
 		totalThreat = stream.readInt()
+		tfbOrb = stream.readByte()
 
 		prnt("RaidServer: Got player update from %s!"%name)
 
@@ -122,7 +123,8 @@ class RaidServer(threading.Thread):
 			'totalHealing': totalHealing,
 			'totalHealingReceived': totalHealingReceived,
 			'avgHps': avgHps,
-			'totalThreat': totalThreat
+			'totalThreat': totalThreat,
+			'tfbOrb': tfbOrb
 		}
 		self.lastRaidUpdatePoke = time()
 
@@ -150,6 +152,7 @@ class RaidServer(threading.Thread):
 			stream.writeInt(player['totalHealingReceived'])
 			stream.writeFloat(player['avgHps'])
 			stream.writeInt(player['totalThreat'])
+			stream.writeByte(player['tfbOrb'])
 
 		for client in self.clientList:
 			conn = client['conn']

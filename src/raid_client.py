@@ -122,11 +122,15 @@ class RaidClient(threading.Thread):
 		stream.writeString(analyzer.parser.me or "@NoPlayer")
 		stream.writeInt(analyzer.totalDamage)
 		stream.writeInt(analyzer.totalDamageTaken)
-		stream.writeFloat((float(analyzer.totalDamage) / float(analyzer.combatDuration)) if analyzer.combatDuration else 0)
+		stream.writeFloat(analyzer.avgDps)
 		stream.writeInt(analyzer.totalHealing)
 		stream.writeInt(analyzer.totalHealingReceived)
-		stream.writeFloat((float(analyzer.totalHealing) / float(analyzer.combatDuration)) if analyzer.combatDuration else 0)
+		stream.writeFloat(analyzer.avgHps)
 		stream.writeInt(analyzer.totalThreat)
+
+		# Mechanics
+		stream.writeByte(analyzer.tfbOrb)
+
 		self.conn.send(stream)
 
 	def gotRaidUpdate(self, stream):
@@ -145,6 +149,10 @@ class RaidClient(threading.Thread):
 			player['totalHealingReceived'] = stream.readInt()
 			player['avgHps'] = stream.readFloat()
 			player['totalThreat'] = stream.readInt()
+
+			# Mechanics
+			player['tfbOrb'] = stream.readByte()
+			
 			playerList.append(player)
 
 		raid.playerData = playerList

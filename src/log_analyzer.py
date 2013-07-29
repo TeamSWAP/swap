@@ -53,6 +53,8 @@ class AnalyzerThread(threading.Thread):
 		self.avgHps = 0
 		self.damageBreakdown = {}
 
+		self.tfbOrb = 0
+
 	def run(self):
 		crashCounter = 0
 		while crashCounter < 6:
@@ -90,11 +92,13 @@ class AnalyzerThread(threading.Thread):
 				combatEvents = []
 
 				stateInCombat = False
+				startWasRecent = False
 				for ev in reversed(events):
 					if ev.exitEvent or (ev.inCombat and not stateInCombat):
 						stateInCombat = True
 					elif ev.enterEvent:
 						stateInCombat = False
+						startWasRecent = ev.recent
 						break
 					if not stateInCombat:
 						continue
@@ -125,8 +129,7 @@ class AnalyzerThread(threading.Thread):
 						if ev.actionType in buffs:
 							buffs.remove(ev.actionType)
 
-					if not eventTimeDelta:
-						eventTimeDelta = ev.time - ev.readTime
+					eventTimeDelta = ev.time - ev.readTime
 
 				combatDuration = combatEndTime - combatStartTime
 
@@ -139,7 +142,7 @@ class AnalyzerThread(threading.Thread):
 				self.combatStartTime = combatStartTime
 				self.combatEndTime = combatEndTime
 				self.combatDuration = combatDuration
-				if len(events) > 0 and self.parser.inCombat:
+				if len(events) > 0 and self.parser.inCombat and startWasRecent:
 					combatNow = time.time() + eventTimeDelta
 					self.combatDurationLinear = combatNow - combatStartTime
 					if self.combatDurationLinear < 0:
@@ -150,6 +153,21 @@ class AnalyzerThread(threading.Thread):
 				# Avg DPS calculation
 				self.avgDps = util.div(totalDamage, combatDuration)
 				self.avgHps = util.div(totalHealing, combatDuration)
+
+				# -----------------------------------
+				# Mechanics
+				# -----------------------------------
+
+				# TFB HM Op-9 Colors
+				self.tfbOrb = 0
+				if '2957991221395456' in buffs: # Blue
+					self.tfbOrb = 1
+				elif '2958167315054592' in buffs: # Orange
+					self.tfbOrb = 2
+				elif '2993785478840320' in buffs: # Purple (FIXME: id is probably wrong)
+					self.tfbOrb = 3
+				elif '2993789773807616' in buffs: # Yellow (FIXME: id is probably wrong)
+					self.tfbOrb = 4
 
 				self.notifyFrames()
 

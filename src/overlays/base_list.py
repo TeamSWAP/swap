@@ -70,6 +70,28 @@ class ShareBar(wx.PyControl):
 
 		dc.DrawText(pc, (width / 2) - (textWidth / 2), (height / 2) - (textHeight / 2))
 
+class ColoredRect(wx.PyControl):
+	def __init__(self, parent, id, style=wx.NO_BORDER):
+		wx.PyControl.__init__(self, parent, id, style=style)
+
+		self.Bind(wx.EVT_PAINT, self.OnPaint)
+
+	def DoGetBestSize(self):
+		best = wx.Size(15, 15)
+		return best
+
+	def OnPaint(self, event):
+		dc = wx.BufferedPaintDC(self)
+		width, height = self.GetClientSize()
+		if not width or not height:
+			return
+
+		fgColor = self.GetForegroundColour()
+		fgBrush = wx.Brush(fgColor, wx.SOLID)
+
+		dc.SetBackground(fgBrush)
+		dc.Clear()
+
 class BaseListOverlay(BaseOverlay):
 	LEFT = wx.ALIGN_LEFT
 	RIGHT = wx.ALIGN_RIGHT
@@ -131,9 +153,11 @@ class BaseListOverlay(BaseOverlay):
 					colType = self.columnTypes[x]
 					if colType == 'ShareBar':
 						columnView = ShareBar(self.panel, -1)
+					elif colType == 'ColoredRect':
+						columnView = ColoredRect(self.panel, -1)
 					else:
 						columnView = wx.StaticText(self.panel, -1, "", style=align)
-					rowBox.Add(columnView, share, wx.ALIGN_CENTER_VERTICAL)
+					rowBox.Add(columnView, share, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 					x += 1
 				self.bindViews(rowBox)
 				self.raidListBox.Add(rowBox, 0, wx.EXPAND)
@@ -154,10 +178,13 @@ class BaseListOverlay(BaseOverlay):
 				if colType == 'ShareBar':
 					columnView.SetValue(col)
 					columnView.SetBackgroundColour(self.getBackgroundColor())
+					columnView.SetForegroundColour(row['rowColor'])
+				elif colType == 'ColoredRect':
+					columnView.SetForegroundColour(col)
 				else:
 					columnView.SetFont(self.listFont)
 					columnView.SetLabel(col)
-				columnView.SetForegroundColour(row['rowColor'])
+					columnView.SetForegroundColour(row['rowColor'])
 				x += 1
 			i += 1
 

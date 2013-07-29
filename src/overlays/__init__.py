@@ -21,6 +21,7 @@ from overlays.base import BaseOverlay
 # Import overlay classes
 from overlays.self import *
 from overlays.raid_wide import *
+from overlays.raid_mechanics import *
 
 overlayCategories = [
 	{
@@ -30,6 +31,10 @@ overlayCategories = [
 	{
 		'name': 'raid',
 		'title': 'Raid-wide'
+	},
+	{
+		'name': 'raid_mechanics',
+		'title': 'Raid Mechanics'
 	}
 ]
 
@@ -111,6 +116,13 @@ overlayList = [
 		'title': 'Threat',
 		'category': 'raid',
 		'class': RaidThreatOverlay
+	},
+# Raid Mechanics
+	{
+		'name': 'tfb_op9_colors',
+		'title': 'TFB HM Op-IX Colors',
+		'category': 'raid_mechanics',
+		'class': TFBOp9Colors
 	},
 ]
 

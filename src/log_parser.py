@@ -60,6 +60,7 @@ class GameEvent:
 		self.enterEvent = False
 		self.exitEvent = False
 		self.inCombat = False
+		self.recent = False
 
 class Parser:
 	"""docstring for Parser"""
@@ -180,12 +181,16 @@ class Parser:
 					event.threat = threat
 					event.enterEvent = False
 					event.exitEvent = False
+					event.recent = self.ready
 
 					if event.type == GameEvent.TYPE_ENTER_COMBAT:
 						event.enterEvent = True
 					elif event.type == GameEvent.TYPE_EXIT_COMBAT:
 						event.exitEvent = True
 					elif event.type == GameEvent.TYPE_DEATH and self.inCombat and event.target == self.me:
+						event.exitEvent = True
+					elif event.type == GameEvent.TYPE_APPLY_BUFF and event.actionType == '973870949466372' and self.inCombat:
+						# Safe Login Immunity
 						event.exitEvent = True
 
 					if event.enterEvent:
