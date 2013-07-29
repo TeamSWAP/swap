@@ -500,9 +500,10 @@ class MainFrame(wx.Frame):
 		index = 0
 
 		itemDataMap = {}
+		totalDamage = sum(analyzer.damageBreakdown.values())
 		for ability, damage in sorted(analyzer.damageBreakdown.iteritems(), key=lambda x:x[1], reverse=True):
 			self.breakdownView.InsertStringItem(index, ability)
-			self.breakdownView.SetStringItem(index, 1, locale.format("%d", damage, grouping=True))
+			self.breakdownView.SetStringItem(index, 1, locale.format("%d", damage, grouping=True) + " (%.2f%%)"%(util.div(damage, totalDamage) * 100))
 			self.breakdownView.SetItemData(index, index)
 			itemDataMap[index] = [ability, damage]
 			index += 1
