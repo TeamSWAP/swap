@@ -47,7 +47,7 @@ class RaidClient(threading.Thread):
 		prnt("RaidClient: Booting up...")
 
 		self.conn = net.node.connect(self.serverNode, "swap:raid")
-		if self.conn.state != fuzion.CS_CONNECTED:
+		if not self.conn or self.conn.state != fuzion.CS_CONNECTED:
 			raid.LeaveRaid()
 			wx.CallAfter(self.failureFunc, "node_connect_failed")
 			prnt("RaidClient: Connection failed, shutting down...")
