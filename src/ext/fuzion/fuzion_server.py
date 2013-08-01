@@ -175,7 +175,7 @@ class ConnectionHandler(threading.Thread):
 			pubIp = data.readString()
 			pubPort = data.readInt()
 			debug("%s: sending tunnel info to %s"%(self.id, targetId))
-			#self.ns.sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort)
+			self.ns.sendTunnelInfo(self, targetId, targetPort, privIp, privPort, pubIp, pubPort)
 		elif packet == P_RELAY_PACKET:
 			targetId = data.readString()
 			targetPort = data.readString()

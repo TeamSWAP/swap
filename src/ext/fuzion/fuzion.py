@@ -730,6 +730,7 @@ class NodeConnection(threading.Thread):
 			debug("Connect timed out.")
 			self.state = CS_FAILED_TIMED_OUT
 			self.threadStopped.set()
+			self.node.connectionDied(self)
 
 	def gotTunnelInfo(self, privIp, privPort, pubIp, pubPort):
 		debug("Got tunnel info")
