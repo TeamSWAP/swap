@@ -34,7 +34,7 @@ REQUEST_PLAYER_UPDATE = 0x5
 REQUEST_RAID_UPDATE = 0x6
 
 class RaidClient(threading.Thread):
-	def __init__(self, serverNode, failureFunc):
+	def __init__(self, serverNode, failureFunc, successFunc):
 		threading.Thread.__init__(self)
 		self.serverNode = serverNode
 		self.lastUpdateSent = 0
@@ -42,6 +42,7 @@ class RaidClient(threading.Thread):
 		self.stoppedEvent = threading.Event()
 		self.pausedEvent = threading.Event()
 		self.failureFunc = failureFunc
+		self.successFunc = successFunc
 
 	def run(self):
 		prnt("RaidClient: Booting up...")
@@ -52,6 +53,9 @@ class RaidClient(threading.Thread):
 			wx.CallAfter(self.failureFunc, "node_connect_failed")
 			prnt("RaidClient: Connection failed, shutting down...")
 			return
+
+		# Inform the UI of raid join success.
+		wx.CallAfter(self.successFunc)
 
 		while not self.stoppedEvent.isSet():
 			if self.pausedEvent.isSet():

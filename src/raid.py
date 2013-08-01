@@ -117,9 +117,8 @@ def JoinRaid(key, successFunc, failureFunc):
 				prnt("Raid: Joined raid, didn't become host")
 				serverNode = stream.readString()
 				sock.close()
-			raidClient = RaidClient(serverNode, failureFunc)
+			raidClient = RaidClient(serverNode, failureFunc, successFunc)
 			raidClient.start()
-			wx.CallAfter(successFunc)
 		else:
 			reason = stream.readString()
 			wx.CallAfter(failureFunc, reason)
