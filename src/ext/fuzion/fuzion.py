@@ -25,6 +25,9 @@ from bytestream import ByteStream
 
 FUZION_VERSION = 0
 
+NS_KEEPALIVE_INTERVAL = 60 * 5
+NS_KEEPALIVE_TIMEOUT = 30
+
 # ----------------------------------
 # Packet codes
 # ----------------------------------
@@ -106,6 +109,9 @@ class Node(object):
 		self.nodeState = NS_NOT_CONNECTED
 		self.sock = None
 
+		self.lastKeepAliveSent = 0
+		self.lastPacketReceived = 0
+
 		# Callbacks
 		self.nodeStateCallback = nodeStateCallback
 		self.disconnectCallbacks = []
@@ -160,7 +166,13 @@ class Node(object):
 		self.connectToNodeServer()
 
 		while True:
-			# communication with node server
+			now = time.time()
+
+			if now - self.lastPacketReceived > NS_KEEPALIVE_TIMEOUT:
+				debug("Timed out.")
+				self._disconnected()
+				continue
+
 			r, w, e = select([self.sock], [self.sock], [self.sock], 0)
 			if r or e:
 				try:
@@ -172,22 +184,33 @@ class Node(object):
 					else:
 						debug("recv() error: errno=%d"%e.errno)
 				if not d:
-					# Disconnected.
-					debug("Disconnected.")
-					self.invokeDisconnectEvent()
-					self.connectToNodeServer()
-					self.invokeReconnectEvent()
+					self._disconnected()
 					continue
 				self.sockPacker.read(d)
+				debug("got packet")
+
 			packet = self.sockPacker.popPacket()
 			if packet:
 				packet = ByteStream(packet)
 				self.gotDataFromNodeServer(packet)
+				self.lastPacketReceived = now
+
 			if w:
+				if now - self.lastKeepAliveSent > NS_KEEPALIVE_INTERVAL:
+					self.lastKeepAliveSent = now
+					self.send('')
+
 				self.sockQueue.processNext()
+
 			time.sleep(0.001)
 
 		self.sock.close()
+
+	def _disconnected(self):
+		debug("Disconnected.")
+		self.invokeDisconnectEvent()
+		self.connectToNodeServer()
+		self.invokeReconnectEvent()
 
 	def connectToNodeServer(self):
 		debug("Connecting to node server @ %s"%repr(self.nodeServer))
@@ -207,6 +230,9 @@ class Node(object):
 			time.sleep(5)
 		self.updateNodeState(NS_CONNECTED)
 		debug("Connected.")
+
+		# Reset last packet counter so we don't time out.
+		self.lastPacketReceived = time.time()
 
 		# send register packet
 		debug("Registering with node server...")

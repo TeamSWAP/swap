@@ -39,8 +39,11 @@ FUZION_SERVER_VERSION = "0.1"
 SERVER_GATEWAY_IP = "192.168.1.1"
 SERVER_PUBLIC_IP = ""
 
-PUBLIC_IP_UPDATE_INTERVAL = 60 * 60
+PUBLIC_IP_UPDATE_INTERVAL = 4 * 60 * 60
 PUBLIC_IP_UPDATE_LAST = 0
+
+KEEPALIVE_INTERVAL = 60 * 5
+KEEPALIVE_TIMEOUT = 30
 
 # Packet codes
 P_REGISTER                    = 1
@@ -86,15 +89,21 @@ class ConnectionHandler(threading.Thread):
 		self.addr = addr
 		self.id = None
 
+		now = time.time()
+
+		self.lastKeepAliveSent = now
+		self.lastPacketReceived = now
+
 	def run(self):
 		while True:
+			now = time.time()
+
 			r, w, e = select([self.sock], [self.sock], [self.sock], 0)
 			if r or e:
 				try:
 					data = self.sock.recv(2048)
-				except:
-					debug("%s: .recv() crashed!"%self.id)
-					debug(traceback.format_exc())
+				except socket.error as e:
+					debug("%s: .recv() died! errno=%d"%(self.id, e.errno))
 					break
 				if not data:
 					if self.id:
@@ -103,6 +112,8 @@ class ConnectionHandler(threading.Thread):
 						debug("lost unknown connection")
 					break
 				self.sockPacker.read(data)
+				self.lastPacketReceived = now
+
 			packet = self.sockPacker.popPacket()
 			if packet:
 				packet = ByteStream(packet)
@@ -111,7 +122,17 @@ class ConnectionHandler(threading.Thread):
 				except:
 					debug("handlePacket crashed.")
 					debug(traceback.format_exc())
+
+			if now - self.lastPacketReceived > KEEPALIVE_TIMEOUT:
+				debug("%s: timed out."%self.id)
+				self.sock.close()
+				break
+
 			if w:
+				if now - self.lastKeepAliveSent > KEEPALIVE_INTERVAL:
+					self.lastKeepAliveSent = now
+					self.send('')
+
 				self.sockQueue.processNext()
 			time.sleep(0.01)
 		self.ns.nodeDied(self.id)
@@ -123,7 +144,6 @@ class ConnectionHandler(threading.Thread):
 
 	def handlePacket(self, data):
 		packet = data.readByte()
-		#debug("Handling packet (%d) from ID=%s"%(packet, repr(self.id)))
 		if packet == P_REGISTER:
 			self.id = self.ns.pushNode(self)
 
