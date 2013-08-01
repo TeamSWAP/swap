@@ -57,16 +57,17 @@ ERR_TIMED_OUT                 = 5
 # ----------------------------------
 # Connection state
 # ----------------------------------
-CS_REQUESTED         = 0
-CS_ACCEPTED          = 1
-CS_TUNNEL_AWAIT_INFO = 2
-CS_GOT_TUNNEL_INFO   = 3
-CS_TUNNELING         = 4
-CS_CONNECTED         = 5
-CS_FAILED_BASE       = 100
-CS_FAILED_NO_NODE    = CS_FAILED_BASE + 0
-CS_FAILED_REJECTED   = CS_FAILED_BASE + 1
-CS_FAILED_TUNNEL     = CS_FAILED_BASE + 2
+CS_REQUESTED                 = 0
+CS_ACCEPTED                  = 1
+CS_TUNNEL_AWAIT_INFO         = 2
+CS_GOT_TUNNEL_INFO           = 3
+CS_TUNNELING                 = 4
+CS_CONNECTED                 = 5
+CS_FAILED_BASE               = 100
+CS_FAILED_NO_NODE            = CS_FAILED_BASE + 0
+CS_FAILED_REJECTED           = CS_FAILED_BASE + 1
+CS_FAILED_TUNNEL             = CS_FAILED_BASE + 2
+CS_FAILED_TIMED_OUT          = CS_FAILED_BASE + 3
 
 # ----------------------------------
 # Node state
@@ -187,7 +188,6 @@ class Node(object):
 					self._disconnected()
 					continue
 				self.sockPacker.read(d)
-				debug("got packet")
 
 			packet = self.sockPacker.popPacket()
 			if packet:
@@ -201,6 +201,14 @@ class Node(object):
 					self.send('')
 
 				self.sockQueue.processNext()
+
+			# Process stale requested connections.
+			with self.connectionsLock:
+				for connection in self.connections:
+					if connection.state == CS_REQUESTED and now - connection.requestTime > 4:
+						debug("Connection request for %s:%s timed out."%(connection.targetId, connection.targetPort))
+						connection.state = CS_FAILED_TIMED_OUT
+						self.connections.remove(connection)
 
 			time.sleep(0.001)
 
@@ -358,6 +366,7 @@ class Node(object):
 		self.send(out)
 
 		conn = NodeConnection(self, targetId, targetPort, True)
+		conn.requestTime = time.time()
 		self.connections.append(conn)
 
 		while True:
@@ -490,7 +499,7 @@ class NodeConnection(threading.Thread):
 		self.targetPort = targetPort
 		self.loopback = self.targetId == self.node.id
 		self.state = CS_REQUESTED
-		self.tunnelSetup = False
+		self.requestedTime = 0
 		self.tunnelTicks = 0
 		self.tunnelGotSyn = False
 		self.lastPacketSent = 0
@@ -512,6 +521,8 @@ class NodeConnection(threading.Thread):
 		threading.Thread.start(self)
 
 	def run(self):
+		self.acceptTime = time.time()
+
 		if self.state != CS_CONNECTED:
 			if not self.loopback:
 				# Get tunnel info
@@ -714,6 +725,11 @@ class NodeConnection(threading.Thread):
 			self.sock.sendto(mySyn, self.tunnelPrivAddr)
 			self.sock.sendto(mySyn, self.tunnelPubAddr)
 			debug("Sending syn...")
+
+		if self.state != CS_CONNECTED and time.time() - self.acceptTime > 5:
+			debug("Connect timed out.")
+			self.state = CS_FAILED_TIMED_OUT
+			self.threadStopped.set()
 
 	def gotTunnelInfo(self, privIp, privPort, pubIp, pubPort):
 		debug("Got tunnel info")
