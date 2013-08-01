@@ -25,8 +25,8 @@ from bytestream import ByteStream
 
 FUZION_VERSION = 0
 
-NS_KEEPALIVE_INTERVAL = 60 * 5
-NS_KEEPALIVE_TIMEOUT = 30
+NS_KEEPALIVE_INTERVAL = 60
+NS_KEEPALIVE_TIMEOUT = NS_KEEPALIVE_INTERVAL * 5
 
 # ----------------------------------
 # Packet codes
@@ -188,12 +188,12 @@ class Node(object):
 					self._disconnected()
 					continue
 				self.sockPacker.read(d)
+				self.lastPacketReceived = now
 
 			packet = self.sockPacker.popPacket()
 			if packet:
 				packet = ByteStream(packet)
 				self.gotDataFromNodeServer(packet)
-				self.lastPacketReceived = now
 
 			if w:
 				if now - self.lastKeepAliveSent > NS_KEEPALIVE_INTERVAL:
