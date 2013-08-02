@@ -228,9 +228,9 @@ class MainFrame(wx.Frame):
 
 	def onCheckUpdates(self, event):
 		if IS_COMPILED:
-			subprocess.Popen(["updater.exe"])
+			subprocess.Popen(["updater.exe"], close_fds=True)
 		else:
-			subprocess.Popen(["python", "updater.py"])
+			subprocess.Popen(["python", "updater.py"], close_fds=True)
 		self.Destroy()
 
 	def onOpenLog(self, event):
@@ -523,7 +523,7 @@ if __name__ == '__main__':
 
 	if IS_COMPILED:
 		if len(sys.argv) != 2 or sys.argv[1] != '--from-updater':
-			subprocess.Popen(["updater.exe"])
+			subprocess.Popen(["updater.exe"], close_fds=True)
 			exit()
 
 	prnt("SWAP v%s booting up..."%VERSION)

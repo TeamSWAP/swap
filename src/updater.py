@@ -62,9 +62,9 @@ class UpdaterFrame(wx.Frame):
 		prnt("-"*20)
 
 		if IS_COMPILED:
-			subprocess.Popen(["swap.exe", "--from-updater"])
+			subprocess.Popen(["swap.exe", "--from-updater"], close_fds=True)
 		else:
-			subprocess.Popen(["python", "swap.py"])
+			subprocess.Popen(["python", "swap.py"], close_fds=True)
 
 	def errorGettingInfo(self):
 		dialog = wx.MessageDialog(self, "Whoops! We couldn't contact our servers to check for updates!", "Error: Couldn't check for update info", wx.ICON_ERROR | wx.OK)
