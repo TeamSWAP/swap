@@ -241,7 +241,7 @@ class Parser(object):
 					if self.fight != None:
 						self.fight.events.append(event)
 					
-					if event.exitEvent:
+					if event.exitEvent and self.fight:
 						self.fight.exitEvent = event
 						self.fight.exitTime = event.time
 						self.fight = None
