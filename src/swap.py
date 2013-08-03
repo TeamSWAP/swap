@@ -23,9 +23,11 @@ import traceback
 import threading
 import sys
 import urllib2
+import textwrap
 from urllib import urlencode
 
 import wx
+import wx.html
 from wx.lib.mixins.listctrl import ColumnSorterMixin
 
 import config
@@ -48,6 +50,26 @@ class SortList(wx.ListCtrl, ColumnSorterMixin):
 		self.GetListCtrl = lambda: self
 		ColumnSorterMixin.__init__(self, columns)
 
+class ChangelogDialog(wx.Dialog):
+	def __init__(self, changelog):
+		wx.Dialog.__init__(self, None, -1, "SWAP Changelog", size=(500, 600))
+
+		changelogLines = changelog.split("\n")
+		changelogFinal = "\n".join(map(lambda x:"\n".join(textwrap.wrap(x, 55)), changelogLines))
+
+		sizer = wx.BoxSizer(wx.VERTICAL)
+
+		html = wx.html.HtmlWindow(self, -1, style=wx.STATIC_BORDER)
+		html.SetPage("<pre>%s</pre>"%changelogFinal)
+		sizer.Add(html, 1, wx.EXPAND | wx.ALL, 5)
+
+		buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+		buttonSizer.Add((0, 0), 1, wx.EXPAND)
+		buttonSizer.Add(wx.Button(self, wx.ID_OK, "OK"))
+		sizer.Add(buttonSizer, 0, wx.EXPAND | wx.ALL, 5)
+
+		self.SetSizer(sizer)
+
 class MainFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520))
@@ -59,6 +81,19 @@ class MainFrame(wx.Frame):
 
 			if result == wx.ID_OK:
 				util.EnableCombatLogging()
+
+		# Check for changelog
+		try:
+			f = open('_changelog.txt', 'r')
+		except IOError:
+			pass
+		else:
+			with f:
+				changelog = f.read()
+			changelogDialog = ChangelogDialog(changelog)
+			changelogDialog.ShowModal()
+			changelogDialog.Destroy()
+			os.remove('_changelog.txt')
 
 		self.SetMinSize((700, 520))
 

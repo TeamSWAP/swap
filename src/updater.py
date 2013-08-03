@@ -99,12 +99,10 @@ class UpdaterFrame(wx.Frame):
 		self.status.SetLabel("Launching SWAP...")
 		self.progress.SetValue(100)
 
-		dialog = wx.MessageDialog(self, changelog, "What's New in v%s"%version, wx.OK)
-		dialog.ShowModal()
-		dialog.Destroy()
+		with open('_changelog.txt', 'w') as f:
+			f.write(changelog)
 
 		self.Hide()
-
 		self.launch()
 
 def checkForUpdates(frame):
