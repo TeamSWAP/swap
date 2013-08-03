@@ -554,10 +554,6 @@ class NodeConnection(threading.Thread):
 				time.sleep(0.2)
 				continue
 
-			# Don't timeout immediately.
-			if self.lastPacketReceived == 0:
-				self.lastPacketReceived = time.time()
-
 			if self.relay:
 				r = len(self.relayedRead) > 0
 				w = 1
@@ -571,7 +567,8 @@ class NodeConnection(threading.Thread):
 					if e.errno == 10054:
 						# UDP returns a ECONNRESET for IMCP failures, ignore them
 						data = None
-				if data != None:
+
+				if data:
 					packetType = data.readByte()
 					if packetType == P_DATA:
 						self.pendingRecv.append(data.readString())
@@ -582,6 +579,9 @@ class NodeConnection(threading.Thread):
 						pass
 					self.lastPacketReceived = now
 
+				if not data and data is not None:
+					debug("Empty, but not None packet?")
+
 			if now - self.lastPacketSent > 5:
 				packet = ByteStream()
 				packet.writeByte(P_KEEP_ALIVE)
@@ -589,13 +589,10 @@ class NodeConnection(threading.Thread):
 
 				self.lastPacketSent = now
 
-			if now - self.lastPacketReceived > 20:
-				try:
-					debug("would have timed out, now=%d, lastPacket=%d"%(now, self.lastPacketReceived))
-				except:
-					debug("print crashed! oh noes")
-				#self.closeInternal(ERR_TIMED_OUT)
-				#break
+			if self.lastPacketReceived > 0 and now - self.lastPacketReceived > 20:
+				debug("Timeout, now=%d, lastPacket=%d, diff=%d"%(now, self.lastPacketReceived, now - self.lastPacketReceived))
+				self.closeInternal(ERR_TIMED_OUT)
+				break
 
 			time.sleep(0.01)
 
@@ -608,11 +605,7 @@ class NodeConnection(threading.Thread):
 		packet.writeString(data)
 		data = packet.toString()
 
-		tries = 0
-		size = len(data)
-		sent = 0
-		while sent < size and tries < 20:
-			sent += self._send(data[sent:])
+		self._send(data)
 		self.lastPacketSent = time.time()
 
 	def recv(self, raw=False):
@@ -746,7 +739,14 @@ class NodeConnection(threading.Thread):
 		if self.relay:
 			self.node.sendRelay(self.targetId, self.targetPort, data, self.outbound)
 			return len(data)
-		return self.sock.send(data)
+
+		try:
+			numBytesSent = self.sock.send(data)
+		except socket.error as e:
+			debug("_send: failed! errno=%d"%e.errno)
+			return 0
+		else:
+			return numBytesSent
 
 	def _recv(self):
 		if self.relay:
