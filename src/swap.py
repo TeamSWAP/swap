@@ -533,6 +533,11 @@ class MainFrame(wx.Frame):
 		self.raidView.itemDataMap = itemDataMap
 		self.raidView.SortListItems()
 
+		if raid.playerData:
+			self.tabs.SetPageText(2, "Raid [%d players]"%len(raid.playerData))
+		else:
+			self.tabs.SetPageText(2, "Raid")
+
 		self.breakdownView.DeleteAllItems()
 		index = 0
 
