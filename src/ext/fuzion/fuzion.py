@@ -590,8 +590,12 @@ class NodeConnection(threading.Thread):
 				self.lastPacketSent = now
 
 			if now - self.lastPacketReceived > 20:
-				self.closeInternal(ERR_TIMED_OUT)
-				break
+				try:
+					debug("would have timed out, now=%d, lastPacket=%d"%(now, self.lastPacketReceived))
+				except:
+					debug("print crashed! oh noes")
+				#self.closeInternal(ERR_TIMED_OUT)
+				#break
 
 			time.sleep(0.01)
 
