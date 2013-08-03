@@ -740,6 +740,10 @@ class NodeConnection(threading.Thread):
 			self.node.sendRelay(self.targetId, self.targetPort, data, self.outbound)
 			return len(data)
 
+		if len(data) == 0:
+			debug("_send: sending a blank message")
+			traceback.print_stack()
+
 		try:
 			numBytesSent = self.sock.send(data)
 		except socket.error as e:
