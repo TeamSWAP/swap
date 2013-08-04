@@ -566,21 +566,23 @@ class NodeConnection(threading.Thread):
 				except socket.error as e:
 					if e.errno == 10054:
 						# UDP returns a ECONNRESET for IMCP failures, ignore them
-						data = None
-
-				if data:
-					packetType = data.readByte()
-					if packetType == P_DATA:
-						self.pendingRecv.append(data.readString())
-					elif packetType == P_CLOSE:
-						self.closeInternal(ERR_CLOSED_BY_REMOTE)
-						break
-					elif packetType == P_KEEP_ALIVE:
 						pass
-					self.lastPacketReceived = now
+					else:
+						debug("Connection errno=%d"%e.errno)
+				else:
+					if data:
+						packetType = data.readByte()
+						if packetType == P_DATA:
+							self.pendingRecv.append(data.readString())
+						elif packetType == P_CLOSE:
+							self.closeInternal(ERR_CLOSED_BY_REMOTE)
+							break
+						elif packetType == P_KEEP_ALIVE:
+							pass
+						self.lastPacketReceived = now
 
-				if not data and data is not None:
-					debug("Empty, but not None packet?")
+					if not data and data is not None:
+						debug("Empty, but not None packet?")
 
 			if now - self.lastPacketSent > 5:
 				packet = ByteStream()
