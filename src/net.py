@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import ext.fuzion as fuzion
+import fuzion
 
 import raid
 from constants import *

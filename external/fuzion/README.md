@@ -7,8 +7,11 @@ Fuzion
 Fuzion is a new P2P networking library built for Python. Fuzion consists of a developer library, and a
 node server to coordinate NAT traversal, connections, and node relations.
 
-Using Fuzion (to accept p2p connections)
-------------
+Examples
+========
+
+Binding and Listening on a port
+-------------------------------
 		import fuzion
 
 		node = fuzion.Node()
@@ -21,15 +24,15 @@ Using Fuzion (to accept p2p connections)
 		connection.send("Hiya!")
 		connection.close()
 
-Using Fuzion (to connect to a p2p client)
-------------
+Connecting to a port
+--------------------
 		import fuzion
 
 		node = fuzion.Node()
 		node.setNodeServer("1.1.1.1:45000")
 
 		connection = node.connect("<hosting node id>", "myapp:port")
-		print connection.recv()
+		print connection.recv(raw=True)
 		connection.close()
 
 License

@@ -19,7 +19,7 @@ import socket
 from time import sleep, time
 from select import select
 
-import ext.fuzion as fuzion
+import fuzion
 import wx
 
 import log_parser

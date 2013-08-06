@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+# Add externals to path
+import sys
+sys.path.append('../external')
+
 import os
 import shutil
 import locale
@@ -21,11 +25,11 @@ import time
 import subprocess
 import traceback
 import threading
-import sys
 import urllib2
 import textwrap
 from urllib import urlencode
 
+import fuzion
 import wx
 import wx.html
 from wx.lib.mixins.listctrl import ColumnSorterMixin
@@ -39,7 +43,6 @@ import util
 import raid
 import net
 import preferences
-import ext.fuzion as fuzion
 from constants import *
 from logging import prnt
 
