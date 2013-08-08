@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 import os
 
-sa = Analysis(['src/swap.py'])
+sa = Analysis(['src/swap.py'], pathex=['external'])
 ua = Analysis(['src/updater.py'])
 spyz = PYZ(sa.pure)
 upyz = PYZ(ua.pure)
