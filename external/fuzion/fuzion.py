@@ -693,7 +693,7 @@ class NodeConnection(threading.Thread):
 				r, w, e = select([self.sock], [self.sock], [], 0)
 				if r:
 					try:
-						data, addr = self.sock.recvfrom(512)
+						data, addr = self.sock.recvfrom(4096)
 					except socket.error as e:
 						if e.errno == 10054:
 							# UDP returns a ECONNRESET for IMCP failures, ignore them
@@ -760,7 +760,7 @@ class NodeConnection(threading.Thread):
 				time.sleep(0.001)
 				continue
 			return self.relayedRead.pop(0)
-		return self.sock.recv(512)
+		return self.sock.recv(4096)
 
 	def injectRelayRead(self, data):
 		self.relayedRead.append(data)
