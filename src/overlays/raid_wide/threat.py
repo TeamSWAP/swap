@@ -52,16 +52,6 @@ class RaidThreatOverlay(BaseListOverlay):
 		self.beginBatch()
 		self.clearList()
 
-		def sortf(x, y):
-			x = x['totalThreat']
-			y = y['totalThreat']
-			if x == y:
-				return 0
-			elif x < y:
-				return 1
-			else:
-				return -1
-
 		index = 0
 		raidTotalThreat = 0
 		for player in raid.playerData:
@@ -69,7 +59,7 @@ class RaidThreatOverlay(BaseListOverlay):
 				continue
 			raidTotalThreat += player['totalThreat']
 
-		for player in sorted(raid.playerData, sortf):
+		for player in sorted(raid.playerData, key=lambda x:x['totalThreat'], reverse=True):
 			if player['totalThreat'] == 0:
 				continue
 

@@ -52,22 +52,12 @@ class RaidAvgDPSOverlay(BaseListOverlay):
 		self.beginBatch()
 		self.clearList()
 
-		def sortf(x, y):
-			x = x['totalDamage']
-			y = y['totalDamage']
-			if x == y:
-				return 0
-			elif x < y:
-				return 1
-			else:
-				return -1
-
 		index = 0
 		raidTotalDamage = 0
 		for player in raid.playerData:
 			raidTotalDamage += player['totalDamage']
 
-		for player in sorted(raid.playerData, sortf):
+		for player in sorted(raid.playerData, key=lambda x:x['totalDamage'], reverse=True):
 			if player['totalDamage'] == 0:
 				continue
 

@@ -52,22 +52,12 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 		self.beginBatch()
 		self.clearList()
 
-		def sortf(x, y):
-			x = x['totalHealingReceived']
-			y = y['totalHealingReceived']
-			if x == y:
-				return 0
-			elif x < y:
-				return 1
-			else:
-				return -1
-
 		index = 0
 		raidTotalHealingReceived = 0
 		for player in raid.playerData:
 			raidTotalHealingReceived += player['totalHealingReceived']
 
-		for player in sorted(raid.playerData, sortf):
+		for player in sorted(raid.playerData, key=lambda x:x['totalHealingReceived'], reverse=True):
 			if player['totalHealingReceived'] == 0:
 				continue
 

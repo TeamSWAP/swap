@@ -52,22 +52,12 @@ class RaidAvgHPSOverlay(BaseListOverlay):
 		self.beginBatch()
 		self.clearList()
 
-		def sortf(x, y):
-			x = x['totalHealing']
-			y = y['totalHealing']
-			if x == y:
-				return 0
-			elif x < y:
-				return 1
-			else:
-				return -1
-
 		index = 0
 		raidTotalHealing = 0
 		for player in raid.playerData:
 			raidTotalHealing += player['totalHealing']
 
-		for player in sorted(raid.playerData, sortf):
+		for player in sorted(raid.playerData, key=lambda x:x['totalHealing'], reverse=True):
 			if player['totalHealing'] == 0:
 				continue
 			if raidTotalHealing > 0:

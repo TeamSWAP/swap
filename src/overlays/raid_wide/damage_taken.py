@@ -52,22 +52,12 @@ class RaidDamageTakenOverlay(BaseListOverlay):
 		self.beginBatch()
 		self.clearList()
 
-		def sortf(x, y):
-			x = x['totalDamageTaken']
-			y = y['totalDamageTaken']
-			if x == y:
-				return 0
-			elif x < y:
-				return 1
-			else:
-				return -1
-
 		index = 0
 		raidTotalDamageTaken = 0
 		for player in raid.playerData:
 			raidTotalDamageTaken += player['totalDamageTaken']
 
-		for player in sorted(raid.playerData, sortf):
+		for player in sorted(raid.playerData, key=lambda x:x['totalDamageTaken'], reverse=True):
 			if player['totalDamageTaken'] == 0:
 				continue
 	
