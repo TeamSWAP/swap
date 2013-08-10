@@ -32,7 +32,7 @@ class DamageDealtOverlay(BaseOverlay):
 
 		analyzer = log_analyzer.Get()
 		analyzer.registerFrame(self)
-		self.OnAnalyzerTick(analyzer)
+		self.onAnalyzerTick(analyzer)
 
 	def createUI(self):
 		BaseOverlay.createUI(self)
@@ -50,6 +50,6 @@ class DamageDealtOverlay(BaseOverlay):
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		self.damage.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
 

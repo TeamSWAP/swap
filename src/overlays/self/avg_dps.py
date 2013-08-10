@@ -34,7 +34,7 @@ class AverageDPSOverlay(BaseOverlay):
 
 		analyzer = log_analyzer.Get()
 		analyzer.registerFrame(self)
-		self.OnAnalyzerTick(analyzer)
+		self.onAnalyzerTick(analyzer)
 
 	def createUI(self):
 		BaseOverlay.createUI(self)
@@ -52,6 +52,6 @@ class AverageDPSOverlay(BaseOverlay):
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
 

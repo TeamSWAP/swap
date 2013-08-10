@@ -502,7 +502,7 @@ class MainFrame(wx.Frame):
 			else:
 				item.Check(False)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		if analyzer.parser.me:
 			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
 		else:

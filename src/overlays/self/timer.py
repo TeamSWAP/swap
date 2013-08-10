@@ -33,7 +33,7 @@ class FightTimerOverlay(BaseOverlay):
 
 		analyzer = log_analyzer.Get()
 		analyzer.registerFrame(self)
-		self.OnAnalyzerTick(analyzer)
+		self.onAnalyzerTick(analyzer)
 
 	def createUI(self):
 		BaseOverlay.createUI(self)
@@ -51,6 +51,6 @@ class FightTimerOverlay(BaseOverlay):
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		self.timer.SetLabel(util.FormatDuration(analyzer.combatDurationLinear))
 

@@ -37,7 +37,7 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 
 		analyzer = log_analyzer.Get()
 		analyzer.registerFrame(self)
-		self.OnAnalyzerTick(analyzer)
+		self.onAnalyzerTick(analyzer)
 
 	def createUI(self):
 		BaseListOverlay.createUI(self)
@@ -48,7 +48,7 @@ class RaidHealingReceivedOverlay(BaseListOverlay):
 		if event.GetEventObject() == self:
 			log_analyzer.Get().unregisterFrame(self)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		self.beginBatch()
 		self.clearList()
 

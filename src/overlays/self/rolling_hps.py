@@ -34,7 +34,7 @@ class RollingHPSOverlay(BaseOverlay):
 
 		analyzer = log_analyzer.Get()
 		analyzer.registerFrame(self)
-		self.OnAnalyzerTick(analyzer)
+		self.onAnalyzerTick(analyzer)
 
 	def createUI(self):
 		BaseOverlay.createUI(self)
@@ -52,6 +52,6 @@ class RollingHPSOverlay(BaseOverlay):
 	def OnClose(self, event):
 		log_analyzer.Get().unregisterFrame(self)
 
-	def OnAnalyzerTick(self, analyzer):
+	def onAnalyzerTick(self, analyzer):
 		self.hps.SetLabel(locale.format("%.2f", analyzer.hps, grouping=True))
 

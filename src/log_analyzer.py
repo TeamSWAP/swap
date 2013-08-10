@@ -193,7 +193,7 @@ class AnalyzerThread(threading.Thread):
 
 	def notifyFrames(self):
 		for frame in self.updateFrames:
-			wx.CallAfter(frame.OnAnalyzerTick, self)
+			wx.CallAfter(frame.onAnalyzerTick, self)
 
 	def stop(self):
 		self.stopEvent.set()
