@@ -583,9 +583,9 @@ if __name__ == '__main__':
 			shutil.copyfile("pending/%s"%f, f)
 		shutil.rmtree("pending")
 
-		for f in os.listdir("."):
-			if f.endswith('.old'):
-				os.remove(f)
+	for f in os.listdir("."):
+		if f.endswith('.old'):
+			os.remove(f)
 
 	app = wx.App(redirect=False)
 	frame = MainFrame()

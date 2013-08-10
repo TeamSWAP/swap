@@ -206,7 +206,7 @@ def applyUpdate(frame, info):
 				continue
 			if os.path.exists(f):
 				if os.path.exists(f + '.old'):
-					os.rename(f + '.old', f + '.old.old')
+					os.remove(f + '.old')
 				os.rename(f, f + '.old')
 			z.extract(f)
 			current += 1
@@ -230,9 +230,21 @@ def applyUpdate(frame, info):
 
 	wx.CallAfter(frame.updateComplete, info)
 
-logging.SetupLogging("updater")
+if __name__ == '__main__':
+	logging.SetupLogging("updater")
 
-app = wx.App(redirect=False)
-frame = UpdaterFrame()
-frame.Show()
-app.MainLoop()
+	if os.path.isdir("pending"):
+		prnt("Cleaning pending")
+		
+		for f in os.listdir("pending"):
+			shutil.copyfile("pending/%s"%f, f)
+		shutil.rmtree("pending")
+
+	for f in os.listdir("."):
+		if f.endswith('.old'):
+			os.remove(f)
+
+	app = wx.App(redirect=False)
+	frame = UpdaterFrame()
+	frame.Show()
+	app.MainLoop()
