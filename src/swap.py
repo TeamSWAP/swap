@@ -406,10 +406,7 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Enable()
 		self.keyVanityCheck.Enable()
 
-	def createReportView(self, parent=None, panelParent=None):
-		parent = parent if parent else self.box
-		panelParent = panelParent if panelParent else self.panel
-		
+	def createReportView(self, parent, panelParent):
 		self.reportView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.reportView.InsertColumn(0, "Name"); self.reportView.SetColumnWidth(0, 300)
 		self.reportView.InsertColumn(1, "Value"); self.reportView.SetColumnWidth(1, 200)
@@ -437,10 +434,7 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.reportView, 1, wx.EXPAND, 0)
 
-	def createRaidView(self, parent=None, panelParent=None):
-		parent = parent if parent else self.box
-		panelParent = panelParent if panelParent else self.panel
-		
+	def createRaidView(self, parent, panelParent):
 		self.raidView = SortList(panelParent, 9, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 15)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
@@ -454,19 +448,14 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
 
-	def createBreakdownView(self, parent=None, panelParent=None):
-		parent = parent if parent else self.box
-		panelParent = panelParent if panelParent else self.panel
-		
+	def createBreakdownView(self, parent, panelParent):
 		self.breakdownView = SortList(panelParent, 2, style=wx.LC_REPORT | wx.NO_BORDER)
 		self.breakdownView.InsertColumn(0, "Ability"); self.breakdownView.SetColumnWidth(0, 200)
 		self.breakdownView.InsertColumn(1, "Damage"); self.breakdownView.SetColumnWidth(1, 100)
 
 		parent.Add(self.breakdownView, 1, wx.EXPAND, 0)
 
-	def createGridView(self, parent=None, panelParent=None):
-		parent = parent if parent else self.box
-		panelParent = panelParent if panelParent else self.panel
+	def createGridView(self, parent, panelParent):
 		self.detailGrid = wx.GridSizer(3, 3, 10, 50)
 		self.gridUpdaters = []
 
