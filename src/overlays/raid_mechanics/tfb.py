@@ -29,7 +29,7 @@ class TFBOp9Colors(BaseListOverlay):
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		analyzer.registerFrame(self)
 		self.onAnalyzerTick(analyzer)
 
@@ -40,7 +40,7 @@ class TFBOp9Colors(BaseListOverlay):
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
-			log_analyzer.Get().unregisterFrame(self)
+			log_analyzer.get().unregisterFrame(self)
 
 	def onAnalyzerTick(self, analyzer):
 		self.beginBatch()

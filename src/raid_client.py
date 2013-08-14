@@ -49,7 +49,7 @@ class RaidClient(threading.Thread):
 
 		self.conn = net.node.connect(self.serverNode, "swap:raid")
 		if not self.conn or self.conn.state != fuzion.CS_CONNECTED:
-			raid.LeaveRaid()
+			raid.leaveRaid()
 			wx.CallAfter(self.failureFunc, "node_connect_failed")
 			prnt("RaidClient: Connection failed, shutting down...")
 			return
@@ -77,7 +77,7 @@ class RaidClient(threading.Thread):
 						self.conn = None
 						while self.serverNode == None or self.conn == None:
 							prnt("RaidClient: Reconnecting...")
-							self.serverNode = raid.GetNewServerNode()
+							self.serverNode = raid.getNewServerNode()
 							if self.serverNode == None:
 								prnt("RaidClient: Failed to get new server node...")
 								sleep(2)
@@ -96,8 +96,8 @@ class RaidClient(threading.Thread):
 					self.gotRaidUpdate(data)
 
 			now = time()
-			if now - self.lastUpdateSent >= 2 and (log_parser.GetThread().parser.inCombat or self.lastTicks >= 1):
-				if not log_parser.GetThread().parser.inCombat:
+			if now - self.lastUpdateSent >= 2 and (log_parser.get().inCombat or self.lastTicks >= 1):
+				if not log_parser.get().inCombat:
 					self.lastTicks -= 1
 				else:
 					self.lastTicks = 2
@@ -120,7 +120,7 @@ class RaidClient(threading.Thread):
 
 	def sendPlayerUpdate(self):
 		prnt("RaidClient: Sending update...")
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		stream = fuzion.ByteStream()
 		stream.writeByte(REQUEST_PLAYER_UPDATE)
 		stream.writeString(analyzer.parser.me or "@NoPlayer")
@@ -160,4 +160,4 @@ class RaidClient(threading.Thread):
 			playerList.append(player)
 
 		raid.playerData = playerList
-		log_analyzer.Get().notifyFrames()
+		log_analyzer.get().notifyFrames()

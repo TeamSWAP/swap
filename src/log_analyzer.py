@@ -206,19 +206,19 @@ class AnalyzerThread(threading.Thread):
 	def isRunning(self):
 		return self.running
 
-def Start(parserThread):
+def start(parserThread):
 	global analyzerThread
 	analyzerThread = AnalyzerThread(parserThread)
 	analyzerThread.start()
 
-	atexit.register(Shutdown)
+	atexit.register(shutdown)
 
-def Shutdown():
+def shutdown():
 	global analyzerThread
 	if analyzerThread != None:
 		analyzerThread.stop()
 		analyzerThread.join()
 		analyzerThread = None
 
-def Get():
+def get():
 	return analyzerThread

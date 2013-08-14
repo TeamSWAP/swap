@@ -30,7 +30,7 @@ class DamageDealtOverlay(BaseOverlay):
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		analyzer.registerFrame(self)
 		self.onAnalyzerTick(analyzer)
 
@@ -48,7 +48,7 @@ class DamageDealtOverlay(BaseOverlay):
 		BaseOverlay.updateColors(self)
 
 	def OnClose(self, event):
-		log_analyzer.Get().unregisterFrame(self)
+		log_analyzer.get().unregisterFrame(self)
 
 	def onAnalyzerTick(self, analyzer):
 		self.damage.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))

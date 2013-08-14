@@ -37,43 +37,42 @@ defaults = {
 
 settings = defaults
 
-def Load():
+def load():
 	global settings
 	prnt("Loading settings...")
 
 	# Setup a save on exit.
-	atexit.register(Save)
+	atexit.register(save)
 
 	if not os.path.exists('settings.json'):
 		return
 
-	data = None
 	try:
 		f = open('settings.json', 'r')
 		data = json.loads(f.read())
 		f.close()
 	except Exception, e:
 		prnt(traceback.format_exc())
-	if data != None:
+	else:
 		settings = data
 
 	# Convert from old format
-	bg = Get("overlayBgColor")
+	bg = get("overlayBgColor")
 	if isinstance(bg, basestring):
 		prnt("Legacy overlay colors found, converting...")
 		bg = int(bg[1:], 16)
-		Set("overlayBgColor", bg)
+		set("overlayBgColor", bg)
 
-		fg = Get("overlayFgColor")
+		fg = get("overlayFgColor")
 		fg = int(fg[1:], 16)
-		Set("overlayFgColor", fg)
+		set("overlayFgColor", fg)
 
-def Save():
+def save():
 	f = open('settings.json', 'w')
 	json.dump(settings, f, indent=4, sort_keys=True)
 	f.close()
 
-def Get(name):
+def get(name):
 	global settings
 	if name in settings.keys():
 		return settings[name]
@@ -81,16 +80,16 @@ def Get(name):
 		return defaults[name]
 	return None
 
-def GetXY(name):
-	xy = Get(name)
+def getXY(name):
+	xy = get(name)
 	if xy == None:
 		return None
 	x = (xy >> 16) & 0xFFFF
 	y = xy & 0xFFFF
 	return [x, y]
 
-def GetColor(name):
-	xy = Get(name)
+def getColor(name):
+	xy = get(name)
 	if xy == None:
 		return None
 	r = (xy >> 16) & 0xFF
@@ -98,23 +97,23 @@ def GetColor(name):
 	b = xy & 0xFF
 	return wx.Colour(r, g, b, 255)
 
-def Set(name, value):
+def set(name, value):
 	settings[name] = value
 
-def SetXY(name, value):
+def setXY(name, value):
 	x, y = value
 	xy = x
 	xy = (xy << 16) + y
-	Set(name, xy)
+	set(name, xy)
 
-def SetColor(name, value):
+def setColor(name, value):
 	(r, g, b) = value.Get(False)
 	xy = r
 	xy = (xy << 8) + g
 	xy = (xy << 8) + b
-	Set(name, xy)
+	set(name, xy)
 
-def Remove(name):
+def remove(name):
 	global settings
 	if name in settings.keys():
 		del settings[name]

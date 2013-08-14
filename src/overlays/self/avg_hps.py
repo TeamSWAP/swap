@@ -32,7 +32,7 @@ class AverageHPSOverlay(BaseOverlay):
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		analyzer.registerFrame(self)
 		self.onAnalyzerTick(analyzer)
 
@@ -50,7 +50,7 @@ class AverageHPSOverlay(BaseOverlay):
 		BaseOverlay.updateColors(self)
 
 	def OnClose(self, event):
-		log_analyzer.Get().unregisterFrame(self)
+		log_analyzer.get().unregisterFrame(self)
 
 	def onAnalyzerTick(self, analyzer):
 		self.hps.SetLabel(locale.format("%.2f", analyzer.avgHps, grouping=True))

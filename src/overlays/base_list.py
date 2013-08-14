@@ -116,7 +116,7 @@ class BaseListOverlay(BaseOverlay):
 
 	def updateUI(self):
 		BaseOverlay.updateUI(self)
-		self.listFont = wx.Font(config.Get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial")
+		self.listFont = wx.Font(config.get("overlayListFontSize"), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Arial")
 
 	def setColumns(self, cols, shares, aligns):
 		i = 0

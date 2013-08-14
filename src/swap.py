@@ -77,13 +77,13 @@ class MainFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520))
 
-		if not util.IsCombatLoggingEnabled():
+		if not util.isCombatLoggingEnabled():
 			dlg = wx.MessageDialog(self, MSG_COMBAT_LOGGING_DISABLED_TEXT, MSG_COMBAT_LOGGING_DISABLED_TITLE, wx.OK | wx.CANCEL | wx.ICON_ERROR)
 			result = dlg.ShowModal()
 			dlg.Destroy()
 
 			if result == wx.ID_OK:
-				util.EnableCombatLogging()
+				util.enableCombatLogging()
 
 		# Check for changelog
 		try:
@@ -142,19 +142,19 @@ class MainFrame(wx.Frame):
 		menu.AppendSeparator()
 		m_dark = menu.AppendCheckItem(MENU_ID_OVERLAY_DARK, MENU_TITLE_OVERLAY_DARK, MENU_TIP_OVERLAY_DARK)
 		m_dark.Check(overlays.isDarkTheme())
-		self.Bind(wx.EVT_MENU, lambda e: overlays.ToggleDarkTheme(), id=MENU_ID_OVERLAY_DARK)
+		self.Bind(wx.EVT_MENU, lambda e: overlays.toggleDarkTheme(), id=MENU_ID_OVERLAY_DARK)
 
 		m_sizeToGrid = menu.AppendCheckItem(MENU_ID_OVERLAY_SIZE_TO_GRID, MENU_TITLE_OVERLAY_SIZE_TO_GRID, MENU_TIP_OVERLAY_SIZE_TO_GRID)
-		m_sizeToGrid.Check(config.Get("overlaySizeToGrid") == True)
-		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlaySizeToGrid", m_sizeToGrid.IsChecked()), id=MENU_ID_OVERLAY_SIZE_TO_GRID)
+		m_sizeToGrid.Check(config.get("overlaySizeToGrid") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.set("overlaySizeToGrid", m_sizeToGrid.IsChecked()), id=MENU_ID_OVERLAY_SIZE_TO_GRID)
 
 		m_snapOverlays = menu.AppendCheckItem(MENU_ID_OVERLAY_SNAP, MENU_TITLE_OVERLAY_SNAP, MENU_TIP_OVERLAY_SNAP)
-		m_snapOverlays.Check(config.Get("overlaySnap") == True)
-		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlaySnap", m_snapOverlays.IsChecked()), id=MENU_ID_OVERLAY_SNAP)
+		m_snapOverlays.Check(config.get("overlaySnap") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.set("overlaySnap", m_snapOverlays.IsChecked()), id=MENU_ID_OVERLAY_SNAP)
 
 		m_clickThrough = menu.AppendCheckItem(MENU_ID_OVERLAY_CLICK_THROUGH, MENU_TITLE_OVERLAY_CLICK_THROUGH, MENU_TIP_OVERLAY_CLICK_THROUGH)
-		m_clickThrough.Check(config.Get("overlayClickThrough") == True)
-		self.Bind(wx.EVT_MENU, lambda e: config.Set("overlayClickThrough", m_clickThrough.IsChecked()), id=MENU_ID_OVERLAY_CLICK_THROUGH)
+		m_clickThrough.Check(config.get("overlayClickThrough") == True)
+		self.Bind(wx.EVT_MENU, lambda e: config.set("overlayClickThrough", m_clickThrough.IsChecked()), id=MENU_ID_OVERLAY_CLICK_THROUGH)
 
 		menu.AppendSeparator()
 
@@ -191,7 +191,7 @@ class MainFrame(wx.Frame):
 		self.keyText = wx.StaticText(self.panel, -1, "Key:")
 		self.keyBox = wx.TextCtrl(self.panel, -1, "", size=(150, -1))
 
-		lastRaidKey = config.Get("lastRaidKey")
+		lastRaidKey = config.get("lastRaidKey")
 		if lastRaidKey:
 			self.keyBox.SetValue(lastRaidKey)
 
@@ -258,7 +258,7 @@ class MainFrame(wx.Frame):
 		# Events
 		self.Bind(wx.EVT_CLOSE, self.onClose)
 
-		log_analyzer.Get().registerFrame(self)
+		log_analyzer.get().registerFrame(self)
 
 	def onPreferences(self, event):
 		dialog = preferences.PreferencesDialog(self)
@@ -305,9 +305,9 @@ class MainFrame(wx.Frame):
 		wx.AboutBox(about)
 
 	def onClose(self, event):
-		if raid.IsInRaid():
-			raid.LeaveRaid()
-		log_analyzer.Get().unregisterFrame(self)
+		if raid.isInRaid():
+			raid.leaveRaid()
+		log_analyzer.get().unregisterFrame(self)
 		overlays.killAllOverlays()
 		self.Destroy()
 
@@ -331,7 +331,7 @@ class MainFrame(wx.Frame):
 		self.keyGenerateButton.Disable()
 		self.keyVanityCheck.Disable()
 
-		raid.GenerateKey(vanityKey, self.onGotKey, self.onFailedToGetKey)
+		raid.generateKey(vanityKey, self.onGotKey, self.onFailedToGetKey)
 
 	def onGotKey(self, key):
 		self.keyBox.SetValue(key)
@@ -352,15 +352,19 @@ class MainFrame(wx.Frame):
 		self.keyVanityCheck.Enable()
 
 	def onJoinRaidButton(self, event):
-		if not raid.IsInRaid():
+		if not raid.isInRaid():
+			# Encode key to ascii (for wx unicode)
+			key = self.keyBox.GetValue().encode('ascii')
+
 			self.keyStatus.SetLabel("Joining raid...")
 			self.keyBox.SetEditable(False)
 			self.keyJoinButton.Disable()
 			self.keyGenerateButton.Disable()
 			self.keyVanityCheck.Disable()
-			raid.JoinRaid(self.keyBox.GetValue().encode('ascii'), self.onJoinedRaid, self.onFailedToJoinRaid)
+
+			raid.joinRaid(key, self.onJoinedRaid, self.onFailedToJoinRaid)
 		else:
-			raid.LeaveRaid()
+			raid.leaveRaid()
 			self.onLeftRaid()
 
 	def onJoinedRaid(self):
@@ -368,7 +372,7 @@ class MainFrame(wx.Frame):
 		self.keyJoinButton.Enable()
 		self.keyStatus.SetLabel("")
 
-		config.Set("lastRaidKey", self.keyBox.GetValue())
+		config.set("lastRaidKey", self.keyBox.GetValue())
 
 	def onFailedToJoinRaid(self, reason):
 		titles = {
@@ -421,7 +425,7 @@ class MainFrame(wx.Frame):
 		addDetailItem("My Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
 		addDetailItem("My Average HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
 		addDetailItem("My Threat", lambda a: locale.format("%d", a.totalThreat, grouping=True))
-		addDetailItem("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+		addDetailItem("Combat Duration", lambda a: util.formatDuration(a.combatDurationLinear))
 		addDetailItem("Combat Duration (seconds)", lambda a: locale.format("%.2f", a.combatDurationLinear, grouping=True))
 		addDetailItem("Combat Enter Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatStartTime)))
 		addDetailItem("Combat Exit Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatEndTime)))
@@ -489,7 +493,7 @@ class MainFrame(wx.Frame):
 		createDetailBlock("Healing Done", lambda a: locale.format("%d", a.totalHealing, grouping=True))
 		createDetailBlock("Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
 		createDetailBlock("Avg. HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
-		createDetailBlock("Combat Duration", lambda a: util.FormatDuration(a.combatDurationLinear))
+		createDetailBlock("Combat Duration", lambda a: util.formatDuration(a.combatDurationLinear))
 		createDetailBlock("Rolling DPS", lambda a: locale.format("%.2f", a.dps, grouping=True))
 		createDetailBlock("Rolling HPS", lambda a: locale.format("%.2f", a.hps, grouping=True))
 
@@ -561,7 +565,7 @@ class MainFrame(wx.Frame):
 		self.gridPanel.Layout()
 
 if __name__ == '__main__':
-	logging.SetupLogging("swap")
+	logging.setupLogging("swap")
 	locale.setlocale(locale.LC_ALL, '')
 
 	if IS_COMPILED:
@@ -571,10 +575,10 @@ if __name__ == '__main__':
 
 	prnt("SWAP v%s booting up..."%VERSION)
 
-	net.Init()
-	config.Load()
-	log_parser.Start()
-	log_analyzer.Start(log_parser.GetThread())
+	net.init()
+	config.load()
+	log_parser.start()
+	log_analyzer.start(log_parser.getThread())
 
 	if os.path.isdir("pending"):
 		prnt("Finalizing update...")

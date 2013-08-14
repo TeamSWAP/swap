@@ -31,7 +31,7 @@ class FightTimerOverlay(BaseOverlay):
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		analyzer.registerFrame(self)
 		self.onAnalyzerTick(analyzer)
 
@@ -49,8 +49,8 @@ class FightTimerOverlay(BaseOverlay):
 		BaseOverlay.updateColors(self)
 
 	def OnClose(self, event):
-		log_analyzer.Get().unregisterFrame(self)
+		log_analyzer.get().unregisterFrame(self)
 
 	def onAnalyzerTick(self, analyzer):
-		self.timer.SetLabel(util.FormatDuration(analyzer.combatDurationLinear))
+		self.timer.SetLabel(util.formatDuration(analyzer.combatDurationLinear))
 

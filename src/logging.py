@@ -63,7 +63,7 @@ class LogRedirector:
 		if not self.closed:
 			self.close()
 
-def SetupLogging(tag):
+def setupLogging(tag):
 	global redirector
 	redirector = LogRedirector(tag)
 	atexit.register(redirector.close)

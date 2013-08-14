@@ -319,21 +319,24 @@ class ParserThread(threading.Thread):
 	def getParser(self):
 		return self.parser
 
-def Start():
+def start():
 	global parserThread
 	parserThread = ParserThread()
 	parserThread.start()
 
-	atexit.register(Shutdown)
+	atexit.register(shutdown)
 
-def Shutdown():
+def shutdown():
 	global parserThread
 	if parserThread != None:
 		parserThread.stop()
 		parserThread.join()
 		parserThread = None
 
-def GetThread():
+def get():
+	return parserThread.parser
+
+def getThread():
 	return parserThread
 
 if __name__ == '__main__':

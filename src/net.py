@@ -28,7 +28,7 @@ def onNodeDisconnected():
 def onNodeReconnected():
 	raid.onNodeReconnected()
 
-def Init():
+def init():
 	global node
 
 	fuzion.setDebug(lambda *x: prnt("Fuzion:", *x))

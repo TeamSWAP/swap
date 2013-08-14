@@ -48,26 +48,26 @@ class BaseOverlay(wx.Frame):
 		# For some reason, frames with no caption do not layout properly.
 		self.panel.SetSize(self.GetSize())
 
-		self.panel.Bind(wx.EVT_MOTION, self.OnMouseMove)
+		self.panel.Bind(wx.EVT_MOTION, self.onMouseMove)
 
 		self.bindViews(self.box)
 
 		self.updateTimer = wx.Timer(self)
 		self.updateTimer.Start(400)
-		self.Bind(wx.EVT_TIMER, self.OnUpdateTimer, self.updateTimer)
+		self.Bind(wx.EVT_TIMER, self.onUpdateTimer, self.updateTimer)
 
 		self.setFocusable(False)
 		self.updateColors()
 
-		savedPosition = config.GetXY("overlay_%s_pos"%self.GetDerivedName())
+		savedPosition = config.getXY("overlay_%s_pos"%self.getDerivedName())
 		if savedPosition != None:
 			self.SetPosition(savedPosition)
 
-		savedSize = config.GetXY("overlay_%s_size"%self.GetDerivedName())
+		savedSize = config.getXY("overlay_%s_size"%self.getDerivedName())
 		if savedSize != None:
 			self.SetSize(savedSize)
 
-	def OnUpdateTimer(self, event):
+	def onUpdateTimer(self, event):
 		self.updateUI()
 
 		# Always on Top isn't always so, well, on top. This is a hack to fix those
@@ -82,7 +82,7 @@ class BaseOverlay(wx.Frame):
 				return
 			if overlays.isOverlayBeingDragged():
 				return
-			self.PushToTop()
+			self.pushToTop()
 
 	def bindViews(self, v):
 		for child in v.GetChildren():
@@ -90,29 +90,29 @@ class BaseOverlay(wx.Frame):
 				bindViews(child.GetSizer())
 			cv = child.GetWindow()
 			if hasattr(cv, 'GetGridWindow'):
-				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
+				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
 			elif hasattr(cv, 'Bind'):
-				cv.Bind(wx.EVT_MOTION, lambda e: self.OnMouseMove(e))
+				cv.Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
 
-	def PushToTop(self):
+	def pushToTop(self):
 		pos = self.GetPosition()
 		size = self.GetSize()
 		win32gui.SetWindowPos(self.GetHandle(), HWND_TOPMOST, pos[0], pos[1], size[0], size[1], SWP_NOACTIVATE)
 
 	# Because writing self.__class__.__name__ everywhere is ugly.
-	def GetDerivedName(self):
+	def getDerivedName(self):
 		return self.__class__.__name__
 
 	def getBackgroundColor(self):
-		return config.GetColor("overlayBgColor")
+		return config.getColor("overlayBgColor")
 
 	def getForegroundColor(self):
-		return config.GetColor("overlayFgColor")
+		return config.getColor("overlayFgColor")
 
 	def updateColors(self):
 		self.panel.SetBackgroundColour(self.getBackgroundColor())
 		self.titleText.SetForegroundColour(self.getForegroundColor())
-		self.setAlpha(config.Get("overlayOpacity"))
+		self.setAlpha(config.get("overlayOpacity"))
 		self.Refresh()
 
 	def createUI(self):
@@ -122,8 +122,8 @@ class BaseOverlay(wx.Frame):
 		self.box.Add(self.titleText, 0, wx.ALL & ~wx.BOTTOM, 10)
 
 	def updateUI(self):
-		self.titleText.SetFont(wx.Font(config.Get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.setClickThrough(config.Get("overlayClickThrough"))
+		self.titleText.SetFont(wx.Font(config.get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
+		self.setClickThrough(config.get("overlayClickThrough"))
 		self.updateColors()
 
 	def setFocusable(self, isFocusable):
@@ -146,15 +146,15 @@ class BaseOverlay(wx.Frame):
 		self.SetTransparent(alpha)
 
 	# Mouse movement event
-	def OnMouseMove(self, event):
+	def onMouseMove(self, event):
 		if not event.Dragging():
 			if self.dragDiff:
 				self.panel.ReleaseMouse()
 				self.dragDiff = None
 				self.dragSize = None
 				self.sizePoint = None
-				config.SetXY("overlay_%s_pos"%self.GetDerivedName(), self.GetPositionTuple())
-				config.SetXY("overlay_%s_size"%self.GetDerivedName(), self.GetSizeTuple())
+				config.setXY("overlay_%s_pos"%self.getDerivedName(), self.GetPositionTuple())
+				config.setXY("overlay_%s_size"%self.getDerivedName(), self.GetSizeTuple())
 				overlays.setOverlayBeingDragged(False)
 			return
 
@@ -166,7 +166,7 @@ class BaseOverlay(wx.Frame):
 			self.panel.CaptureMouse()
 			self.dragDiff = pos - self.GetPosition()
 			overlays.setOverlayBeingDragged(True)
-			self.PushToTop()
+			self.pushToTop()
 
 		if event.ShiftDown():
 			if not self.dragSize:
@@ -187,7 +187,7 @@ class BaseOverlay(wx.Frame):
 			sz = self.dragSize + (sdiff[0], sdiff[1])
 
 			# Cap size
-			if config.Get("overlaySnap"):
+			if config.get("overlaySnap"):
 				for monitor in win32api.EnumDisplayMonitors():
 					(sx, sy, sw, sh) = monitor[2]
 					if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
@@ -196,7 +196,7 @@ class BaseOverlay(wx.Frame):
 						sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
 						sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
 
-			if config.Get("overlaySizeToGrid"):
+			if config.get("overlaySizeToGrid"):
 				sz[0] = int(round(sz[0] / 10.0) * 10)
 				sz[1] = int(round(sz[1] / 10.0) * 10)
 
@@ -205,7 +205,7 @@ class BaseOverlay(wx.Frame):
 
 		snapThreshold = 20
 
-		if config.Get("overlaySnap"):
+		if config.get("overlaySnap"):
 			for monitor in win32api.EnumDisplayMonitors():
 				(sx, sy, sr, sb) = monitor[2]
 				sw = sr - sx

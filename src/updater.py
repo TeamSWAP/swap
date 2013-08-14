@@ -231,7 +231,7 @@ def applyUpdate(frame, info):
 	wx.CallAfter(frame.updateComplete, info)
 
 if __name__ == '__main__':
-	logging.SetupLogging("updater")
+	logging.setupLogging("updater")
 
 	if os.path.isdir("pending"):
 		prnt("Cleaning pending")

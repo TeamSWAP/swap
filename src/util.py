@@ -21,7 +21,7 @@ from ctypes.wintypes import MAX_PATH
 
 from logging import prnt
 
-def FormatDuration(s):
+def formatDuration(s):
 	if s < 1:
 		return "%.1fs"%s
 	elif s < 60:
@@ -31,7 +31,7 @@ def FormatDuration(s):
 	else:
 		return "%dh %02dm %02ds"%((s / 3600), (s%3600) / 60, s%60)
 
-def GetAccountIni():
+def getAccountIni():
  	dll = ctypes.windll.shell32
 	buf = ctypes.create_unicode_buffer(MAX_PATH + 1)
 	if dll.SHGetSpecialFolderPathW(None, buf, 0x1C, False):
@@ -47,8 +47,8 @@ def GetAccountIni():
 		return accountFile
 	return None
 
-def IsCombatLoggingEnabled():
-	ini = GetAccountIni()
+def isCombatLoggingEnabled():
+	ini = getAccountIni()
 	if ini:
 		config = ConfigParser.RawConfigParser()
 		config.read(ini)
@@ -59,7 +59,7 @@ def IsCombatLoggingEnabled():
 			return False
 	return True
 
-def EnableCombatLogging():
+def enableCombatLogging():
 	ini = GetAccountIni()
 	if ini:
 		config = ConfigParser.RawConfigParser()

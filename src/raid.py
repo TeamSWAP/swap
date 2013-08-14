@@ -44,7 +44,7 @@ isHost = False
 raidServer = None
 raidClient = None
 
-def GenerateKey(vanityKey, successFunc, failureFunc):
+def generateKey(vanityKey, successFunc, failureFunc):
 	vanityKeyLen = len(vanityKey) if vanityKey else 0
 	vanityKey = vanityKey if vanityKey else ""
 
@@ -76,7 +76,7 @@ def GenerateKey(vanityKey, successFunc, failureFunc):
 	t.daemon = True
 	t.start()
 
-def JoinRaid(key, successFunc, failureFunc):
+def joinRaid(key, successFunc, failureFunc):
 	def thread():
 		global currentKey, raidServer, raidClient
 
@@ -128,7 +128,7 @@ def JoinRaid(key, successFunc, failureFunc):
 	t.daemon = True
 	t.start()
 
-def GetNewServerNode():
+def getNewServerNode():
 	global currentKey, raidServer
 
 	# Connect to server...
@@ -166,7 +166,7 @@ def GetNewServerNode():
 		return serverNode
 	return None
 
-def LeaveRaid():
+def leaveRaid():
 	global currentKey, playerData
 
 	if raidClient != None:
@@ -195,5 +195,5 @@ def onNodeReconnected():
 		if raidClient != None:
 			raidClient.resume()
 
-def IsInRaid():
+def isInRaid():
 	return currentKey != None

@@ -35,7 +35,7 @@ class RaidDamageOverlay(BaseListOverlay):
 
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.Get()
+		analyzer = log_analyzer.get()
 		analyzer.registerFrame(self)
 		self.onAnalyzerTick(analyzer)
 
@@ -46,7 +46,7 @@ class RaidDamageOverlay(BaseListOverlay):
 
 	def OnClose(self, event):
 		if event.GetEventObject() == self:
-			log_analyzer.Get().unregisterFrame(self)
+			log_analyzer.get().unregisterFrame(self)
 
 	def onAnalyzerTick(self, analyzer):
 		self.beginBatch()
@@ -65,7 +65,7 @@ class RaidDamageOverlay(BaseListOverlay):
 
 			color = self.getForegroundColor()
 			if player['name'] == analyzer.parser.me:
-				color = config.GetColor("overlayListSelfColor")
+				color = config.getColor("overlayListSelfColor")
 
 			self.addRow([player['name'][1:], locale.format("%d", player['totalDamage'], grouping=True), percent], color)
 

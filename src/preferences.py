@@ -76,7 +76,7 @@ class PreferencesDialog(wx.Dialog):
 
 		slider = wx.Slider(parent, -1, 1, minValue, maxValue, style=wx.SL_HORIZONTAL, size=(200, 20))
 		slider.SetTickFreq(1, 1)
-		slider.SetValue(config.Get(key))
+		slider.SetValue(config.get(key))
 
 		valueLabel = wx.StaticText(parent, -1, "", size=(20, -1))
 		valueLabelUpdater = lambda e: valueLabel.SetLabel(str(slider.GetValue()))
@@ -100,7 +100,7 @@ class PreferencesDialog(wx.Dialog):
 		nameLabel.SetFont(self.nameFont)
 		
 		button = wx.Button(self.overlayPanel, -1, "", size=(100, -1))
-		button.SetBackgroundColour(config.GetColor(key))
+		button.SetBackgroundColour(config.getColor(key))
 		
 		def buttonClick(e):
 			data = wx.ColourData()
@@ -122,7 +122,7 @@ class PreferencesDialog(wx.Dialog):
 
 	def onOK(self, event):
 		for key in self.sliderOptions:
-			config.Set(key, self.sliderOptions[key].GetValue())
+			config.set(key, self.sliderOptions[key].GetValue())
 		for key in self.colorOptions:
-			config.SetColor(key, self.colorOptions[key].GetBackgroundColour())
+			config.setColor(key, self.colorOptions[key].GetBackgroundColour())
 		self.Destroy()
