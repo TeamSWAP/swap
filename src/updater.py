@@ -61,7 +61,7 @@ class UpdaterFrame(wx.Frame):
 		prnt("Launching SWAP...")
 		prnt("-"*20)
 
-		if IS_COMPILED:
+		if IS_FROZEN:
 			subprocess.Popen(["swap.exe", "--from-updater"], close_fds=True)
 		else:
 			subprocess.Popen(["python", "swap.py"], close_fds=True)
@@ -125,7 +125,7 @@ def checkForUpdates(frame):
 		newVersion = info['versionInt']
 		prnt("New version!")
 
-		if IS_COMPILED:
+		if IS_FROZEN:
 			wx.CallAfter(frame.informUpdate, info['version'])
 			downloadUpdate(frame, info)
 		else:
@@ -220,7 +220,7 @@ def applyUpdate(frame, info):
 		wx.CallAfter(frame.launch)
 		return
 
-	if not IS_COMPILED:
+	if not IS_FROZEN:
 		prnt("Cleaning out .pyc")
 
 		pycList = [f for f in os.listdir(".") if f.endswith(".pyc")]

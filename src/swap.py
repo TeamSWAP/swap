@@ -265,7 +265,7 @@ class MainFrame(wx.Frame):
 		dialog.ShowModal()
 
 	def onCheckUpdates(self, event):
-		if IS_COMPILED:
+		if IS_FROZEN:
 			subprocess.Popen(["updater.exe"], close_fds=True)
 		else:
 			subprocess.Popen(["python", "updater.py"], close_fds=True)
@@ -565,7 +565,7 @@ if __name__ == '__main__':
 	logging.setupLogging("swap")
 	locale.setlocale(locale.LC_ALL, '')
 
-	if IS_COMPILED:
+	if IS_FROZEN:
 		if len(sys.argv) != 2 or sys.argv[1] != '--from-updater':
 			subprocess.Popen(["updater.exe"], close_fds=True)
 			exit()
