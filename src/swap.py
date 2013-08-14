@@ -442,15 +442,15 @@ class MainFrame(wx.Frame):
 		panelParent = panelParent if panelParent else self.panel
 		
 		self.raidView = SortList(panelParent, 9, style=wx.LC_REPORT | wx.NO_BORDER)
-		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 20)
+		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 15)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(3, "Damage Taken"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(4, "Avg. DPS"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(5, "Healing"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(6, "Healing Received"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(7, "Avg. HPS"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(8, "Threat"); self.raidView.SetColumnWidth(1, 100)
+		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(2, 80)
+		self.raidView.InsertColumn(3, "Damage Taken"); self.raidView.SetColumnWidth(3, 80)
+		self.raidView.InsertColumn(4, "Avg. DPS"); self.raidView.SetColumnWidth(4, 70)
+		self.raidView.InsertColumn(5, "Healing"); self.raidView.SetColumnWidth(5, 80)
+		self.raidView.InsertColumn(6, "Healing Received"); self.raidView.SetColumnWidth(6, 80)
+		self.raidView.InsertColumn(7, "Avg. HPS"); self.raidView.SetColumnWidth(7, 70)
+		self.raidView.InsertColumn(8, "Threat"); self.raidView.SetColumnWidth(8, 80)
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
 
