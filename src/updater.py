@@ -109,7 +109,7 @@ def checkForUpdates(frame):
 	prnt("Checking for updates...")
 
 	try:
-		url = urlopen(URL_CHECK)
+		url = urlopen(UPDATES_URL)
 		data = url.read()
 		url.close()
 		info = json.loads(data)
