@@ -512,11 +512,28 @@ class MainFrame(wx.Frame):
 		else:
 			self.SetTitle("SWAP v%s"%VERSION)
 
+		self.updateReportView(analyzer)
+		self.updateGridView(analyzer)
+		self.updateRaidView(analyzer)
+		self.updateBreakdownView(analyzer)
+
+	def updateReportView(self, analyzer):
 		index = 0
 		for name in sorted(self.reportUpdaters.keys()):
 			getter = self.reportUpdaters[name]
 			self.reportView.SetStringItem(index, 1, getter(analyzer))
 			index += 1
+
+	def updateGridView(self, analyzer):
+		for analyzerUpdater in self.gridUpdaters:
+			analyzerUpdater(analyzer)
+		self.gridPanel.Layout()
+
+	def updateRaidView(self, analyzer):
+		tabTitle = "Raid"
+		if raid.playerData:
+			tabTitle += " [%d players]"%len(raid.playerData)
+		self.tabs.SetPageText(2, tabTitle)
 
 		self.raidView.DeleteAllItems()
 		index = 0
@@ -540,11 +557,7 @@ class MainFrame(wx.Frame):
 		self.raidView.itemDataMap = itemDataMap
 		self.raidView.SortListItems()
 
-		if raid.playerData:
-			self.tabs.SetPageText(2, "Raid [%d players]"%len(raid.playerData))
-		else:
-			self.tabs.SetPageText(2, "Raid")
-
+	def updateBreakdownView(self, analyzer):
 		self.breakdownView.DeleteAllItems()
 		index = 0
 
@@ -558,11 +571,6 @@ class MainFrame(wx.Frame):
 			index += 1
 		self.breakdownView.itemDataMap = itemDataMap
 		self.breakdownView.SortListItems()
-
-		# Update grid
-		for analyzerUpdater in self.gridUpdaters:
-			analyzerUpdater(analyzer)
-		self.gridPanel.Layout()
 
 if __name__ == '__main__':
 	logging.setupLogging("swap")
