@@ -9,8 +9,8 @@ if os.path.isdir('out'):
 	shutil.rmtree('out')
 
 # Remove settings file from src (from running .py)
-if os.path.exists('src/settings.dat'):
-	os.remove('src/settings.dat')
+if os.path.exists('src/settings.json'):
+	os.remove('src/settings.json')
 
 # Clean src/
 def CleanDirectory(dir, ext):
@@ -24,3 +24,4 @@ def CleanDirectory(dir, ext):
 			os.remove(fullFile)
 
 CleanDirectory('src', 'pyc')
+CleanDirectory('src', 'log')
