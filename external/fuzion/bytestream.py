@@ -20,12 +20,10 @@ class ByteStreamException(Exception):
 	pass
 
 class ByteStream:
-	data = ""
-	position = 0
-
 	def __init__(self, data=""):
 		self.data = data
 		self.length = len(data)
+		self.position = 0
 
 	def _assertDataPosition(self, size):
 		if (self.position + size > self.length):
