@@ -87,7 +87,7 @@ class BaseOverlay(wx.Frame):
 	def bindViews(self, v):
 		for child in v.GetChildren():
 			if isinstance(child, wx.Sizer):
-				bindViews(child.GetSizer())
+				self.bindViews(child.GetSizer())
 			cv = child.GetWindow()
 			if hasattr(cv, 'GetGridWindow'):
 				cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))

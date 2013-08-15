@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-import wx, wx.grid, random, time, locale, math
+import wx, random, time, locale, math
 import log_analyzer
 import raid, config
 
