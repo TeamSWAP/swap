@@ -166,7 +166,7 @@ class ConnectionHandler(threading.Thread):
 			if accepted:
 				self.ns.sendConnectSuccess(self, targetId, targetPort)
 			else:
-				self.ns.sendConnectRejected(self, targetId, tagretPort)
+				self.ns.sendConnectRejected(self, targetId, targetPort)
 		elif packet == P_TUNNEL_INFO:
 			targetId = data.readString()
 			targetPort = data.readString()
@@ -386,7 +386,6 @@ class StatsServer(threading.Thread):
 		debug("Stats Server starting on %d"%STATS_SERVER_PORT)
 		httpd = BaseHTTPServer.HTTPServer(('', STATS_SERVER_PORT), lambda *x: StatsServer.StatsHandler(self.ns, *x))
 		httpd.serve_forever()
-		httpd.close_server()
 
 	class StatsHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		def __init__(self, ns, *args):
