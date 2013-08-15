@@ -21,6 +21,7 @@ import json
 import os
 import traceback
 import logging
+import shutil
 from zipfile import ZipFile
 from threading import Thread
 from urllib2 import urlopen, HTTPError

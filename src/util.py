@@ -60,7 +60,7 @@ def isCombatLoggingEnabled():
 	return True
 
 def enableCombatLogging():
-	ini = GetAccountIni()
+	ini = getAccountIni()
 	if ini:
 		config = ConfigParser.RawConfigParser()
 		config.read(ini)
