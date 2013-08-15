@@ -1,0 +1,11 @@
+language: python
+python:
+    - "2.7"
+install:
+    - pip install pylint
+script:
+    - export toppath=$(pwd)
+    - export inithook="import sys; sys.path.append('$toppath/external'); sys.path.append('$toppath/pylint_stubs')"
+    - pylint build.py run.py package.py clean.py -E --rcfile=pylint.rc
+    - (cd external && pylint fuzion -E --rcfile=../pylint.rc --init-hook="$inithook")
+    - (cd src && pylint $(find . -name '*.py') -E --rcfile=../pylint.rc --init-hook="$inithook")
