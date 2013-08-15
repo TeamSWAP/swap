@@ -19,13 +19,16 @@ import sys
 
 import wx
 
+# Versioning
 VERSION = "0.8.4e"
 VERSION_INT = 36
+IS_FROZEN = 'frozen' in dir(sys)
+
+# Server addresses
 UPDATES_URL = "http://faultexception.com/swap/check_updates.php"
 LOG_SEND_URL = "http://faultexception.com/swap/sendlog.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
-IS_FROZEN = 'frozen' in dir(sys)
 
 # Static Messages
 MSG_FAILED_KEY_GENERATION_TEXT = "Failed to generate new key! Please report this to the developer."
