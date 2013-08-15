@@ -1,4 +1,5 @@
 # README
+[![Build Status](https://travis-ci.org/TeamSWAP/swap.png?branch=master)](https://travis-ci.org/TeamSWAP/swap)
 
 SWAP (Star Wars Analyzer & Parser) is a new open-source *Star Wars: The Old Republic* combat log parser
 written in the [Python programming language](http://python.org).
