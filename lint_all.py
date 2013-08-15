@@ -1,6 +1,6 @@
 import os, sys
 
-extra = ['external', 'pylint_stubs']
+extra = ['external', 'etc/pylint_stubs']
 extra = [os.getcwd() + "/" + e for e in extra]
 initHook = "import sys; sys.path = sys.path + " + repr(extra)
 
