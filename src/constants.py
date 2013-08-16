@@ -68,8 +68,8 @@ MENU_TITLE_OVERLAY_CLICK_THROUGH = "Click-through Overlays"
 MENU_TITLE_OVERLAY_RESET = "Reset Overlays"
 MENU_TITLE_OVERLAY_CLOSE = "Close Overlays"
 MENU_TITLE_HELP_UPDATES = "Check for Updates..."
-MENU_TITLE_HELP_LOG = "View Log"
-MENU_TITLE_HELP_SEND_LOG = "Send Log to Developers..."
+MENU_TITLE_HELP_LOG = "View SWAP Log"
+MENU_TITLE_HELP_SEND_LOG = "Send SWAP Log"
 MENU_TITLE_HELP_ABOUT = "About"
 
 # Menu Tip
