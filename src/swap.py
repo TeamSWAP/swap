@@ -456,7 +456,7 @@ class MainFrame(wx.Frame):
 		parent.Add(self.breakdownView, 1, wx.EXPAND, 0)
 
 	def createGridView(self, parent, panelParent):
-		self.detailGrid = wx.GridSizer(3, 3, 10, 50)
+		self.detailGrid = wx.GridSizer(3, 3, 20, 20)
 		self.gridUpdaters = []
 
 		def createDetailBlock(name, getter):
