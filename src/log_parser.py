@@ -109,7 +109,8 @@ class Parser(object):
 			if logFile == None:
 				prnt("Parser: Waiting for log...")
 				while not hasStopped.isSet():
-					if self.getNewestLog() != None:
+					logFile = self.getNewestLog()
+					if logFile != None:
 						break
 					time.sleep(0.4)
 				if hasStopped.isSet():
