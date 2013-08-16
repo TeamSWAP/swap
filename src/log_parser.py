@@ -92,10 +92,21 @@ class Parser(object):
 		else:
 		    return False
 
-	def getNewestLog(self):
+	def getNewestLog(self, onlyFilename=False):
 		if os.path.exists(self.logLocation):
-			return max(os.listdir(self.logLocation))
+			filename = max(os.listdir(self.logLocation))
+			fullPath = self.logLocation + "\\" + filename
+			if onlyFilename:
+				return filename
+			return (filename, fullPath)
 		return None
+
+	def getMidnightTimestampForFile(self, filename):
+		timestamp = os.path.getctime(filename)
+		dt = datetime.datetime.fromtimestamp(timestamp)
+		midnight = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+		midnightTimestamp = time.mktime(midnight.timetuple())
+		return midnightTimestamp
 
 	def run(self, hasStopped):
 		prnt("Parser: Starting...")
@@ -105,43 +116,56 @@ class Parser(object):
 			if self.logLocation == None:
 				raise Exception("No log location set. Did you forget to call getDocs?")
 
-			logFile = self.getNewestLog()
-			if logFile == None:
+			logInfo = self.getNewestLog()
+			if logInfo == None:
 				prnt("Parser: Waiting for log...")
 				while not hasStopped.isSet():
-					logFile = self.getNewestLog()
-					if logFile != None:
+					logInfo = self.getNewestLog()
+					if logInfo != None:
 						break
 					time.sleep(0.4)
 				if hasStopped.isSet():
 					return True
-			log = open(self.logLocation + "\\" + logFile, 'r')
-			logCursor = 0
+			(logFile, logPath) = logInfo
+
+			log = open(logPath, 'r')
 
 			self.inCombat = False
 			self.fights = []
 			self.fight = None
 			self.ready = False
 
+			logCursor = 0
+			logDay = self.getMidnightTimestampForFile(logPath)
+			logLastActionTime = 0
+
 			prnt("Parser: Began parsing %s"%logFile)
+			prnt("Parser: Log day is %s"%datetime.datetime.fromtimestamp(logDay))
 
 			lastLogFileCheck = time.time()
 
 			while not hasStopped.isSet():
 				if time.time() - lastLogFileCheck > 1:
-					if logFile != self.getNewestLog():
-						logFile = self.getNewestLog()
+					if logFile != self.getNewestLog(onlyFilename=True):
+						(logFile, logPath) = self.getNewestLog()
+
 						prnt("Parser: Switched to parsing %s"%logFile)
 
+						# Close previous log, and open new one.
 						log.close()
-						log = open(self.logLocation + "\\" + logFile, 'r')
+						log = open(logPath, 'r')
 
 						# Reset vars
 						self.inCombat = False
 						self.fights = []
-
-						# Ensure we determine who "we" are again.
+						self.fight = None
+						self.ready = False
 						self.me = None
+
+						logCursor = 0
+						logDay = self.getMidnightTimestampForFile(logPath)
+						logLastActionTime = 0
+						prnt("Parser: Log day is %s"%datetime.datetime.fromtimestamp(logDay))
 					lastLogFileCheck = time.time()
 				logCursor = log.tell()
 				line = log.readline()
@@ -169,8 +193,13 @@ class Parser(object):
 					result = res.group('result')
 					threat = int(res.group('threat')) if res.group('threat') else 0
 
-					today = time.mktime(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timetuple())
-					actionTime = today + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
+					actionTime = logDay + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
+					# Check for date rollover.
+					if actionTime < logLastActionTime:
+						logDay += 86400
+						actionTime += 86400
+						prnt("Parser: Rollover, day is now %s"%datetime.datetime.fromtimestamp(logDay))
+					logLastActionTime = actionTime
 
 					# Serious introspection here, man
 					if self.me == None and actor == target and actor.find(':') == -1:
