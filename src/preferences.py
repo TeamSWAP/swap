@@ -29,10 +29,25 @@ class PreferencesDialog(wx.Dialog):
 		self.notebook = wx.Notebook(self)
 
 		self.sliderOptions = {}
+		self.checkOptions = {}
 		self.colorOptions = {}
 
 		self.headerFont = wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.BOLD)
 		self.nameFont = wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+
+		# -----------------------------------
+		# General
+		# -----------------------------------
+		self.generalPanel = wx.Panel(self.notebook)
+		self.generalSizer = wx.BoxSizer(wx.VERTICAL)
+
+		self.addHeader("Performance", self.generalPanel, self.generalSizer)
+		self.addCheckOption("neverUpdateInSWTOR", "Never update the main UI when SWTOR is in the foreground",
+			self.generalPanel, self.generalSizer)
+
+		self.generalPanel.SetSizer(self.generalSizer)
+		self.generalPanel.Layout()
+		self.notebook.AddPage(self.generalPanel, "General")
 
 		# -----------------------------------
 		# Overlay
@@ -92,13 +107,25 @@ class PreferencesDialog(wx.Dialog):
 
 		sizer.Add(box, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
+	def addCheckOption(self, key, label, parent, sizer):
+		box = wx.BoxSizer(wx.HORIZONTAL)
+
+		check = wx.CheckBox(parent, -1, label, size=(100, -1))
+		check.SetValue(config.get(key))
+		
+		box.Add(check, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+
+		self.checkOptions[key] = check
+
+		sizer.Add(box, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
+
 	def addColorOption(self, key, label, parent, sizer):
 		box = wx.BoxSizer(wx.HORIZONTAL)
 
 		nameLabel = wx.StaticText(parent, -1, label)
 		nameLabel.SetFont(self.nameFont)
 		
-		button = wx.Button(self.overlayPanel, -1, "", size=(100, -1))
+		button = wx.Button(parent, -1, "", size=(100, -1))
 		button.SetBackgroundColour(config.getColor(key))
 		
 		def buttonClick(e):
@@ -122,6 +149,8 @@ class PreferencesDialog(wx.Dialog):
 	def onOK(self, event):
 		for key in self.sliderOptions:
 			config.set(key, self.sliderOptions[key].GetValue())
+		for key in self.checkOptions:
+			config.set(key, self.checkOptions[key].GetValue())
 		for key in self.colorOptions:
 			config.setColor(key, self.colorOptions[key].GetBackgroundColour())
 		self.Destroy()

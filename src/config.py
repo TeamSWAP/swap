@@ -32,7 +32,8 @@ defaults = {
 	'overlayHeaderFontSize': 13,
 	'overlaySizeToGrid': True,
 	'overlayClickThrough': False,
-	'overlaySnap': True
+	'overlaySnap': True,
+	'neverUpdateInSWTOR': False
 }
 
 settings = defaults

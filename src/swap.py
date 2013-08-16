@@ -30,6 +30,7 @@ import textwrap
 from urllib import urlencode
 
 import fuzion
+import win32gui
 import wx
 import wx.html
 from wx.lib.mixins.listctrl import ColumnSorterMixin
@@ -496,6 +497,11 @@ class MainFrame(wx.Frame):
 				item.Check(False)
 
 	def onAnalyzerTick(self, analyzer):
+		if config.get("neverUpdateInSWTOR"):
+			fgHwnd = win32gui.GetForegroundWindow()
+			if win32gui.GetWindowText(fgHwnd).find(': The Old Republic') != -1:
+				return
+
 		if analyzer.parser.me:
 			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
 		else:
