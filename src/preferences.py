@@ -40,19 +40,13 @@ class PreferencesDialog(wx.Dialog):
 		self.overlayPanel = wx.Panel(self.notebook)
 		self.overlaySizer = wx.BoxSizer(wx.VERTICAL)
 
-		header = wx.StaticText(self.overlayPanel, -1, "All Overlays")
-		header.SetFont(self.headerFont)
-		self.overlaySizer.Add(header, 0, wx.ALL, 10)
-
+		self.addHeader("All Overlays", self.overlayPanel, self.overlaySizer)
 		self.addSliderOption("overlayOpacity", "Opacity", 0, 255, self.overlayPanel, self.overlaySizer)
 		self.addSliderOption("overlayHeaderFontSize", "Header font size", 8, 18, self.overlayPanel, self.overlaySizer)
 		self.addColorOption("overlayBgColor", "Background color", self.overlayPanel, self.overlaySizer)
 		self.addColorOption("overlayFgColor", "Foreground color", self.overlayPanel, self.overlaySizer)
 
-		header = wx.StaticText(self.overlayPanel, -1, "Raid Lists")
-		header.SetFont(self.headerFont)
-		self.overlaySizer.Add(header, 0, wx.ALL, 10)
-
+		self.addHeader("Raid Lists", self.overlayPanel, self.overlaySizer)
 		self.addSliderOption("overlayListFontSize", "List font size", 8, 18, self.overlayPanel, self.overlaySizer)
 		self.addColorOption("overlayListSelfColor", "Self indicator color", self.overlayPanel, self.overlaySizer)
 
@@ -67,6 +61,11 @@ class PreferencesDialog(wx.Dialog):
 
 		self.SetSizer(self.sizer)
 		self.Bind(wx.EVT_BUTTON, self.onOK, id=wx.ID_OK)
+
+  	def addHeader(self, header, parent, sizer):
+		header = wx.StaticText(parent, -1, header)
+		header.SetFont(self.headerFont)
+		sizer.Add(header, 0, wx.ALL, 10)
 
 	def addSliderOption(self, key, label, minValue, maxValue, parent, sizer):
 		box = wx.BoxSizer(wx.HORIZONTAL)
