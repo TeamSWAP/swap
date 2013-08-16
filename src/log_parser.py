@@ -136,7 +136,7 @@ class Parser(object):
 						log = open(self.logLocation + "\\" + logFile, 'r')
 
 						# Reset vars
-						inCombat = False
+						self.inCombat = False
 						self.fights = []
 
 						# Ensure we determine who "we" are again.
