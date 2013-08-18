@@ -437,6 +437,7 @@ class MainFrame(wx.Frame):
 
 	def createRaidView(self, parent, panelParent):
 		self.raidView = SortList(panelParent, 9, style=wx.LC_REPORT | wx.NO_BORDER)
+		self.raidView.SortListItems(1)
 		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 15)
 		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
 		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(2, 80)
@@ -533,7 +534,7 @@ class MainFrame(wx.Frame):
 		self.raidView.DeleteAllItems()
 		index = 0
 		itemDataMap = {}
-		for player in sorted(raid.playerData, key=lambda x: x['name']):
+		for player in raid.playerData:
 			connectionType = player['connType']
 			name = player['name'][1:]
 			self.raidView.InsertStringItem(index, connectionType)
