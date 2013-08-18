@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import traceback
 import threading
 import urllib
 import urllib2
@@ -53,7 +54,10 @@ def generateKey(vanityKey, successFunc, failureFunc):
 		try:
 			sock.connect(PARSER_SERVER_ADDR)
 		except:
-			wx.CallAter(failureFunc)
+			prnt("Failed to connect:")
+			prnt(traceback.format_exc())
+			wx.CallAfter(failureFunc)
+			return
 
 		stream = ByteStream()
 		stream.writeByte(REQUEST_GET_KEY)
@@ -88,6 +92,8 @@ def joinRaid(key, successFunc, failureFunc):
 		try:
 			sock.connect(PARSER_SERVER_ADDR)
 		except:
+			prnt("Failed to connect:")
+			prnt(traceback.format_exc())
 			wx.CallAfter(failureFunc, "connect_failed")
 			return
 
@@ -136,6 +142,8 @@ def getNewServerNode():
 	try:
 		sock.connect(PARSER_SERVER_ADDR)
 	except:
+		prnt("Failed to connect:")
+		prnt(traceback.format_exc())
 		return
 
 	# Write data
