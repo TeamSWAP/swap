@@ -24,24 +24,15 @@ import wx
 
 import raid
 import util
-from log_parser import GameEvent
+from log_parser import GameEvent, Fight
 from logging import prnt
 
 ROLLING_SAMPLE = 20
 
 analyzerThread = None
 
-class AnalyzerThread(threading.Thread):
-	def __init__(self, parserThread):
-		threading.Thread.__init__(self)
-		self.parserThread = parserThread
-		self.parserThread.waitTillUp()
-		self.parser = self.parserThread.parser
-		self.running = False
-		self.updateFrames = []
-		self.stopEvent = threading.Event()
-		self.setDaemon(True)
-
+class FightAnalysis(object):
+	def __init__(self):
 		self.totalDamage = 0
 		self.totalDamageTaken = 0
 		self.totalHealing = 0
@@ -56,125 +47,138 @@ class AnalyzerThread(threading.Thread):
 		self.damageBreakdown = {}
 		self.dps = 0
 		self.hps = 0
-
 		self.tfbOrb = 0
+		self.realtime = False
+
+class AnalyzerThread(threading.Thread):
+	def __init__(self, parserThread):
+		threading.Thread.__init__(self)
+		self.setDaemon(True)
+
+		self.parserThread = parserThread
+		self.parserThread.waitTillUp()
+		self.parser = self.parserThread.parser
+		self.running = False
+		self.updateFrames = []
+		self.stopEvent = threading.Event()
+
+		self.currentAnalysis = FightAnalysis()
+		self.historicFights = {}
+		self.currentLogFile = None
 
 	def run(self):
 		crashCounter = 0
 		while crashCounter < 6:
 			self.running = True
-			if not self.analyze():
+			if not self.analyzerMain():
 				prnt("AnalyzerThread: Analyzer has crashed! Restarting... counter=%d"%crashCounter)
 				crashCounter += 1
 			else:
 				break
 			self.running = False
 
-	def analyze(self):
+	def analyzeFight(self, fight=-1, realtime=False):
+		analysis = FightAnalysis()
+		analysis.realtime = realtime
+
+		sampleDamage = 0
+		sampleHeal = 0
+		buffs = []
+		now = time.time()
+
+		if not isinstance(fight, Fight):
+			fight = self.parser.fights[fight]
+		events = fight.events
+
+		if events:
+			analysis.combatStartTime = events[0].time
+			analysis.combatEndTime = events[-1].time
+			startWasRecent = events[0].recent
+
+		for ev in events:
+			# Damage Event
+			if ev.type == GameEvent.TYPE_DAMAGE:
+				# From Me
+				if ev.actor == self.parser.me:
+					analysis.totalDamage += ev.damage
+					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
+						sampleDamage += ev.damage 
+					if not ev.abilityName in analysis.damageBreakdown:
+						analysis.damageBreakdown[ev.abilityName] = 0
+					analysis.damageBreakdown[ev.abilityName] += ev.damage
+
+				# To Me
+				if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
+					analysis.totalDamageTaken += ev.damage
+
+			# Heal Event
+			if ev.type == GameEvent.TYPE_HEAL:
+				# From Me
+				if ev.actor == self.parser.me:
+					analysis.totalHealing += ev.healing
+					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
+						sampleHeal += ev.healing 
+
+				# To Me
+				if ev.target == self.parser.me:
+					analysis.totalHealingReceived += ev.healing
+
+			# Apply threat
+			if ev.actor == self.parser.me:
+				analysis.totalThreat += ev.threat
+
+			# Handle buffs
+			if ev.type == GameEvent.TYPE_APPLY_BUFF:
+				buffs.append(ev.actionType)
+			elif ev.type == GameEvent.TYPE_REMOVE_BUFF:
+				if ev.actionType in buffs:
+					buffs.remove(ev.actionType)
+
+			eventTimeDelta = ev.time - ev.readTime
+
+		analysis.combatDuration = analysis.combatEndTime - analysis.combatStartTime
+
+		if len(events) > 0 and self.parser.inCombat and startWasRecent:
+			combatNow = time.time() + eventTimeDelta
+			analysis.combatDurationLinear = combatNow - analysis.combatStartTime
+			if analysis.combatDurationLinear < 0:
+				analysis.combatDurationLinear = analysis.combatDuration
+		else:
+			analysis.combatDurationLinear = analysis.combatDuration
+
+		# Avg DPS calculation
+		analysis.avgDps = util.div(analysis.totalDamage, analysis.combatDuration)
+		analysis.avgHps = util.div(analysis.totalHealing, analysis.combatDuration)
+
+		if realtime:
+			# Rolling calculations
+			analysis.dps = util.div(sampleDamage, min(analysis.combatDuration, ROLLING_SAMPLE))
+			analysis.hps = util.div(sampleHeal, min(analysis.combatDuration, ROLLING_SAMPLE))
+
+			# TFB HM Op-9 Colors
+			if '2957991221395456' in buffs: # Blue
+				analysis.tfbOrb = 1
+			elif '2958167315054592' in buffs: # Orange
+				analysis.tfbOrb = 2
+			elif '2958188789891072' in buffs: # Purple
+				analysis.tfbOrb = 3
+			elif '2958193084858368' in buffs: # Yellow
+				analysis.tfbOrb = 4
+
+		return analysis
+
+	def analyzerMain(self):
 		prnt("Analyzer: Starting...")
 		
-		self.fightId = -1
 		try:
-			combatStartLinearTime = 0
-			eventTimeDelta = 0
 			while not self.stopEvent.isSet():
 				if not self.parser.ready:
 					time.sleep(0.1)
-					wasInCombat = self.parser.inCombat
 					continue
 
-				combatStartTime = 0
-				combatEndTime = 0
-				totalDamage = 0
-				totalDamageTaken = 0
-				totalHealing = 0
-				totalHealingReceived = 0
-				totalThreat = 0
-				eventTimeDelta = 0
-				damageBreakdown = {}
-				sampleDamage = 0
-				sampleHeal = 0
-				buffs = []
-				now = time.time()
-
-				if self.parser.fights:
-					events = self.parser.fights[self.fightId].events
-				else:
-					events = []
-
-				if events:
-					combatStartTime = events[0].time
-					combatEndTime = events[-1].time
-					startWasRecent = events[0].recent
-
-				for ev in events:
-					if ev.type == GameEvent.TYPE_DAMAGE and ev.actor == self.parser.me:
-						totalDamage += ev.damage
-						if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
-							sampleDamage += ev.damage 
-						if not ev.abilityName in damageBreakdown:
-							damageBreakdown[ev.abilityName] = 0
-						damageBreakdown[ev.abilityName] += ev.damage
-					if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
-						totalDamageTaken += ev.damage
-					if ev.type == GameEvent.TYPE_HEAL and ev.actor == self.parser.me:
-						totalHealing += ev.healing
-						if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
-							sampleHeal += ev.healing 
-					if ev.type == GameEvent.TYPE_HEAL and ev.target == self.parser.me:
-						totalHealingReceived += ev.healing
-					if ev.actor == self.parser.me:
-						totalThreat += ev.threat
-
-					if ev.type == GameEvent.TYPE_APPLY_BUFF:
-						buffs.append(ev.actionType)
-					elif ev.type == GameEvent.TYPE_REMOVE_BUFF:
-						if ev.actionType in buffs:
-							buffs.remove(ev.actionType)
-
-					eventTimeDelta = ev.time - ev.readTime
-
-				combatDuration = combatEndTime - combatStartTime
-
-				self.totalDamage = totalDamage
-				self.totalDamageTaken = totalDamageTaken
-				self.totalHealing = totalHealing
-				self.totalHealingReceived = totalHealingReceived
-				self.totalThreat = totalThreat
-				self.damageBreakdown = damageBreakdown
-				self.combatStartTime = combatStartTime
-				self.combatEndTime = combatEndTime
-				self.combatDuration = combatDuration
-				if len(events) > 0 and self.parser.inCombat and startWasRecent:
-					combatNow = time.time() + eventTimeDelta
-					self.combatDurationLinear = combatNow - combatStartTime
-					if self.combatDurationLinear < 0:
-						self.combatDurationLinear = combatDuration
-				else:
-					self.combatDurationLinear = combatDuration
-
-				# Avg DPS calculation
-				self.avgDps = util.div(totalDamage, combatDuration)
-				self.avgHps = util.div(totalHealing, combatDuration)
-
-				# Rolling calculations
-				self.dps = util.div(sampleDamage, min(combatDuration, ROLLING_SAMPLE))
-				self.hps = util.div(sampleHeal, min(combatDuration, ROLLING_SAMPLE))
-
-				# -----------------------------------
-				# Mechanics
-				# -----------------------------------
-
-				# TFB HM Op-9 Colors
-				self.tfbOrb = 0
-				if '2957991221395456' in buffs: # Blue
-					self.tfbOrb = 1
-				elif '2958167315054592' in buffs: # Orange
-					self.tfbOrb = 2
-				elif '2958188789891072' in buffs: # Purple
-					self.tfbOrb = 3
-				elif '2958193084858368' in buffs: # Yellow
-					self.tfbOrb = 4
+				# FIXME: Move this to an analysis variable instead?
+				self.__dict__ = dict(self.__dict__.items() +
+					self.analyzeFight(realtime=True).__dict__.items())
 
 				self.notifyFrames()
 
