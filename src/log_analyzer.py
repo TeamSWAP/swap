@@ -86,9 +86,12 @@ class AnalyzerThread(threading.Thread):
 		buffs = []
 		now = time.time()
 
-		if not isinstance(fight, Fight):
-			fight = self.parser.fights[fight]
-		events = fight.events
+		if self.parser.fights:
+			if not isinstance(fight, Fight):
+				fight = self.parser.fights[fight]
+			events = fight.events
+		else:
+			events = []
 
 		if events:
 			analysis.combatStartTime = events[0].time
