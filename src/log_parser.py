@@ -232,13 +232,35 @@ class Parser(object):
 						# Safe Login Immunity
 						event.exitEvent = True
 
+					# Detect disappear
+					if event.type == GameEvent.TYPE_ABILITY_ACTIVATE and event.ability == '2276212407795712':
+						lastFight = self.fights[-1]
+						exitBluff = False
+						# Look back for exit combat.
+						for e in reversed(lastFight.events):
+							if e.exitEvent:
+								e.exitEvent = False
+								exitBluff = True
+								break
+							if event.time - e.time > 0.100:
+								break
+						if exitBluff:
+							self.fight = self.fights[-1]
+							self.inCombat = True
+							prnt("Disappear found. Exit bluffed.")
+
 					if event.enterEvent:
-						fight = Fight()
-						fight.enterEvent = event
-						fight.enterTime = event.time
-						self.fights.append(fight)
-						self.fight = fight
-						self.inCombat = True
+						newFight = True
+						if self.fight:
+							if event.time - self.fight.exitTime <= 15:
+								newFight = False
+						if newFight:
+							fight = Fight()
+							fight.enterEvent = event
+							fight.enterTime = event.time
+							self.fights.append(fight)
+							self.fight = fight
+							self.inCombat = True
 					elif event.exitEvent:
 						self.inCombat = False
 
