@@ -61,7 +61,8 @@ class AnalyzerThread(threading.Thread):
 		self.running = False
 		self.updateFrames = []
 		self.stopEvent = threading.Event()
-
+		self.updatePing = threading.Event()
+		
 		self.currentAnalysis = FightAnalysis()
 		self.historicFights = {}
 		self.currentLogFile = None
@@ -172,20 +173,26 @@ class AnalyzerThread(threading.Thread):
 
 	def analyzerMain(self):
 		prnt("Analyzer: Starting...")
-		
+
+		lastUpdate = 0
 		try:
 			while not self.stopEvent.isSet():
 				if not self.parser.ready:
 					time.sleep(0.1)
 					continue
 
-				# FIXME: Move this to an analysis variable instead?
-				self.__dict__ = dict(self.__dict__.items() +
-					self.analyzeFight(realtime=True).__dict__.items())
+				now = time.time()
+				if now - lastUpdate >= 1 or self.updatePing.isSet():
+					lastUpdate = now
+					self.updatePing.clear()
 
-				self.notifyFrames()
+					# FIXME: Move this to an analysis variable instead?
+					self.__dict__ = dict(self.__dict__.items() +
+						self.analyzeFight(realtime=True).__dict__.items())
 
-				time.sleep(1) # tick
+					self.notifyFrames()
+
+				time.sleep(0.01)
 		except:
 			print traceback.format_exc()
 			return False
