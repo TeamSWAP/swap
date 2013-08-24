@@ -28,6 +28,8 @@ from logging import prnt
 
 # [18:36:21.225] [Cartel Patrol Droid {2981965728841728}:3535188148330] [@Bellestarr] [Explosive Round {827176341471232}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1216 kinetic {836045448940873}) <1216>
 
+DISAPPEAR_GRACE = 15
+
 # Global variables
 parserThread = None
 
@@ -134,6 +136,7 @@ class Parser(object):
 			self.fights = []
 			self.fight = None
 			self.ready = False
+			self.disappearEvent = None
 
 			logCursor = 0
 			logDay = self.getMidnightTimestampForFile(logPath)
@@ -161,6 +164,7 @@ class Parser(object):
 						self.fight = None
 						self.ready = False
 						self.me = None
+						self.disappearEvent = None
 
 						logCursor = 0
 						logDay = self.getMidnightTimestampForFile(logPath)
@@ -233,7 +237,7 @@ class Parser(object):
 						event.exitEvent = True
 
 					# Detect disappear
-					if event.type == GameEvent.TYPE_ABILITY_ACTIVATE and event.ability == '2276212407795712':
+					if self.fights and event.type == GameEvent.TYPE_ABILITY_ACTIVATE and event.ability == '2276212407795712':
 						lastFight = self.fights[-1]
 						exitBluff = False
 						# Look back for exit combat.
@@ -245,15 +249,21 @@ class Parser(object):
 							if event.time - e.time > 0.100:
 								break
 						if exitBluff:
-							self.fight = self.fights[-1]
-							self.inCombat = True
-							prnt("Disappear found. Exit bluffed.")
+							self.disappearEvent = event
+
+					# Clear disappear flag if out of grace period
+					if self.disappearEvent and event.time - self.disappearEvent.time > DISAPPEAR_GRACE:
+						self.disappearEvent = None
 
 					if event.enterEvent:
 						newFight = True
-						if self.fight:
-							if event.time - self.fight.exitTime <= 15:
+						if self.disappearEvent:
+							# Continue fight if within grace period
+							if event.time - self.disappearEvent.time <= DISAPPEAR_GRACE:
+								self.fight = self.fights[-1]
+								self.inCombat = True
 								newFight = False
+							self.disappearEvent = None
 						if newFight:
 							fight = Fight()
 							fight.enterEvent = event
