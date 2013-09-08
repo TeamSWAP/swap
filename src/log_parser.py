@@ -139,6 +139,8 @@ class Parser(object):
 			self.ready = False
 			self.disappearEvent = None
 
+			inUpdate = False
+
 			logCursor = 0
 			logDay = self.getMidnightTimestampForFile(logPath)
 			logLastActionTime = 0
@@ -167,6 +169,8 @@ class Parser(object):
 						self.me = None
 						self.disappearEvent = None
 
+						inUpdate = False
+
 						logCursor = 0
 						logDay = self.getMidnightTimestampForFile(logPath)
 						logLastActionTime = 0
@@ -178,8 +182,13 @@ class Parser(object):
 					# Once we reach EOF mark us as ready for analyzation.
 					if not self.ready:
 						self.ready = True
+					if inUpdate:
+						inUpdate = False
+						analyzer = log_analyzer.get()
+						analyzer.updatePing.set()
 					time.sleep(.25)
 					continue
+				inUpdate = True
 			
 				res = self.linePat.match(line)	
 				if res:
@@ -308,9 +317,6 @@ class Parser(object):
 						self.fight.exitEvent = event
 						self.fight.exitTime = event.time
 						self.fight = None
-
-					analyzer = log_analyzer.get()
-					analyzer.updatePing.set()
 				elif line[-1] != '\n' and line[-1] != '\r':
 					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
 					log.seek(logCursor)
