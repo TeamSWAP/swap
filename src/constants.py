@@ -30,6 +30,41 @@ LOG_SEND_URL = "http://faultexception.com/swap/sendlog.php"
 PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 
+# Boss list
+MOB_BOSS_LIST = (
+# TFB
+	"The Writhing Horror",
+	"Heirad",
+	"Operator IX",
+	"Kephess the Undying",
+	"The Terror from Beyond",
+# S&V
+	"Dash'Roode",
+	"Titan 6",
+	"Thrasher",
+	"Operations Chief",
+	"Olok the Shadow",
+	"Captain Horric",
+	"Dread Master Styrak",
+# EV
+	"Annihilation Droid XRR-3",
+	"Gharj",
+	"Soa",
+# KP
+	"Bonethrasher",
+	"Foreman Crusher",
+	"G4-B3 Heavy Fabricator",
+	"Jarg",
+	"Karagga the Unyielding",
+# EC
+	"Colonel Vorgath",
+	"Firebrand",
+	"Warlord Kephess",
+	"Zorn",
+# Toborro's Courtyard
+	"Golden Fury"
+)
+
 # Static Messages
 MSG_FAILED_KEY_GENERATION_TEXT = "Failed to generate new key! Please report this to the developer."
 MSG_FAILED_KEY_GENERATION_TITLE = "Error"

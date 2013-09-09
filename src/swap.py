@@ -205,13 +205,29 @@ class MainFrame(wx.Frame):
 		self.keyVanityCheck = wx.CheckBox(self.panel, -1, "Generate Vanity Key")
 		self.keyStatus = wx.StaticText(self.panel, -1, "")
 
+		self.fightSelector = wx.ComboBox(self.panel, -1)
+		self.fightSelector.Append("Latest Fight", None)
+		self.fightSelector.SetSelection(0)
+		self.fightSelector.Bind(wx.EVT_COMBOBOX, self.onFightSelected)
+
+		log_parser.get().registerObserver(log_parser.Parser.EVENT_FIGHT_BEGIN, util.wxFunc(self.onFightBegin))
+		log_parser.get().registerObserver(log_parser.Parser.EVENT_FIGHT_END, util.wxFunc(self.onFightEnd))
+		log_parser.get().registerObserver(log_parser.Parser.EVENT_NEW_LOG, util.wxFunc(self.onNewLog))
+		log_parser.get().registerObserver(log_parser.Parser.EVENT_READY, util.wxFunc(self.onParserReady))
+
+		if log_parser.get().ready:
+			self.onParserReady()
+
+		self.dashboardFight = None
+
 		headerBox.Add(self.keyText, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyBox, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyGenerateButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		headerBox.Add(self.keyJoinButton, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyVanityCheck, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
 		headerBox.Add(self.keyStatus, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
-		self.box.Add(headerBox, 0, wx.ALL, 10)
+		headerBox.Add(self.fightSelector, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		self.box.Add(headerBox, 0, wx.EXPAND | wx.ALL, 10)
 
 		# -----------------------------------
 		# Tabs
@@ -503,15 +519,23 @@ class MainFrame(wx.Frame):
 			if win32gui.GetWindowText(fgHwnd).find(': The Old Republic') != -1:
 				return
 
+		if not analyzer.ready:
+			return
+
 		if analyzer.parser.me:
 			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
 		else:
 			self.SetTitle("SWAP v%s"%VERSION)
 
-		self.updateReportView(analyzer)
-		self.updateGridView(analyzer)
-		self.updateRaidView(analyzer)
-		self.updateBreakdownView(analyzer)
+		if self.dashboardFight and self.dashboardFight in analyzer.historicFights:
+			info = analyzer.historicFights[self.dashboardFight]
+		else:
+			info = analyzer
+
+		self.updateReportView(info)
+		self.updateGridView(info)
+		self.updateRaidView(info)
+		self.updateBreakdownView(info)
 
 	def updateReportView(self, analyzer):
 		index = 0
@@ -567,6 +591,49 @@ class MainFrame(wx.Frame):
 			index += 1
 		self.breakdownView.itemDataMap = itemDataMap
 		self.breakdownView.SortListItems()
+
+	def onFightBegin(self):
+		self.fightSelector.SetSelection(0)
+		self.dashboardFight = None
+		self.onAnalyzerTick(log_analyzer.get())
+
+	def onFightEnd(self):
+		self.addFightToSelector(log_parser.get().fights[-1])
+
+	def addFightToSelector(self, fight):
+		for i in range(0, self.fightSelector.GetCount()):
+			if self.fightSelector.GetClientData(i) == fight:
+				return
+
+		priority = sorted(fight.priorityTargets.keys(), key=lambda x: fight.priorityTargets[x], reverse=True)[:4]
+		fightName = ", ".join(priority)
+		if not len(priority):
+			return
+		if not fightName:
+			fightName = "<Unknown Fight>"
+		for mob in fight.priorityTargets.keys():
+			if mob.lower() in map(str.lower, MOB_BOSS_LIST):
+				fightName = mob
+				break
+		fightTime = time.strftime("%H:%M", time.localtime(fight.enterTime))
+		self.fightSelector.Insert("[%s] "%fightTime + fightName, 1, fight)
+
+	def onFightSelected(self, event):
+		self.dashboardFight = self.fightSelector.GetClientData(self.fightSelector.GetSelection())
+		self.onAnalyzerTick(log_analyzer.get())
+
+	def onParserReady(self):
+		for fight in log_parser.get().fights:
+			if fight == log_parser.get().fight:
+				continue
+			self.addFightToSelector(fight)
+
+	def onNewLog(self):
+		for i in range(1, self.fightSelector.GetCount()):
+			self.fightSelector.Delete(1)
+		self.fightSelector.SetSelection(0)
+		self.dashboardFight = None
+		self.onAnalyzerTick(log_analyzer.get())
 
 if __name__ == '__main__':
 	logging.setupLogging("swap")

@@ -25,6 +25,7 @@ import atexit
 from ctypes.wintypes import MAX_PATH
 
 import log_analyzer
+import events
 from logging import prnt
 
 # [18:36:21.225] [Cartel Patrol Droid {2981965728841728}:3535188148330] [@Bellestarr] [Explosive Round {827176341471232}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1216 kinetic {836045448940873}) <1216>
@@ -72,11 +73,20 @@ class Fight(object):
 		self.enterTime = 0
 		self.exitEvent = None
 		self.exitTime = 0
+		self.priorityTargets = {}
 
-class Parser(object):
+class Parser(events.EventSource):
 	"""docstring for Parser"""
 
+	# Events
+	EVENT_FIGHT_BEGIN = 1
+	EVENT_FIGHT_END = 2
+	EVENT_NEW_LOG = 3
+	EVENT_READY = 4
+
 	def __init__(self):
+		events.EventSource.__init__(self)
+
 		self.linePat = re.compile("^\[(?P<hour>\d{1,2})\:(?P<minute>\d{2})\:(?P<second>\d{2})\.(?P<ms>\d{3})\] \[(?P<actor>[^\[\]]*)\] \[(?P<target>[^\[\]]*)\] \[(?:(?P<ability>[^{}]+))?(?: {(?P<abilityid>\d*)})?\] \[(?P<action>[^{}]+) {(?P<actionid>\d*)}: (?P<actiontype>[^{}]+) {(?P<actiontypeid>\d*)}\] \((?:(?P<result>[^\<\>]+))?\)(?: \<(?P<threat>-?\d*)\>)?$")
 		self.logLocation = None
 		self.fights = []
@@ -84,7 +94,6 @@ class Parser(object):
 		self.me = None
 		self.inCombat = False
 		self.getDocs()
-		pass
 
 	def getDocs(self):
 	 	dll = ctypes.windll.shell32
@@ -175,6 +184,8 @@ class Parser(object):
 						logDay = self.getMidnightTimestampForFile(logPath)
 						logLastActionTime = 0
 						prnt("Parser: Log day is %s"%datetime.datetime.fromtimestamp(logDay))
+
+						self.notifyEvent(Parser.EVENT_NEW_LOG)
 					lastLogFileCheck = time.time()
 				logCursor = log.tell()
 				line = log.readline()
@@ -182,6 +193,7 @@ class Parser(object):
 					# Once we reach EOF mark us as ready for analyzation.
 					if not self.ready:
 						self.ready = True
+						self.notifyEvent(Parser.EVENT_READY)
 					if inUpdate:
 						inUpdate = False
 						analyzer = log_analyzer.get()
@@ -281,6 +293,8 @@ class Parser(object):
 							self.fights.append(fight)
 							self.fight = fight
 							self.inCombat = True
+							if self.ready:
+								self.notifyEvent(Parser.EVENT_FIGHT_BEGIN)
 					elif event.exitEvent:
 						self.inCombat = False
 
@@ -310,6 +324,24 @@ class Parser(object):
 							heal = heal[:-1]
 						event.healing = int(heal)
 
+					if self.fight and event.damage > 0:
+						actorFriendly = event.actor
+						if '{' in actorFriendly:
+							actorFriendly = actorFriendly[:actorFriendly.find('{') - 1]
+						targetFriendly = event.target
+						if '{' in targetFriendly:
+							targetFriendly = targetFriendly[:targetFriendly.find('{') - 1]
+						for name in (actorFriendly, targetFriendly):
+							if not name:
+								continue
+							if name == self.me:
+								continue
+							priority = event.damage + event.threat + 1
+							if name in self.fight.priorityTargets:
+								self.fight.priorityTargets[name] += priority
+								continue
+							self.fight.priorityTargets[name] = priority
+
 					if self.fight != None:
 						self.fight.events.append(event)
 					
@@ -317,6 +349,8 @@ class Parser(object):
 						self.fight.exitEvent = event
 						self.fight.exitTime = event.time
 						self.fight = None
+						if self.ready:
+							self.notifyEvent(Parser.EVENT_FIGHT_END)
 				elif line[-1] != '\n' and line[-1] != '\r':
 					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
 					log.seek(logCursor)

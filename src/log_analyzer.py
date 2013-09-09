@@ -174,6 +174,7 @@ class AnalyzerThread(threading.Thread):
 	def analyzerMain(self):
 		prnt("Analyzer: Starting...")
 
+		self.ready = False
 		lastUpdate = 0
 		try:
 			while not self.stopEvent.isSet():
@@ -186,9 +187,16 @@ class AnalyzerThread(threading.Thread):
 					lastUpdate = now
 					self.updatePing.clear()
 
+					for fight in self.parser.fights:
+						if fight not in self.historicFights and fight != self.parser.fight:
+							self.historicFights[fight] = self.analyzeFight(fight)
+
 					# FIXME: Move this to an analysis variable instead?
 					self.__dict__ = dict(self.__dict__.items() +
 						self.analyzeFight(realtime=True).__dict__.items())
+					
+					if not self.ready:
+						self.ready = True
 
 					self.notifyFrames()
 

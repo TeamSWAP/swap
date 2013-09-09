@@ -19,7 +19,12 @@ import ctypes
 import ConfigParser
 from ctypes.wintypes import MAX_PATH
 
+import wx
+
 from logging import prnt
+
+def wxFunc(x):
+	return lambda *args, **kwargs: wx.CallAfter(x, *args, **kwargs)
 
 def formatDuration(s):
 	if s < 1:
