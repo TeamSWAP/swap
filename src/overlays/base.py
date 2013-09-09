@@ -110,6 +110,7 @@ class BaseOverlay(wx.Frame):
 		return config.getColor("overlayFgColor")
 
 	def updateColors(self):
+		self.SetBackgroundColour(self.getBackgroundColor())
 		self.panel.SetBackgroundColour(self.getBackgroundColor())
 		self.titleText.SetForegroundColour(self.getForegroundColor())
 		self.setAlpha(config.get("overlayOpacity"))
