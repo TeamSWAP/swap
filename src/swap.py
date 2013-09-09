@@ -292,7 +292,7 @@ class MainFrame(wx.Frame):
 			subprocess.Popen(["updater.exe"], close_fds=True)
 		else:
 			subprocess.Popen(["python", "updater.py"], close_fds=True)
-		self.Destroy()
+		self.Close()
 
 	def onOpenLog(self, event):
 		os.startfile("debug-swap.log")
