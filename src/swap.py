@@ -114,8 +114,14 @@ class MainFrame(wx.Frame):
 		# Tools
 		menu = wx.Menu()
 		menuBar.Append(menu, "&Tools")
+
 		m_preferences = menu.Append(MENU_ID_PREFERENCES, MENU_TITLE_PREFERENCES, MENU_TIP_PREFERENCES)
 		self.Bind(wx.EVT_MENU, self.onPreferences, id=MENU_ID_PREFERENCES)
+
+		menu.AppendSeparator()
+
+		m_enrageTime = menu.Append(MENU_ID_ENRAGE_TIME, MENU_TITLE_ENRAGE_TIME, MENU_TIP_ENRAGE_TIME)
+		self.Bind(wx.EVT_MENU, self.onSetEnrageTime, id=MENU_ID_ENRAGE_TIME)
 
 		# Overlay
 		menu = wx.Menu()
@@ -634,6 +640,16 @@ class MainFrame(wx.Frame):
 		self.fightSelector.SetSelection(0)
 		self.dashboardFight = None
 		self.onAnalyzerTick(log_analyzer.get())
+
+	def onSetEnrageTime(self, event):
+		dialog = wx.TextEntryDialog(self, "Set enrage timer (seconds)", "Enrage Timer", "0.0")
+
+		enrageTime = config.get("customEnrageTime")
+		if enrageTime:
+			dialog.SetValue(enrageTime)
+
+		if dialog.ShowModal():
+			config.set("customEnrageTime", dialog.GetValue())
 
 if __name__ == '__main__':
 	logging.setupLogging("swap")

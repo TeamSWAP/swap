@@ -27,10 +27,18 @@ class ShareBar(wx.PyControl):
 		wx.PyControl.__init__(self, parent, id, style=style)
 
 		self.value = 0
+		self.label = None
+		self.reversed = False
 		self.Bind(wx.EVT_PAINT, self.OnPaint)
 
 	def SetValue(self, v):
 		self.value = v
+
+	def SetLabel(self, text):
+		self.label = text
+
+	def SetReversed(self, r):
+		self.reversed = r
 
 	def DoGetBestSize(self):
 		best = wx.Size(0, 15)
@@ -60,15 +68,22 @@ class ShareBar(wx.PyControl):
 
 		dc.SetBrush(fgBrush)
 		dc.SetPen(wx.TRANSPARENT_PEN)
-		dc.DrawRectangle(0, 0, fillWidth, height)
+
+		if self.reversed:
+			dc.DrawRectangle(width - fillWidth, 0, width, height)
+		else:
+			dc.DrawRectangle(0, 0, fillWidth, height)
 
 		dc.SetFont(self.GetFont())
 		dc.SetTextForeground((bgR, bgG, bgB))
 
-		pc = "%.2f%%"%(float(self.value) * 100.0)
-		textWidth, textHeight = dc.GetTextExtent(pc)
+		if self.label:
+			text = self.label
+		else:
+			text = "%.2f%%"%(float(self.value) * 100.0)
+		textWidth, textHeight = dc.GetTextExtent(text)
 
-		dc.DrawText(pc, (width / 2) - (textWidth / 2), (height / 2) - (textHeight / 2))
+		dc.DrawText(text, (width / 2) - (textWidth / 2), (height / 2) - (textHeight / 2))
 
 class ColoredRect(wx.PyControl):
 	def __init__(self, parent, id, style=wx.NO_BORDER):

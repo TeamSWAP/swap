@@ -82,6 +82,7 @@ MSG_NODE_CONNECT_FAILED_TEXT = "Failed to connect to the player hosting the raid
 # Menu ID
 MENU_ID_EXIT = wx.NewId()
 MENU_ID_PREFERENCES = wx.NewId()
+MENU_ID_ENRAGE_TIME = wx.NewId()
 MENU_ID_OVERLAY_DARK = wx.NewId()
 MENU_ID_OVERLAY_SIZE_TO_GRID = wx.NewId()
 MENU_ID_OVERLAY_SNAP = wx.NewId()
@@ -96,6 +97,7 @@ MENU_ID_HELP_ABOUT = wx.NewId()
 # Menu Title
 MENU_TITLE_EXIT = "Exit"
 MENU_TITLE_PREFERENCES = "Preferences"
+MENU_TITLE_ENRAGE_TIME = "Set Enrage Timer..."
 MENU_TITLE_OVERLAY_DARK = "Dark Overlays"
 MENU_TITLE_OVERLAY_SIZE_TO_GRID = "Size Overlays to Grid"
 MENU_TITLE_OVERLAY_SNAP = "Snap Overlays to Edges"
@@ -110,6 +112,7 @@ MENU_TITLE_HELP_ABOUT = "About SWAP"
 # Menu Tip
 MENU_TIP_EXIT = "Exits the program."
 MENU_TIP_PREFERENCES = "Change program settings"
+MENU_TIP_ENRAGE_TIME = "Set enrage timer"
 MENU_TIP_OVERLAY_DARK = "Toggles dark theme for overlays"
 MENU_TIP_OVERLAY_SIZE_TO_GRID = "Toggles sizing overlays to grid"
 MENU_TIP_OVERLAY_SNAP = "Toggles snapping overlays to screen edges"

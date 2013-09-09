@@ -21,3 +21,4 @@ from overlays.self.healing_done import HealingDoneOverlay
 from overlays.self.timer import FightTimerOverlay
 from overlays.self.rolling_dps import RollingDPSOverlay
 from overlays.self.rolling_hps import RollingHPSOverlay
+from overlays.self.enrage_bar import EnrageBarOverlay

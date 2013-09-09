@@ -84,6 +84,12 @@ overlayList = [
 		'category': 'self',
 		'class': FightTimerOverlay
 	},
+	{
+		'name': 'enrage_bar',
+		'title': 'Enrage Bar',
+		'category': 'self',
+		'class': EnrageBarOverlay
+	},
 # Raid-wide
 	{
 		'name': 'raid_damage',
