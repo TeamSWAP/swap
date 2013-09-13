@@ -31,39 +31,56 @@ PARSER_SERVER_ADDR = ("swapserver.no-ip.biz", 57680)
 NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 
 # Boss list
-MOB_BOSS_LIST = (
-# TFB
+MOB_BOSS_LIST = map(str.lower, (
+	# TFB
 	"The Writhing Horror",
-	"Heirad",
 	"Operator IX",
 	"Kephess the Undying",
 	"The Terror from Beyond",
-# S&V
+	# S&V
 	"Dash'Roode",
 	"Titan 6",
 	"Thrasher",
 	"Operations Chief",
 	"Olok the Shadow",
-	"Captain Horric",
 	"Dread Master Styrak",
-# EV
+	# EV
 	"Annihilation Droid XRR-3",
 	"Gharj",
-	"Soa",
-# KP
+	# KP
 	"Bonethrasher",
 	"Foreman Crusher",
 	"G4-B3 Heavy Fabricator",
-	"Jarg",
 	"Karagga the Unyielding",
-# EC
+	# EC
 	"Colonel Vorgath",
-	"Firebrand",
 	"Warlord Kephess",
-	"Zorn",
-# Toborro's Courtyard
+	# Toborro's Courtyard
 	"Golden Fury"
-)
+))
+
+MOB_BOSS_MAP = {
+	# TFB
+	"Heirad": "The Dread Guard",
+	"Ciphas": "The Dread Guard",
+	"Kel'sara": "The Dread Guard",
+	# S&V
+	"Captain Horric": "The Cartel Warlords",
+	"Vilus Garr": "The Cartel Warlords",
+	"Tu'chuk": "The Cartel Warlords",
+	"Sunder": "The Cartel Warlords",
+	# EV
+	"Soa": "The Infernal One",
+	# KP
+	"Jarg": "Jarg & Sorno",
+	"Sorno": "Jarg & Sorno",
+	# EC
+	"Firebrand": "Firebrand and Stormcaller Tanks",
+	"Zorn": "Zorn and Toth",
+	"Toth": "Zorn and Toth",
+}
+MOB_BOSS_MAP = dict((k.lower(), v) for k, v in MOB_BOSS_MAP.iteritems())
+MOB_BOSS_MAP_KEYS = MOB_BOSS_MAP.keys()
 
 # Static Messages
 MSG_FAILED_KEY_GENERATION_TEXT = "Failed to generate new key! Please report this to the developer."

@@ -211,10 +211,10 @@ class MainFrame(wx.Frame):
 		self.keyVanityCheck = wx.CheckBox(self.panel, -1, "Generate Vanity Key")
 		self.keyStatus = wx.StaticText(self.panel, -1, "")
 
-		self.fightSelector = wx.ComboBox(self.panel, -1)
+		self.fightSelector = wx.Choice(self.panel, -1)
 		self.fightSelector.Append("Latest Fight", None)
 		self.fightSelector.SetSelection(0)
-		self.fightSelector.Bind(wx.EVT_COMBOBOX, self.onFightSelected)
+		self.fightSelector.Bind(wx.EVT_CHOICE, self.onFightSelected)
 
 		log_parser.get().registerObserver(log_parser.Parser.EVENT_FIGHT_BEGIN, util.wxFunc(self.onFightBegin))
 		log_parser.get().registerObserver(log_parser.Parser.EVENT_FIGHT_END, util.wxFunc(self.onFightEnd))
@@ -612,14 +612,18 @@ class MainFrame(wx.Frame):
 				return
 
 		priority = sorted(fight.priorityTargets.keys(), key=lambda x: fight.priorityTargets[x], reverse=True)[:4]
-		fightName = ", ".join(priority)
+		fightName = "  " + (", ".join(priority))
 		if not len(priority):
 			return
 		if not fightName:
 			fightName = "<Unknown Fight>"
 		for mob in fight.priorityTargets.keys():
-			if mob.lower() in map(str.lower, MOB_BOSS_LIST):
-				fightName = mob
+			mobLower = mob.lower()
+			if mobLower in MOB_BOSS_LIST:
+				fightName = "%s"%mob
+				break
+			if mobLower in MOB_BOSS_MAP_KEYS:
+				fightName = "%s"%MOB_BOSS_MAP[mobLower]
 				break
 		fightTime = time.strftime("%H:%M", time.localtime(fight.enterTime))
 		self.fightSelector.Insert("[%s] "%fightTime + fightName, 1, fight)
