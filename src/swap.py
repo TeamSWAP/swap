@@ -100,6 +100,7 @@ class MainFrame(wx.Frame):
 			os.remove('_changelog.txt')
 
 		self.SetMinSize((700, 520))
+		self.SetIcon(wx.Icon('../etc/app.ico', wx.BITMAP_TYPE_ICO))
 
 		# Setup menu bar
 		menuBar = wx.MenuBar()

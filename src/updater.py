@@ -33,6 +33,8 @@ class UpdaterFrame(wx.Frame):
 	def __init__(self):
 		wx.Frame.__init__(self, None, title="SWAP Updater", size=(400, 150), style=wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX)
 
+		self.SetIcon(wx.Icon('../etc/app.ico', wx.BITMAP_TYPE_ICO))
+		
 		panel = wx.Panel(self)
 		box = wx.BoxSizer(wx.VERTICAL)
 
