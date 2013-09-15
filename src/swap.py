@@ -100,7 +100,11 @@ class MainFrame(wx.Frame):
 			os.remove('_changelog.txt')
 
 		self.SetMinSize((700, 520))
-		self.SetIcon(wx.Icon('../etc/app.ico', wx.BITMAP_TYPE_ICO))
+
+		if IS_FROZEN:
+			self.SetIcon(wx.Icon('swap.exe', wx.BITMAP_TYPE_ICO))
+		else:
+			self.SetIcon(wx.Icon('../etc/app.ico', wx.BITMAP_TYPE_ICO))
 
 		# Setup menu bar
 		menuBar = wx.MenuBar()
