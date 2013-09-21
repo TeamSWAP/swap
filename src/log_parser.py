@@ -358,9 +358,8 @@ class Parser(events.EventSource):
 						if self.ready:
 							self.notifyEvent(Parser.EVENT_FIGHT_END)
 				elif line[-1] != '\n' and line[-1] != '\r':
-					prnt("Parser: Corrupted line! Backtracking to %d"%logCursor)
 					log.seek(logCursor)
-					time.sleep(0.2)
+					time.sleep(0.25)
 				
 				time.sleep(.0001)
 		except Exception:
