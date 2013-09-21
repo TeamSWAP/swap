@@ -463,6 +463,7 @@ class MainFrame(wx.Frame):
 		self.abilityView = ListBox(panelParent,
 			["Ability", "Damage", "Healing", "Threat"],
 			[100, 100, 100, 100], style=wx.LC_REPORT | wx.NO_BORDER)
+		self.abilityView.SortListItems(1, 0)
 
 		parent.Add(self.abilityView, 1, wx.EXPAND, 0)
 
