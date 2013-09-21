@@ -330,7 +330,7 @@ class Parser(events.EventSource):
 							heal = heal[:-1]
 						event.healing = int(heal)
 
-					if self.fight and event.damage > 0:
+					if self.fight:
 						actorFriendly = event.actor
 						if '{' in actorFriendly:
 							actorFriendly = actorFriendly[:actorFriendly.find('{') - 1]
