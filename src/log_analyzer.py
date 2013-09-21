@@ -44,7 +44,7 @@ class FightAnalysis(object):
 		self.combatDurationLinear = 0
 		self.avgDps = 0
 		self.avgHps = 0
-		self.damageBreakdown = {}
+		self.abilityBreakdown = {}
 		self.dps = 0
 		self.hps = 0
 		self.tfbOrb = 0
@@ -107,9 +107,10 @@ class AnalyzerThread(threading.Thread):
 					analysis.totalDamage += ev.damage
 					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
 						sampleDamage += ev.damage 
-					if not ev.abilityName in analysis.damageBreakdown:
-						analysis.damageBreakdown[ev.abilityName] = 0
-					analysis.damageBreakdown[ev.abilityName] += ev.damage
+					if not ev.abilityName in analysis.abilityBreakdown:
+						analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
+							'healing': 0, 'threat': 0}
+					analysis.abilityBreakdown[ev.abilityName]['damage'] += ev.damage
 
 				# To Me
 				if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
@@ -122,14 +123,22 @@ class AnalyzerThread(threading.Thread):
 					analysis.totalHealing += ev.healing
 					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
 						sampleHeal += ev.healing 
+					if not ev.abilityName in analysis.abilityBreakdown:
+						analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
+							'healing': 0, 'threat': 0}
+					analysis.abilityBreakdown[ev.abilityName]['healing'] += ev.healing
 
 				# To Me
 				if ev.target == self.parser.me:
 					analysis.totalHealingReceived += ev.healing
 
 			# Apply threat
-			if ev.actor == self.parser.me:
+			if ev.actor == self.parser.me and ev.threat > 0:
 				analysis.totalThreat += ev.threat
+				if not ev.abilityName in analysis.abilityBreakdown:
+					analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
+						'healing': 0, 'threat': 0}
+				analysis.abilityBreakdown[ev.abilityName]['threat'] += ev.threat
 
 			# Handle buffs
 			if ev.type == GameEvent.TYPE_APPLY_BUFF:

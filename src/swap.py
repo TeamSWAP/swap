@@ -263,13 +263,13 @@ class MainFrame(wx.Frame):
 		self.createRaidView(self.raidSizer, self.raidPanel)
 		self.tabs.AddPage(self.raidPanel, "Raid")
 
-		# Create Ability Breakdown tab
-		self.breakdownPanel = wx.Panel(self.tabs)
-		self.breakdownSizer = wx.BoxSizer(wx.VERTICAL)
-		self.breakdownPanel.SetSizer(self.breakdownSizer)
-		self.breakdownPanel.Layout()
-		self.createBreakdownView(self.breakdownSizer, self.breakdownPanel)
-		self.tabs.AddPage(self.breakdownPanel, "Ability Breakdown")
+		# Create Ability tab
+		self.abilityPanel = wx.Panel(self.tabs)
+		self.abilitySizer = wx.BoxSizer(wx.VERTICAL)
+		self.abilityPanel.SetSizer(self.abilitySizer)
+		self.abilityPanel.Layout()
+		self.createAbilityView(self.abilitySizer, self.abilityPanel)
+		self.tabs.AddPage(self.abilityPanel, "By Ability")
 
 		self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
@@ -459,11 +459,12 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
 
-	def createBreakdownView(self, parent, panelParent):
-		self.breakdownView = ListBox(panelParent, ["Ability", "Damage"],
-			[200, 100], style=wx.LC_REPORT | wx.NO_BORDER)
+	def createAbilityView(self, parent, panelParent):
+		self.abilityView = ListBox(panelParent,
+			["Ability", "Damage", "Healing", "Threat"],
+			[100, 100, 100, 100], style=wx.LC_REPORT | wx.NO_BORDER)
 
-		parent.Add(self.breakdownView, 1, wx.EXPAND, 0)
+		parent.Add(self.abilityView, 1, wx.EXPAND, 0)
 
 	def createGridView(self, parent, panelParent):
 		self.detailGrid = wx.GridSizer(3, 3, 20, 20)
@@ -527,7 +528,7 @@ class MainFrame(wx.Frame):
 		self.updateReportView(info)
 		self.updateGridView(info)
 		self.updateRaidView(info)
-		self.updateBreakdownView(info)
+		self.updateAbilityView(info)
 
 	def updateReportView(self, analyzer):
 		rows = []
@@ -568,17 +569,27 @@ class MainFrame(wx.Frame):
 				player['totalThreat']])
 		self.raidView.setRows(rows, itemMap)
 
-	def updateBreakdownView(self, analyzer):
-		totalDamage = sum(analyzer.damageBreakdown.values())
+	def updateAbilityView(self, analyzer):
+		totalDamage = sum([v['damage'] for v in analyzer.abilityBreakdown.values()])
+		totalHealing = sum([v['healing'] for v in analyzer.abilityBreakdown.values()])
+		totalThreat = sum([v['threat'] for v in analyzer.abilityBreakdown.values()])
 		rows = []
 		itemMap = []
-		for ability, damage in sorted(analyzer.damageBreakdown.iteritems(), key=lambda x:x[1], reverse=True):
+		for ability, info in analyzer.abilityBreakdown.iteritems():
+			damage = info['damage']
+			healing = info['healing']
+			threat = info['threat']
 			rows.append([
 				ability,
-				locale.format("%d", damage, grouping=True) + " (%.2f%%)"%(util.div(damage, totalDamage) * 100)
+				locale.format("%d", damage, grouping=True) +
+					" (%.2f%%)"%(util.div(damage, totalDamage) * 100),
+				locale.format("%d", healing, grouping=True) +
+					" (%.2f%%)"%(util.div(healing, totalHealing) * 100),
+				locale.format("%d", threat, grouping=True) +
+					" (%.2f%%)"%(util.div(threat, totalThreat) * 100)
 			])
-			itemMap.append([ability, damage])
-		self.breakdownView.setRows(rows, itemMap)
+			itemMap.append([ability, damage, healing, threat])
+		self.abilityView.setRows(rows, itemMap)
 
 	def onFightBegin(self):
 		self.fightSelector.SetSelection(0)
