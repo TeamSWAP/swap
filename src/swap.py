@@ -33,7 +33,6 @@ import fuzion
 import win32gui
 import wx
 import wx.html
-from wx.lib.mixins.listctrl import ColumnSorterMixin
 
 import config
 import overlays
@@ -44,15 +43,9 @@ import util
 import raid
 import net
 import preferences
+from ui.listbox import ListBox
 from constants import *
 from logging import prnt
-
-class SortList(wx.ListCtrl, ColumnSorterMixin):
-	def __init__(self, parent, columns, style=wx.LC_REPORT):
-		wx.ListCtrl.__init__(self, parent, style=style)
-		self.itemDataMap = {}
-		self.GetListCtrl = lambda: self
-		ColumnSorterMixin.__init__(self, columns)
 
 class ChangelogDialog(wx.Dialog):
 	def __init__(self, changelog):
@@ -435,9 +428,9 @@ class MainFrame(wx.Frame):
 		self.keyVanityCheck.Enable()
 
 	def createReportView(self, parent, panelParent):
-		self.reportView = wx.ListCtrl(panelParent, style=wx.LC_REPORT | wx.NO_BORDER)
-		self.reportView.InsertColumn(0, "Name"); self.reportView.SetColumnWidth(0, 300)
-		self.reportView.InsertColumn(1, "Value"); self.reportView.SetColumnWidth(1, 200)
+		self.reportView = ListBox(panelParent, ["Name", "Value"],
+			[200, 200], style=wx.LC_REPORT | wx.NO_BORDER)
+		self.reportView.SortListItems(0)
 
 		self.reportUpdaters = {}
 		def addDetailItem(name, getter):
@@ -455,32 +448,20 @@ class MainFrame(wx.Frame):
 		addDetailItem("Combat Enter Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatStartTime)))
 		addDetailItem("Combat Exit Time", lambda a: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a.combatEndTime)))
 
-		index = 0
-		for name in sorted(self.reportUpdaters.keys()):
-			self.reportView.InsertStringItem(index, name)
-			index += 1
-
 		parent.Add(self.reportView, 1, wx.EXPAND, 0)
 
 	def createRaidView(self, parent, panelParent):
-		self.raidView = SortList(panelParent, 9, style=wx.LC_REPORT | wx.NO_BORDER)
+		self.raidView = ListBox(panelParent,
+			["", "Player", "Damage", "Damage Taken", "Avg. DPS", "Healing",
+				"Healing Received", "Avg. HPS", "Threat"],
+			[15, 100, 80, 80, 70, 80, 80, 70, 80], style=wx.LC_REPORT | wx.NO_BORDER)
 		self.raidView.SortListItems(1)
-		self.raidView.InsertColumn(0, ""); self.raidView.SetColumnWidth(0, 15)
-		self.raidView.InsertColumn(1, "Player"); self.raidView.SetColumnWidth(1, 100)
-		self.raidView.InsertColumn(2, "Damage"); self.raidView.SetColumnWidth(2, 80)
-		self.raidView.InsertColumn(3, "Damage Taken"); self.raidView.SetColumnWidth(3, 80)
-		self.raidView.InsertColumn(4, "Avg. DPS"); self.raidView.SetColumnWidth(4, 70)
-		self.raidView.InsertColumn(5, "Healing"); self.raidView.SetColumnWidth(5, 80)
-		self.raidView.InsertColumn(6, "Healing Received"); self.raidView.SetColumnWidth(6, 80)
-		self.raidView.InsertColumn(7, "Avg. HPS"); self.raidView.SetColumnWidth(7, 70)
-		self.raidView.InsertColumn(8, "Threat"); self.raidView.SetColumnWidth(8, 80)
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
 
 	def createBreakdownView(self, parent, panelParent):
-		self.breakdownView = SortList(panelParent, 2, style=wx.LC_REPORT | wx.NO_BORDER)
-		self.breakdownView.InsertColumn(0, "Ability"); self.breakdownView.SetColumnWidth(0, 200)
-		self.breakdownView.InsertColumn(1, "Damage"); self.breakdownView.SetColumnWidth(1, 100)
+		self.breakdownView = ListBox(panelParent, ["Ability", "Damage"],
+			[200, 100], style=wx.LC_REPORT | wx.NO_BORDER)
 
 		parent.Add(self.breakdownView, 1, wx.EXPAND, 0)
 
@@ -549,11 +530,11 @@ class MainFrame(wx.Frame):
 		self.updateBreakdownView(info)
 
 	def updateReportView(self, analyzer):
-		index = 0
+		rows = []
 		for name in sorted(self.reportUpdaters.keys()):
 			getter = self.reportUpdaters[name]
-			self.reportView.SetStringItem(index, 1, getter(analyzer))
-			index += 1
+			rows.append([name, getter(analyzer)])
+		self.reportView.setRows(rows)
 
 	def updateGridView(self, analyzer):
 		for analyzerUpdater in self.gridUpdaters:
@@ -566,42 +547,38 @@ class MainFrame(wx.Frame):
 			tabTitle += " [%d players]"%len(raid.playerData)
 		self.tabs.SetPageText(2, tabTitle)
 
-		self.raidView.DeleteAllItems()
-		index = 0
-		itemDataMap = {}
+		rows = []
+		itemMap = []
 		for player in raid.playerData:
 			connectionType = player['connType']
 			name = player['name'][1:]
-			self.raidView.InsertStringItem(index, connectionType)
-			self.raidView.SetStringItem(index, 1, name)
-			self.raidView.SetStringItem(index, 2, locale.format("%d", player['totalDamage'], grouping=True))
-			self.raidView.SetStringItem(index, 3, locale.format("%d", player['totalDamageTaken'], grouping=True))
-			self.raidView.SetStringItem(index, 4, locale.format("%.2f", player['avgDps'], grouping=True))
-			self.raidView.SetStringItem(index, 5, locale.format("%d", player['totalHealing'], grouping=True))
-			self.raidView.SetStringItem(index, 6, locale.format("%d", player['totalHealingReceived'], grouping=True))
-			self.raidView.SetStringItem(index, 7, locale.format("%.2f", player['avgHps'], grouping=True))
-			self.raidView.SetStringItem(index, 8, locale.format("%d", player['totalThreat'], grouping=True))
-			self.raidView.SetItemData(index, index)
-			itemDataMap[index] = [connectionType, name, player['totalDamage'], player['totalDamageTaken'], player['avgDps'],
-				player['totalHealing'], player['totalHealingReceived'], player['avgHps'], player['totalThreat']]
-			index += 1
-		self.raidView.itemDataMap = itemDataMap
-		self.raidView.SortListItems()
+			rows.append([
+				connectionType,
+				name,
+				locale.format("%d", player['totalDamage'], grouping=True),
+				locale.format("%d", player['totalDamageTaken'], grouping=True),
+				locale.format("%.2f", player['avgDps'], grouping=True),
+				locale.format("%d", player['totalHealing'], grouping=True),
+				locale.format("%d", player['totalHealingReceived'], grouping=True),
+				locale.format("%.2f", player['avgHps'], grouping=True),
+				locale.format("%d", player['totalThreat'], grouping=True)
+			])
+			itemMap.append([connectionType, name, player['totalDamage'], player['totalDamageTaken'],
+				player['avgDps'], player['totalHealing'], player['totalHealingReceived'], player['avgHps'],
+				player['totalThreat']])
+		self.raidView.setRows(rows, itemMap)
 
 	def updateBreakdownView(self, analyzer):
-		self.breakdownView.DeleteAllItems()
-		index = 0
-
-		itemDataMap = {}
 		totalDamage = sum(analyzer.damageBreakdown.values())
+		rows = []
+		itemMap = []
 		for ability, damage in sorted(analyzer.damageBreakdown.iteritems(), key=lambda x:x[1], reverse=True):
-			self.breakdownView.InsertStringItem(index, ability)
-			self.breakdownView.SetStringItem(index, 1, locale.format("%d", damage, grouping=True) + " (%.2f%%)"%(util.div(damage, totalDamage) * 100))
-			self.breakdownView.SetItemData(index, index)
-			itemDataMap[index] = [ability, damage]
-			index += 1
-		self.breakdownView.itemDataMap = itemDataMap
-		self.breakdownView.SortListItems()
+			rows.append([
+				ability,
+				locale.format("%d", damage, grouping=True) + " (%.2f%%)"%(util.div(damage, totalDamage) * 100)
+			])
+			itemMap.append([ability, damage])
+		self.breakdownView.setRows(rows, itemMap)
 
 	def onFightBegin(self):
 		self.fightSelector.SetSelection(0)
