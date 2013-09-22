@@ -454,7 +454,7 @@ class MainFrame(wx.Frame):
 		self.raidView = ListBox(panelParent,
 			["", "Player", "Damage", "Damage Taken", "Avg. DPS", "Healing",
 				"Healing Received", "Avg. HPS", "Threat"],
-			[15, 100, 80, 80, 70, 80, 80, 70, 80], style=wx.LC_REPORT | wx.NO_BORDER)
+			[0, 100, 80, 80, 70, 80, 80, 70, 80], style=wx.LC_REPORT | wx.NO_BORDER)
 		self.raidView.SortListItems(1)
 
 		parent.Add(self.raidView, 1, wx.EXPAND, 0)
