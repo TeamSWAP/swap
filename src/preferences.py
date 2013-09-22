@@ -18,7 +18,7 @@ import wx
 
 import config
 import log_parser
-from constants import *
+from const import *
 from logging import prnt
 
 class PreferencesDialog(wx.Dialog):

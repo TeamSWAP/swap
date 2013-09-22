@@ -44,7 +44,7 @@ import raid
 import net
 import preferences
 from ui.listbox import ListBox
-from constants import *
+from const import *
 from logging import prnt
 
 class ChangelogDialog(wx.Dialog):

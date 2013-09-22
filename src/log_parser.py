@@ -26,16 +26,17 @@ from ctypes.wintypes import MAX_PATH
 
 import log_analyzer
 import events
+from const import abl
 from logging import prnt
 
 # [18:36:21.225] [Cartel Patrol Droid {2981965728841728}:3535188148330] [@Bellestarr] [Explosive Round {827176341471232}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1216 kinetic {836045448940873}) <1216>
 
 DISAPPEAR_GRACE = 15
 DISAPPEAR_ABILITIES = (
-	'2276212407795712', # Scoundrel
-	'2278037768896512', # Operative
-	'2271612497821696', # Shadow
-	'2271329029980160', # Assassin
+	abl.SC_DISAPPEAR,
+	abl.OP_DISAPPEAR,
+	abl.SH_DISAPPEAR,
+	abl.AS_DISAPPEAR
 )
 
 # Global variables

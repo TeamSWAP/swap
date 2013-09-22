@@ -25,7 +25,7 @@ import log_parser
 import log_analyzer
 import net
 from logging import prnt
-from constants import *
+from const import *
 from bytestream import ByteStream
 
 REQUEST_UPDATE = 0x5

@@ -14,25 +14,4 @@
 # limitations under the License.
 #
 
-import fuzion
-
-import raid
-from const import *
-from logging import prnt
-
-node = None
-
-def onNodeDisconnected():
-	raid.onNodeDisconnected()
-
-def onNodeReconnected():
-	raid.onNodeReconnected()
-
-def init():
-	global node
-
-	fuzion.setDebug(lambda *x: prnt("Fuzion:", *x))
-	node = fuzion.Node()
-	node.bindDisconnect(onNodeDisconnected)
-	node.bindReconnect(onNodeReconnected)
-	node.setNodeServer(NODE_SERVER_ADDR)
+from app import *

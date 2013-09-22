@@ -26,7 +26,7 @@ from zipfile import ZipFile
 from threading import Thread
 from urllib2 import urlopen, HTTPError
 
-from constants import *
+from const import *
 from logging import prnt
 
 class UpdaterFrame(wx.Frame):

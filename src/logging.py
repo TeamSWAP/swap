@@ -19,7 +19,7 @@ import atexit
 from datetime import datetime
 from threading import Lock
 
-from constants import *
+from const import *
 
 DEBUG_TO_FILE = True
 

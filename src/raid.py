@@ -26,7 +26,7 @@ import wx
 import log_parser, log_analyzer
 import net
 from logging import prnt
-from constants import *
+from const import *
 from bytestream import ByteStream
 from raid_server import RaidServer
 from raid_client import RaidClient

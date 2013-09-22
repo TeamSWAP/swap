@@ -27,7 +27,7 @@ import log_analyzer
 import raid
 import net
 from logging import prnt
-from constants import *
+from const import *
 from bytestream import ByteStream
 
 REQUEST_PLAYER_UPDATE = 0x5
