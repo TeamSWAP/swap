@@ -26,7 +26,7 @@ from ctypes.wintypes import MAX_PATH
 
 import log_analyzer
 import events
-from const import abl
+from const import abl, evt
 from logging import prnt
 
 # [18:36:21.225] [Cartel Patrol Droid {2981965728841728}:3535188148330] [@Bellestarr] [Explosive Round {827176341471232}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1216 kinetic {836045448940873}) <1216>
@@ -43,17 +43,6 @@ DISAPPEAR_ABILITIES = (
 parserThread = None
 
 class GameEvent(object):
-	TYPE_ABILITY_ACTIVATE   = 0x1
-	TYPE_ABILITY_DEACTIVATE = 0x2
-	TYPE_ABILITY_CANCEL     = 0x3
-	TYPE_APPLY_BUFF         = 0x4
-	TYPE_REMOVE_BUFF        = 0x5
-	TYPE_ENTER_COMBAT       = 0x6
-	TYPE_EXIT_COMBAT        = 0x7
-	TYPE_DAMAGE             = 0x8
-	TYPE_DEATH              = 0x9
-	TYPE_HEAL               = 0x10
-
 	def __init__(self):
 		self.type = 0x0
 		self.outgoing = False
@@ -255,18 +244,18 @@ class Parser(events.EventSource):
 					event.exitEvent = False
 					event.recent = self.ready
 
-					if event.type == GameEvent.TYPE_ENTER_COMBAT:
+					if event.type == evt.ENTER_COMBAT:
 						event.enterEvent = True
-					elif event.type == GameEvent.TYPE_EXIT_COMBAT:
+					elif event.type == evt.EXIT_COMBAT:
 						event.exitEvent = True
-					elif event.type == GameEvent.TYPE_DEATH and self.inCombat and event.target == self.me:
+					elif event.type == evt.DEATH and self.inCombat and event.target == self.me:
 						event.exitEvent = True
-					elif event.type == GameEvent.TYPE_APPLY_BUFF and event.actionType == '973870949466372' and self.inCombat:
+					elif event.type == evt.APPLY_BUFF and event.actionType == '973870949466372' and self.inCombat:
 						# Safe Login Immunity
 						event.exitEvent = True
 
 					# Detect disappear
-					if self.fights and event.type == GameEvent.TYPE_ABILITY_ACTIVATE and event.ability in DISAPPEAR_ABILITIES:
+					if self.fights and event.type == evt.ABILITY_ACTIVATE and event.ability in DISAPPEAR_ABILITIES:
 						lastFight = self.fights[-1]
 						exitBluff = False
 						# Look back for exit combat.
@@ -305,7 +294,7 @@ class Parser(events.EventSource):
 					elif event.exitEvent:
 						self.inCombat = False
 
-					if event.type == GameEvent.TYPE_DAMAGE:
+					if event.type == evt.DAMAGE:
 						sp = result.split(' ')
 						if len(sp) > 2:
 							dmg = sp[0]
@@ -325,7 +314,7 @@ class Parser(events.EventSource):
 							dmg = 0
 						event.damage = dmg
 
-					if event.type == GameEvent.TYPE_HEAL:
+					if event.type == evt.HEAL:
 						heal = result
 						if heal.endswith('*'):
 							heal = heal[:-1]
@@ -375,26 +364,26 @@ class Parser(events.EventSource):
 	def resolveEventType(self, actionId, actionTypeId):
 		if actionId == '836045448945472': # Event
 			if actionTypeId == '836045448945479':
-				return GameEvent.TYPE_ABILITY_ACTIVATE
+				return evt.ABILITY_ACTIVATE
 			elif actionTypeId == '836045448945480':
-				return GameEvent.TYPE_ABILITY_DEACTIVATE
+				return evt.ABILITY_DEACTIVATE
 			elif actionTypeId == '836045448945481':
-				return GameEvent.TYPE_ABILITY_CANCEL
+				return evt.ABILITY_CANCEL
 			elif actionTypeId == '836045448945489':
-				return GameEvent.TYPE_ENTER_COMBAT
+				return evt.ENTER_COMBAT
 			elif actionTypeId == '836045448945490':
-				return GameEvent.TYPE_EXIT_COMBAT
+				return evt.EXIT_COMBAT
 			elif actionTypeId == '836045448945493':
-				return GameEvent.TYPE_DEATH
+				return evt.DEATH
 		elif actionId == '836045448945477': # ApplyEffect
 			if actionTypeId == '836045448945501':
-				return GameEvent.TYPE_DAMAGE
+				return evt.DAMAGE
 			elif actionTypeId == '836045448945500':
-				return GameEvent.TYPE_HEAL
+				return evt.HEAL
 			else:
-				return GameEvent.TYPE_APPLY_BUFF
+				return evt.APPLY_BUFF
 		elif actionId == '836045448945478': # RemoveEffect
-			return GameEvent.TYPE_REMOVE_BUFF
+			return evt.REMOVE_BUFF
 		return None
 
 class ParserThread(threading.Thread):
@@ -464,13 +453,13 @@ if __name__ == '__main__':
 			endTime = 0
 			startTime = 0
 			for ev in reversed(parser.events):
-				if endTime == 0 and (ev.type == GameEvent.TYPE_EXIT_COMBAT or parser.events[-1].inCombat):
+				if endTime == 0 and (ev.type == evt.EXIT_COMBAT or parser.events[-1].inCombat):
 					wasInCombat = True
 					endTime = ev.time
-				if ev.type == GameEvent.TYPE_ENTER_COMBAT:
+				if ev.type == evt.ENTER_COMBAT:
 					startTime = ev.time
 					break
-				if ev.inCombat and ev.type == GameEvent.TYPE_DAMAGE:
+				if ev.inCombat and ev.type == evt.DAMAGE:
 					totalDamage += ev.damage
 					wasInCombat = True
 				

@@ -24,6 +24,7 @@ import wx
 
 import raid
 import util
+from const import abl, evt
 from log_parser import GameEvent, Fight
 from logging import prnt
 
@@ -101,7 +102,7 @@ class AnalyzerThread(threading.Thread):
 
 		for ev in events:
 			# Damage Event
-			if ev.type == GameEvent.TYPE_DAMAGE:
+			if ev.type == evt.DAMAGE:
 				# From Me
 				if ev.actor == self.parser.me:
 					analysis.totalDamage += ev.damage
@@ -113,11 +114,11 @@ class AnalyzerThread(threading.Thread):
 					analysis.abilityBreakdown[ev.abilityName]['damage'] += ev.damage
 
 				# To Me
-				if ev.type == GameEvent.TYPE_DAMAGE and ev.target == self.parser.me:
+				if ev.type == evt.DAMAGE and ev.target == self.parser.me:
 					analysis.totalDamageTaken += ev.damage
 
 			# Heal Event
-			if ev.type == GameEvent.TYPE_HEAL:
+			if ev.type == evt.HEAL:
 				# From Me
 				if ev.actor == self.parser.me:
 					analysis.totalHealing += ev.healing
@@ -141,9 +142,9 @@ class AnalyzerThread(threading.Thread):
 				analysis.abilityBreakdown[ev.abilityName]['threat'] += ev.threat
 
 			# Handle buffs
-			if ev.type == GameEvent.TYPE_APPLY_BUFF:
+			if ev.type == evt.APPLY_BUFF:
 				buffs.append(ev.actionType)
-			elif ev.type == GameEvent.TYPE_REMOVE_BUFF:
+			elif ev.type == evt.REMOVE_BUFF:
 				if ev.actionType in buffs:
 					buffs.remove(ev.actionType)
 
