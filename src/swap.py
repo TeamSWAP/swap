@@ -271,6 +271,14 @@ class MainFrame(wx.Frame):
 		self.createAbilityView(self.abilitySizer, self.abilityPanel)
 		self.tabs.AddPage(self.abilityPanel, "By Ability")
 
+		# Create Targets tab
+		self.targetsPanel = wx.Panel(self.tabs)
+		self.targetsSizer = wx.BoxSizer(wx.VERTICAL)
+		self.targetsPanel.SetSizer(self.targetsSizer)
+		self.targetsPanel.Layout()
+		self.createTargetsView(self.targetsSizer, self.targetsPanel)
+		self.tabs.AddPage(self.targetsPanel, "By Target")
+
 		self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
 		self.panel.SetSizer(self.box)
@@ -467,6 +475,15 @@ class MainFrame(wx.Frame):
 
 		parent.Add(self.abilityView, 1, wx.EXPAND, 0)
 
+	def createTargetsView(self, parent, panelParent):
+		self.targetsView = ListBox(panelParent,
+			["Target", "Damage Dealt", "Damage Taken", "Healing Done",
+			"Healing Received", "Threat Received"],
+			[150, 100, 100, 100, 100, 100], style=wx.LC_REPORT | wx.NO_BORDER)
+		self.targetsView.SortListItems(0, 0)
+
+		parent.Add(self.targetsView, 1, wx.EXPAND, 0)
+
 	def createGridView(self, parent, panelParent):
 		self.detailGrid = wx.GridSizer(3, 3, 20, 20)
 		self.gridUpdaters = []
@@ -530,6 +547,7 @@ class MainFrame(wx.Frame):
 		self.updateGridView(info)
 		self.updateRaidView(info)
 		self.updateAbilityView(info)
+		self.updateTargetsView(info)
 
 	def updateReportView(self, analyzer):
 		rows = []
@@ -591,6 +609,37 @@ class MainFrame(wx.Frame):
 			])
 			itemMap.append([ability, damage, healing, threat])
 		self.abilityView.setRows(rows, itemMap)
+
+	def updateTargetsView(self, analyzer):
+		totalDamage = sum([v['damage'] for v in analyzer.entityBreakdown.values()])
+		totalDamageTaken = sum([v['damageTaken'] for v in analyzer.entityBreakdown.values()])
+		totalHealing = sum([v['healing'] for v in analyzer.entityBreakdown.values()])
+		totalHealingReceived = sum([v['healingReceived'] for v in analyzer.entityBreakdown.values()])
+		totalThreatReceived = sum([v['threatReceived'] for v in analyzer.entityBreakdown.values()])
+		rows = []
+		itemMap = []
+		for entity, info in analyzer.entityBreakdown.iteritems():
+			damage = info['damage']
+			damageTaken = info['damageTaken']
+			healing = info['healing']
+			healingReceived = info['healingReceived']
+			threatReceived = info['threatReceived']
+			rows.append([
+				entity.name,
+				locale.format("%d", damage, grouping=True) +
+					" (%.2f%%)"%(util.div(damage, totalDamage) * 100),
+				locale.format("%d", damageTaken, grouping=True) +
+					" (%.2f%%)"%(util.div(damage, totalDamageTaken) * 100),
+				locale.format("%d", healing, grouping=True) +
+					" (%.2f%%)"%(util.div(healing, totalHealing) * 100),
+				locale.format("%d", healingReceived, grouping=True) +
+					" (%.2f%%)"%(util.div(healing, totalHealingReceived) * 100),
+				locale.format("%d", threatReceived, grouping=True) +
+					" (%.2f%%)"%(util.div(threatReceived, totalThreatReceived) * 100),
+			])
+			itemMap.append([entity.name, damage, damageTaken, healing,
+				healingReceived, threatReceived])
+		self.targetsView.setRows(rows, itemMap)
 
 	def onFightBegin(self):
 		self.fightSelector.SetSelection(0)
