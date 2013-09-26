@@ -123,7 +123,11 @@ class RaidClient(threading.Thread):
 		analyzer = log_analyzer.get()
 		stream = fuzion.ByteStream()
 		stream.writeByte(REQUEST_PLAYER_UPDATE)
-		stream.writeString(analyzer.parser.me or "@NoPlayer")
+		if analyzer.parser.me:
+			# TODO: Transition to sending only the name
+			stream.writeString("@" + analyzer.parser.me.name)
+		else:
+			stream.writeString("@NoPlayer")
 		stream.writeInt(analyzer.totalDamage)
 		stream.writeInt(analyzer.totalDamageTaken)
 		stream.writeFloat(analyzer.avgDps)

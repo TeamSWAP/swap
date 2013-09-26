@@ -70,6 +70,34 @@ class Fight(object):
 		self.exitEvent = None
 		self.exitTime = 0
 		self.priorityTargets = {}
+		self.entities = []
+
+class Entity(object):
+	NAME_REGEX = re.compile("^(?:(?:\@(?P<player>[^:]+)(?:\:(?P<companion>[^{]+))?)|(?P<mob>[^{]+))(?: {(?P<entity>\d+)}(?:\:(?P<instance>\d+))?)?$")
+
+	def __init__(self, rawName):
+		self.rawName = rawName
+		self.player = None
+		self.companion = None
+		self.mob = None
+		self.entity = 0
+		self.instance = 0
+
+		result = Entity.NAME_REGEX.match(rawName)
+		if not result:
+			prnt("Entity: Regex failed! rawName=" + rawName)
+		else:
+			self.player = result.group('player')
+			self.companion = result.group('companion')
+			self.mob = result.group('mob')
+			self.entity = result.group('entity')
+			self.instance = result.group('instance')
+
+	@property
+	def name(self):
+		if self.companion:
+			return "%s (%s)"%(self.player, self.companion)
+		return self.player or self.mob
 
 class Parser(events.EventSource):
 	"""docstring for Parser"""
@@ -143,6 +171,7 @@ class Parser(events.EventSource):
 			self.fight = None
 			self.ready = False
 			self.disappearEvent = None
+			self._entityLookup = {}
 
 			inUpdate = False
 
@@ -173,6 +202,7 @@ class Parser(events.EventSource):
 						self.ready = False
 						self.me = None
 						self.disappearEvent = None
+						self._entityLookup = {}
 
 						inUpdate = False
 
@@ -223,8 +253,21 @@ class Parser(events.EventSource):
 						prnt("Parser: Rollover, day is now %s"%datetime.datetime.fromtimestamp(logDay))
 					logLastActionTime = actionTime
 
+					for entity in (actor, target):
+						if entity not in self._entityLookup:
+							ent = Entity(entity)
+							self._entityLookup[entity] = ent
+						else:
+							ent = self._entityLookup[entity]
+						if self.fight and ent not in self.fight.entities:
+							self.fight.entities.append(entity)
+
+					actor = self._entityLookup[actor]
+					target = self._entityLookup[target]
+
 					# Serious introspection here, man
-					if self.me == None and actor == target and actor.find(':') == -1:
+					if (self.me == None and actor == target and not actor.companion and
+							not actor.mob):
 						prnt("Parser: Identified %s as me"%actor)
 						self.me = actor
 
@@ -321,22 +364,14 @@ class Parser(events.EventSource):
 						event.healing = int(heal)
 
 					if self.fight:
-						actorFriendly = event.actor
-						if '{' in actorFriendly:
-							actorFriendly = actorFriendly[:actorFriendly.find('{') - 1]
-						targetFriendly = event.target
-						if '{' in targetFriendly:
-							targetFriendly = targetFriendly[:targetFriendly.find('{') - 1]
-						for name in (actorFriendly, targetFriendly):
-							if not name:
-								continue
-							if name == self.me:
+						for entity in (event.actor, event.target):
+							if entity == self.me or entity.companion:
 								continue
 							priority = event.damage + event.threat + 1
-							if name in self.fight.priorityTargets:
-								self.fight.priorityTargets[name] += priority
+							if entity in self.fight.priorityTargets:
+								self.fight.priorityTargets[entity] += priority
 								continue
-							self.fight.priorityTargets[name] = priority
+							self.fight.priorityTargets[entity] = priority
 
 					if self.fight != None:
 						self.fight.events.append(event)

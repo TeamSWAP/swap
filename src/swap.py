@@ -517,7 +517,7 @@ class MainFrame(wx.Frame):
 			return
 
 		if analyzer.parser.me:
-			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me))
+			self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me.name))
 		else:
 			self.SetTitle("SWAP v%s"%VERSION)
 
@@ -606,18 +606,19 @@ class MainFrame(wx.Frame):
 				return
 
 		priority = sorted(fight.priorityTargets.keys(), key=lambda x: fight.priorityTargets[x], reverse=True)[:4]
-		fightName = "  " + (", ".join(priority))
+		fightName = "  " + (", ".join(map(lambda x:x.name, priority)))
 		if not len(priority):
 			return
 		if not fightName:
 			fightName = "<Unknown Fight>"
 		for mob in fight.priorityTargets.keys():
-			mobLower = mob.lower()
-			if mobLower in MOB_BOSS_LIST:
-				fightName = "%s"%mob
+			name = mob.name
+			nameLower = name.lower()
+			if nameLower in MOB_BOSS_LIST:
+				fightName = "%s"%name
 				break
-			if mobLower in MOB_BOSS_MAP_KEYS:
-				fightName = "%s"%MOB_BOSS_MAP[mobLower]
+			if nameLower in MOB_BOSS_MAP_KEYS:
+				fightName = "%s"%MOB_BOSS_MAP[nameLower]
 				break
 		fightTime = time.strftime("%H:%M", time.localtime(fight.enterTime))
 		self.fightSelector.Insert("[%s] "%fightTime + fightName, 1, fight)
