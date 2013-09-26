@@ -32,12 +32,6 @@ from logging import prnt
 # [18:36:21.225] [Cartel Patrol Droid {2981965728841728}:3535188148330] [@Bellestarr] [Explosive Round {827176341471232}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1216 kinetic {836045448940873}) <1216>
 
 DISAPPEAR_GRACE = 15
-DISAPPEAR_ABILITIES = (
-	abl.SC_DISAPPEAR,
-	abl.OP_DISAPPEAR,
-	abl.SH_DISAPPEAR,
-	abl.AS_DISAPPEAR
-)
 
 # Global variables
 parserThread = None
@@ -298,7 +292,7 @@ class Parser(events.EventSource):
 						event.exitEvent = True
 
 					# Detect disappear
-					if self.fights and event.type == evt.ABILITY_ACTIVATE and event.ability in DISAPPEAR_ABILITIES:
+					if self.fights and event.type == evt.ABILITY_ACTIVATE and event.ability in abl.DISAPPEAR:
 						lastFight = self.fights[-1]
 						exitBluff = False
 						# Look back for exit combat.
