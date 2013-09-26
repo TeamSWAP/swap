@@ -134,7 +134,7 @@ class AnalyzerThread(threading.Thread):
 					analysis.totalHealingReceived += ev.healing
 
 			# Apply threat
-			if ev.actor == self.parser.me and ev.threat > 0:
+			if ev.actor == self.parser.me and ev.threat:
 				analysis.totalThreat += ev.threat
 				if not ev.abilityName in analysis.abilityBreakdown:
 					analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
