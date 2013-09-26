@@ -480,7 +480,7 @@ class MainFrame(wx.Frame):
 			["Target", "Damage Dealt", "Damage Taken", "Healing Done",
 			"Healing Received", "Threat Received"],
 			[150, 100, 100, 100, 100, 100], style=wx.LC_REPORT | wx.NO_BORDER)
-		self.targetsView.SortListItems(0, 0)
+		self.targetsView.SortListItems(0, 1)
 
 		parent.Add(self.targetsView, 1, wx.EXPAND, 0)
 
