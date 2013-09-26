@@ -262,7 +262,7 @@ class Parser(events.EventSource):
 					# Serious introspection here, man
 					if (self.me == None and actor == target and not actor.companion and
 							not actor.mob):
-						prnt("Parser: Identified %s as me"%actor)
+						prnt("Parser: Identified %s as me"%actor.name)
 						self.me = actor
 
 					event = GameEvent()
