@@ -101,6 +101,12 @@ class AnalyzerThread(threading.Thread):
 			startWasRecent = events[0].recent
 
 		for ev in events:
+			if ev.actor == self.parser.me and (ev.type in (evt.DAMAGE, evt.HEAL)
+					or ev.threat):
+				if not ev.abilityName in analysis.abilityBreakdown:
+						analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
+							'healing': 0, 'threat': 0}
+
 			# Damage Event
 			if ev.type == evt.DAMAGE:
 				# From Me
@@ -108,9 +114,6 @@ class AnalyzerThread(threading.Thread):
 					analysis.totalDamage += ev.damage
 					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
 						sampleDamage += ev.damage 
-					if not ev.abilityName in analysis.abilityBreakdown:
-						analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
-							'healing': 0, 'threat': 0}
 					analysis.abilityBreakdown[ev.abilityName]['damage'] += ev.damage
 
 				# To Me
@@ -123,10 +126,7 @@ class AnalyzerThread(threading.Thread):
 				if ev.actor == self.parser.me:
 					analysis.totalHealing += ev.healing
 					if ev.readTime > now - ROLLING_SAMPLE and ev.recent:
-						sampleHeal += ev.healing 
-					if not ev.abilityName in analysis.abilityBreakdown:
-						analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
-							'healing': 0, 'threat': 0}
+						sampleHeal += ev.healing
 					analysis.abilityBreakdown[ev.abilityName]['healing'] += ev.healing
 
 				# To Me
@@ -136,9 +136,6 @@ class AnalyzerThread(threading.Thread):
 			# Apply threat
 			if ev.actor == self.parser.me and ev.threat:
 				analysis.totalThreat += ev.threat
-				if not ev.abilityName in analysis.abilityBreakdown:
-					analysis.abilityBreakdown[ev.abilityName] = {'damage': 0,
-						'healing': 0, 'threat': 0}
 				analysis.abilityBreakdown[ev.abilityName]['threat'] += ev.threat
 
 			# Handle buffs
