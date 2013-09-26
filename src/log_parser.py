@@ -67,7 +67,7 @@ class Fight(object):
 		self.entities = []
 
 class Entity(object):
-	NAME_REGEX = re.compile("^(?:(?:\@(?P<player>[^:]+)(?:\:(?P<companion>[^{]+))?)|(?P<mob>[^{]+))(?: {(?P<entity>\d+)}(?:\:(?P<instance>\d+))?)?$")
+	NAME_REGEX = re.compile("^(?:(?:\@(?P<player>[^:]*)(?:\:(?P<companion>[^{]+))?)|(?P<mob>[^{]*))(?: {(?P<entity>\d+)}(?:\:(?P<instance>\d+))?)?$")
 
 	def __init__(self, rawName):
 		self.rawName = rawName

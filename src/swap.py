@@ -619,6 +619,8 @@ class MainFrame(wx.Frame):
 		rows = []
 		itemMap = []
 		for entity, info in analyzer.entityBreakdown.iteritems():
+			if not entity.name:
+				continue
 			damage = info['damage']
 			damageTaken = info['damageTaken']
 			healing = info['healing']
@@ -658,9 +660,11 @@ class MainFrame(wx.Frame):
 		fightName = "  " + (", ".join(map(lambda x:x.name, priority)))
 		if not len(priority):
 			return
-		if not fightName:
+		if not fightName.strip():
 			fightName = "<Unknown Fight>"
 		for mob in fight.priorityTargets.keys():
+			if not mob.name:
+				continue
 			name = mob.name
 			nameLower = name.lower()
 			if nameLower in MOB_BOSS_LIST:
