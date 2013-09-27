@@ -1,7 +1,7 @@
 import os, zipfile, sys, shutil
 
 sys.path.append('src')
-import constants
+import const
 sys.path = sys.path[:-1]
 
 if os.path.exists("dist"):
@@ -19,10 +19,10 @@ if os.path.exists("out/settings.json"):
 # Build installer
 NSIS_PATH = "C:\\Program Files (x86)\\NSIS\\makensis"
 os.system("\"%s\" installer/swap.nsi"%(NSIS_PATH))
-shutil.move('installer/out/swap-v%s-setup.exe'%(constants.VERSION), 'dist')
+shutil.move('installer/out/swap-v%s-setup.exe'%(const.VERSION), 'dist')
 
 # Build zip
-z = zipfile.ZipFile('dist/swap-v%s.zip'%(constants.VERSION), 'w', zipfile.ZIP_DEFLATED)
+z = zipfile.ZipFile('dist/swap-v%s.zip'%(const.VERSION), 'w', zipfile.ZIP_DEFLATED)
 for root, dirs, files in os.walk('out'):
 	rs = root.split('\\')
 	if len(rs) > 1:
