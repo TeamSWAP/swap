@@ -726,7 +726,7 @@ class NodeConnection(threading.Thread):
 			debug("Sending syn...")
 
 		if self.state != CS_CONNECTED and time.time() - self.acceptTime > 5:
-			debug("Connect timed out.")
+			debug("Connect timed out. current=%d, accept=%d"%(time.time(), self.acceptTime))
 			self.state = CS_FAILED_TIMED_OUT
 			self.threadStopped.set()
 			self.node.connectionDied(self)
