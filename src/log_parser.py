@@ -101,6 +101,7 @@ class Parser(events.EventSource):
 	EVENT_FIGHT_END = 2
 	EVENT_NEW_LOG = 3
 	EVENT_READY = 4
+	EVENT_PLAYER_IDENTIFIED = 5
 
 	def __init__(self):
 		events.EventSource.__init__(self)
@@ -264,6 +265,7 @@ class Parser(events.EventSource):
 							not actor.mob):
 						prnt("Parser: Identified %s as me"%actor.name)
 						self.me = actor
+						self.notifyEvent(Parser.EVENT_PLAYER_IDENTIFIED)
 
 					event = GameEvent()
 					event.type = self.resolveEventType(actionId, actionTypeId)
