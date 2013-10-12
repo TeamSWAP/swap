@@ -675,15 +675,6 @@ class MainFrame(wx.Frame):
 		if not fightName.strip():
 			fightName = "<Unknown Fight>"
 
-		# Find boss fights based on single target detection
-		for name in fightMobs:
-			if not name:
-				continue
-			nameLower = name.lower()
-			if nameLower in MOB_BOSS_LIST:
-				fightName = "%s"%name
-				break
-
 		# Find boss fights based on mob mapping
 		for mobSel in MOB_BOSS_MAP_KEYS:
 			if type(mobSel) is tuple:
@@ -696,6 +687,15 @@ class MainFrame(wx.Frame):
 			else:
 				if mobSel in fightMobs:
 					fightName = MOB_BOSS_MAP[mobSel]
+					break
+		else:
+			# Find boss fights based on single target detection
+			for name in fightMobs:
+				if not name:
+					continue
+				nameLower = name.lower()
+				if nameLower in MOB_BOSS_LIST:
+					fightName = "%s"%name
 					break
 		fightTime = time.strftime("%H:%M", time.localtime(fight.enterTime))
 		self.fightSelector.Insert("[%s] "%fightTime + fightName, 1, fight)
