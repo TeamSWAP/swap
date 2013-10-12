@@ -32,6 +32,19 @@ NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 
 # Boss list
 MOB_BOSS_LIST = map(str.lower, (
+	# DF
+	"Nefra, Who Bars the Way",
+	"Gate Commander Draxus",
+	"Grob'thok, Who Feeds the Forge",
+	"Corruptor Zero",
+	"Dread Master Brontes",
+	# DP
+	"Dread Master Bestia",
+	"Dread Master Tyrans",
+	"Dread Master Calphayus",
+	"Dread Master Raptus",
+	# Toborro's Courtyard
+	"Golden Fury"
 	# TFB
 	"The Writhing Horror",
 	"Operator IX",
@@ -44,42 +57,35 @@ MOB_BOSS_LIST = map(str.lower, (
 	"Operations Chief",
 	"Olok the Shadow",
 	"Dread Master Styrak",
-	# EV
-	"Annihilation Droid XRR-3",
-	"Gharj",
+	# EC
+	"Colonel Vorgath",
+	"Warlord Kephess",
 	# KP
 	"Bonethrasher",
 	"Foreman Crusher",
 	"G4-B3 Heavy Fabricator",
 	"Karagga the Unyielding",
-	# EC
-	"Colonel Vorgath",
-	"Warlord Kephess",
-	# Toborro's Courtyard
-	"Golden Fury"
+	# EV
+	"Annihilation Droid XRR-3",
+	"Gharj",
 ))
 
 MOB_BOSS_MAP = {
+	# DP
+	("Dread Larva", "Dread Monster"): "Dread Master Bestia",
+	("Dread Master Bestia", "Dread Master Raptus"): "The Dread Masters",
 	# TFB
-	"Heirad": "The Dread Guard",
-	"Ciphas": "The Dread Guard",
-	"Kel'sara": "The Dread Guard",
+	("Heirad", "Ciphas", "Kel'sara"): "The Dread Guard",
 	# S&V
-	"Captain Horric": "The Cartel Warlords",
-	"Vilus Garr": "The Cartel Warlords",
-	"Tu'chuk": "The Cartel Warlords",
-	"Sunder": "The Cartel Warlords",
+	("Captain Horric", "Vilus Garr", "Tu'chuk", "Sunder"): "The Cartel Warlords",
+	# EC
+	("Firebrand", "Stormcaller"): "Firebrand and Stormcaller Tanks",
+	("Zorn", "Toth"): "Zorn and Toth",
+	# KP
+	("Jarg", "Sorno"): "Jarg & Sorno",
 	# EV
 	"Soa": "The Infernal One",
-	# KP
-	"Jarg": "Jarg & Sorno",
-	"Sorno": "Jarg & Sorno",
-	# EC
-	"Firebrand": "Firebrand and Stormcaller Tanks",
-	"Zorn": "Zorn and Toth",
-	"Toth": "Zorn and Toth",
 }
-MOB_BOSS_MAP = dict((k.lower(), v) for k, v in MOB_BOSS_MAP.iteritems())
 MOB_BOSS_MAP_KEYS = MOB_BOSS_MAP.keys()
 
 # Static Messages

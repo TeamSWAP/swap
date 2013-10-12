@@ -658,21 +658,34 @@ class MainFrame(wx.Frame):
 
 		priority = sorted(fight.priorityTargets.keys(), key=lambda x: fight.priorityTargets[x], reverse=True)[:4]
 		fightName = "  " + (", ".join(map(lambda x:x.name, priority)))
+		fightMobs = map(lambda x:x.name, fight.entities)
 		if not len(priority):
 			return
 		if not fightName.strip():
 			fightName = "<Unknown Fight>"
-		for mob in fight.priorityTargets.keys():
-			if not mob.name:
+
+		# Find boss fights based on single target detection
+		for name in fightMobs:
+			if not name:
 				continue
-			name = mob.name
 			nameLower = name.lower()
 			if nameLower in MOB_BOSS_LIST:
 				fightName = "%s"%name
 				break
-			if nameLower in MOB_BOSS_MAP_KEYS:
-				fightName = "%s"%MOB_BOSS_MAP[nameLower]
-				break
+
+		# Find boss fights based on mob mapping
+		for mobSel in MOB_BOSS_MAP_KEYS:
+			if type(mobSel) is tuple:
+				for mob in mobSel:
+					if mob not in fightMobs:
+						break
+				else:
+					fightName = MOB_BOSS_MAP[mobSel]
+					break
+			else:
+				if mobSel in fightMobs:
+					fightName = MOB_BOSS_MAP[mobSel]
+					break
 		fightTime = time.strftime("%H:%M", time.localtime(fight.enterTime))
 		self.fightSelector.Insert("[%s] "%fightTime + fightName, 1, fight)
 

@@ -255,7 +255,7 @@ class Parser(events.EventSource):
 						else:
 							ent = self._entityLookup[entity]
 						if self.fight and ent not in self.fight.entities:
-							self.fight.entities.append(entity)
+							self.fight.entities.append(ent)
 
 					actor = self._entityLookup[actor]
 					target = self._entityLookup[target]
@@ -363,7 +363,9 @@ class Parser(events.EventSource):
 						for entity in (event.actor, event.target):
 							if entity == self.me or entity.companion:
 								continue
-							priority = event.damage + event.threat + 1
+							priority = event.damage + event.threat
+							if not priority:
+								continue
 							if entity in self.fight.priorityTargets:
 								self.fight.priorityTargets[entity] += priority
 								continue
