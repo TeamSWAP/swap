@@ -75,14 +75,22 @@ MOB_BOSS_MAP = {
 	("Dread Larva", "Dread Monster"): "Dread Master Bestia",
 	("Dread Master Bestia", "Dread Master Raptus"): "The Dread Masters",
 	# TFB
-	("Heirad", "Ciphas", "Kel'sara"): "The Dread Guard",
+	"Heirad": "The Dread Guard",
+	"Ciphas": "The Dread Guard",
+	"Kel'sara": "The Dread Guard",
 	# S&V
-	("Captain Horric", "Vilus Garr", "Tu'chuk", "Sunder"): "The Cartel Warlords",
+	"Captain Horric": "The Cartel Warlords",
+	"Vilus Garr": "The Cartel Warlords",
+	"Tu'chuk": "The Cartel Warlords",
+	"Sunder": "The Cartel Warlords",
 	# EC
-	("Firebrand", "Stormcaller"): "Firebrand and Stormcaller Tanks",
-	("Zorn", "Toth"): "Zorn and Toth",
+	"Firebrand": "Firebrand and Stormcaller Tanks",
+	"Stormcaller": "Firebrand and Stormcaller Tanks",
+	"Zorn": "Zorn and Toth",
+	"Toth": "Zorn and Toth",
 	# KP
-	("Jarg", "Sorno"): "Jarg & Sorno",
+	"Jarg": "Jarg & Sorno",
+	"Sorno": "Jarg & Sorno",
 	# EV
 	"Soa": "The Infernal One",
 }
