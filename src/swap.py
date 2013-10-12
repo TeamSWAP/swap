@@ -719,16 +719,6 @@ if __name__ == '__main__':
 	log_parser.start()
 	log_analyzer.start(log_parser.getThread())
 
-	if config.get('tr0lled') == None:
-		def f():
-			p = log_parser.get()
-			if p.me.name in ('Darith', 'Bev\xec\xecn'):
-				import webbrowser
-				webbrowser.open("http://www.youtube.com/watch?v=gvGyS5j9aFY")
-				config.set('tr0lled', True)
-				config.save()
-		log_parser.get().registerObserver(log_parser.Parser.EVENT_PLAYER_IDENTIFIED, f)
-
 	if os.path.isdir("pending"):
 		prnt("Finalizing update...")
 		
