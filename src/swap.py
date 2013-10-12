@@ -223,6 +223,7 @@ class MainFrame(wx.Frame):
 			self.onParserReady()
 
 		self.dashboardFight = None
+		self.historicRaidFights = {}
 
 		headerBox.Add(self.keyText, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 		headerBox.Add(self.keyBox, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
@@ -565,11 +566,19 @@ class MainFrame(wx.Frame):
 		tabTitle = "Raid"
 		if raid.playerData:
 			tabTitle += " [%d players]"%len(raid.playerData)
+
+		raidData = raid.playerData
+		if self.dashboardFight:
+			fight = self.dashboardFight
+			if fight in self.historicRaidFights and self.historicRaidFights[fight]:
+				raidData = self.historicRaidFights[fight]
+				tabTitle = "Raid [Historic]"
+
 		self.tabs.SetPageText(2, tabTitle)
 
 		rows = []
 		itemMap = []
-		for player in raid.playerData:
+		for player in raidData:
 			connectionType = player['connType']
 			name = player['name'][1:]
 			rows.append([
@@ -649,7 +658,9 @@ class MainFrame(wx.Frame):
 		self.onAnalyzerTick(log_analyzer.get())
 
 	def onFightEnd(self):
-		self.addFightToSelector(log_parser.get().fights[-1])
+		fight = log_parser.get().fights[-1]
+		self.addFightToSelector(fight)
+		self.historicRaidFights[fight] = raid.playerData
 
 	def addFightToSelector(self, fight):
 		for i in range(0, self.fightSelector.GetCount()):
