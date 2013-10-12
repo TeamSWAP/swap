@@ -20,8 +20,8 @@ import sys
 import wx
 
 # Versioning
-VERSION = "0.8.9"
-VERSION_INT = 42
+VERSION = "0.8.9a"
+VERSION_INT = 43
 IS_FROZEN = 'frozen' in dir(sys)
 
 # Server addresses
