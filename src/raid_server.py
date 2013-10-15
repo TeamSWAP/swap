@@ -25,11 +25,9 @@ import log_parser
 import log_analyzer
 import net
 from logging import prnt
+from const import pkt
 from const import *
 from bytestream import ByteStream
-
-REQUEST_UPDATE = 0x5
-REQUEST_RAID_UPDATE = 0x6
 
 class RaidServer(threading.Thread):
 	def __init__(self, sock):
@@ -72,7 +70,7 @@ class RaidServer(threading.Thread):
 						self.clientList.remove(client)
 						continue
 					packetType = data.readByte()
-					if packetType == REQUEST_UPDATE:
+					if packetType == pkt.PLAYER_UPDATE:
 						self.processPlayerUpdate(client, data)
 
 			if now - self.lastRaidUpdateSent > 2 and now - self.lastRaidUpdatePoke < 5:
@@ -132,7 +130,7 @@ class RaidServer(threading.Thread):
 		prnt("RaidServer: Sending raid update...")
 
 		stream = fuzion.ByteStream()
-		stream.writeByte(REQUEST_RAID_UPDATE)
+		stream.writeByte(pkt.RAID_UPDATE)
 
 		playerList = []
 		for client in self.clientList:

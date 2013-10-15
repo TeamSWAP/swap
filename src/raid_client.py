@@ -27,11 +27,9 @@ import log_analyzer
 import raid
 import net
 from logging import prnt
+from const import pkt
 from const import *
 from bytestream import ByteStream
-
-REQUEST_PLAYER_UPDATE = 0x5
-REQUEST_RAID_UPDATE = 0x6
 
 class RaidClient(threading.Thread):
 	def __init__(self, serverNode, failureFunc, successFunc):
@@ -92,7 +90,7 @@ class RaidClient(threading.Thread):
 							sleep(2)
 					continue
 				packet = data.readByte()
-				if packet == REQUEST_RAID_UPDATE:
+				if packet == pkt.RAID_UPDATE:
 					self.gotRaidUpdate(data)
 
 			now = time()
@@ -122,7 +120,7 @@ class RaidClient(threading.Thread):
 		prnt("RaidClient: Sending update...")
 		analyzer = log_analyzer.get()
 		stream = fuzion.ByteStream()
-		stream.writeByte(REQUEST_PLAYER_UPDATE)
+		stream.writeByte(pkt.PLAYER_UPDATE)
 		if analyzer.parser.me:
 			# TODO: Transition to sending only the name
 			stream.writeString("@" + analyzer.parser.me.name)

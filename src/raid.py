@@ -26,13 +26,11 @@ import wx
 import log_parser, log_analyzer
 import net
 from logging import prnt
+from const import pkt
 from const import *
 from bytestream import ByteStream
 from raid_server import RaidServer
 from raid_client import RaidClient
-
-REQUEST_GET_KEY = 0x1
-REQUEST_JOIN_RAID = 0x2
 
 # Global variables
 currentKey = None
@@ -60,7 +58,7 @@ def generateKey(vanityKey, successFunc, failureFunc):
 			return
 
 		stream = ByteStream()
-		stream.writeByte(REQUEST_GET_KEY)
+		stream.writeByte(pkt.GET_KEY)
 		stream.writeString(vanityKey)
 		sock.send(stream.toString())
 
@@ -99,7 +97,7 @@ def joinRaid(key, successFunc, failureFunc):
 
 		# Write data
 		stream = ByteStream()
-		stream.writeByte(REQUEST_JOIN_RAID)
+		stream.writeByte(pkt.JOIN_RAID)
 		stream.writeByte(VERSION_INT)
 		stream.writeString(key)
 		stream.writeString(net.node.getId())
@@ -148,7 +146,7 @@ def getNewServerNode():
 
 	# Write data
 	stream = ByteStream()
-	stream.writeByte(REQUEST_JOIN_RAID)
+	stream.writeByte(pkt.JOIN_RAID)
 	stream.writeByte(VERSION_INT)
 	stream.writeString(currentKey)
 	stream.writeString(net.node.getId())
