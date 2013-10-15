@@ -670,6 +670,7 @@ class MainFrame(wx.Frame):
 		priority = sorted(fight.priorityTargets.keys(), key=lambda x: fight.priorityTargets[x], reverse=True)[:4]
 		fightName = "  " + (", ".join(map(lambda x:x.name, priority)))
 		fightMobs = map(lambda x:x.name, fight.entities)
+		fightIds = map(lambda x:x.entity, fight.entities)
 		if not len(priority):
 			return
 		if not fightName.strip():
@@ -682,6 +683,10 @@ class MainFrame(wx.Frame):
 					if mob not in fightMobs:
 						break
 				else:
+					fightName = MOB_BOSS_MAP[mobSel]
+					break
+			elif mobSel.isdigit():
+				if mobSel in fightIds:
 					fightName = MOB_BOSS_MAP[mobSel]
 					break
 			else:

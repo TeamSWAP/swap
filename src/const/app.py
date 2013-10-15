@@ -73,7 +73,12 @@ MOB_BOSS_LIST = map(str.lower, (
 MOB_BOSS_MAP = {
 	# DP
 	("Dread Larva", "Dread Monster"): "Dread Master Bestia",
-	("Dread Master Bestia", "Dread Master Raptus"): "The Dread Masters",
+	"3273989145231360": "The Dread Masters", # Calphayus
+	"3273984850264064": "The Dread Masters", # Bestia
+	"3273993440198656": "The Dread Masters", # Raptus
+	"3273997735165952": "The Dread Masters", # Tyrans
+	"3303830578003968": "The Dread Masters", # Styrak
+	"3274019210002432": "The Dread Masters", # Brontes
 	# TFB
 	"Heirad": "The Dread Guard",
 	"Ciphas": "The Dread Guard",
