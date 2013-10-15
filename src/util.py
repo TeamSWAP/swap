@@ -18,6 +18,7 @@ import os
 import ctypes
 import ConfigParser
 from ctypes.wintypes import MAX_PATH
+from threading import Lock
 
 import wx
 
@@ -78,3 +79,26 @@ def div(x, y):
 	if y == 0:
 		return 0
 	return float(x) / float(y)
+
+class SimpleThreadInterface(object):
+	"""Provides a simple message queue system using existing
+	methods."""
+
+	def __init__(self):
+		self.__msgs = []
+		self.__lock = Lock()
+
+	def processNextMessage(self):
+		with self.__lock:
+			if not self.__msgs:
+				return
+
+			top = self.__msgs.pop(0)
+		top()
+
+	def callThread(self, func, *args, **kwargs):
+		with self.__lock:
+			self.__msgs.append(lambda:func(*args, **kwargs))
+
+	def wrappedCallThread(self, func, *args, **kwargs):
+		return lambda:self.callThread(func, *args, **kwargs)
