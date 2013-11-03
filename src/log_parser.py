@@ -242,7 +242,7 @@ class Parser(events.EventSource):
 
 					actionTime = logDay + (hour * 3600) + (minute * 60) + second + (ms / 1000.0)
 					# Check for date rollover.
-					if actionTime < logLastActionTime:
+					if actionTime < logLastActionTime and logLastActionTime - actionTime > 43200:
 						logDay += 86400
 						actionTime += 86400
 						prnt("Parser: Rollover, day is now %s"%datetime.datetime.fromtimestamp(logDay))
