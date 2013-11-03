@@ -20,7 +20,7 @@ import sys
 import wx
 
 # Versioning
-VERSION = "0.8.9b"
+VERSION = "0.9.1"
 VERSION_INT = 44
 IS_FROZEN = 'frozen' in dir(sys)
 
