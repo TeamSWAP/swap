@@ -32,72 +32,72 @@ NODE_SERVER_ADDR = "swapserver.no-ip.biz:57681"
 
 # Boss list
 MOB_BOSS_LIST = map(str.lower, (
-	# DF
-	"Nefra, Who Bars the Way",
-	"Gate Commander Draxus",
-	"Grob'thok, Who Feeds the Forge",
-	"Corruptor Zero",
-	"Dread Master Brontes",
-	# DP
-	"Dread Master Bestia",
-	"Dread Master Tyrans",
-	"Dread Master Calphayus",
-	"Dread Master Raptus",
-	# Toborro's Courtyard
-	"Golden Fury"
-	# TFB
-	"The Writhing Horror",
-	"Operator IX",
-	"Kephess the Undying",
-	"The Terror from Beyond",
-	# S&V
-	"Dash'Roode",
-	"Titan 6",
-	"Thrasher",
-	"Operations Chief",
-	"Olok the Shadow",
-	"Dread Master Styrak",
-	# EC
-	"Colonel Vorgath",
-	"Warlord Kephess",
-	# KP
-	"Bonethrasher",
-	"Foreman Crusher",
-	"G4-B3 Heavy Fabricator",
-	"Karagga the Unyielding",
-	# EV
-	"Annihilation Droid XRR-3",
-	"Gharj",
+    # DF
+    "Nefra, Who Bars the Way",
+    "Gate Commander Draxus",
+    "Grob'thok, Who Feeds the Forge",
+    "Corruptor Zero",
+    "Dread Master Brontes",
+    # DP
+    "Dread Master Bestia",
+    "Dread Master Tyrans",
+    "Dread Master Calphayus",
+    "Dread Master Raptus",
+    # Toborro's Courtyard
+    "Golden Fury"
+    # TFB
+    "The Writhing Horror",
+    "Operator IX",
+    "Kephess the Undying",
+    "The Terror from Beyond",
+    # S&V
+    "Dash'Roode",
+    "Titan 6",
+    "Thrasher",
+    "Operations Chief",
+    "Olok the Shadow",
+    "Dread Master Styrak",
+    # EC
+    "Colonel Vorgath",
+    "Warlord Kephess",
+    # KP
+    "Bonethrasher",
+    "Foreman Crusher",
+    "G4-B3 Heavy Fabricator",
+    "Karagga the Unyielding",
+    # EV
+    "Annihilation Droid XRR-3",
+    "Gharj",
 ))
 
 MOB_BOSS_MAP = {
-	# DP
-	("Dread Larva", "Dread Monster"): "Dread Master Bestia",
-	"3273989145231360": "The Dread Masters", # Calphayus
-	"3273984850264064": "The Dread Masters", # Bestia
-	"3273993440198656": "The Dread Masters", # Raptus
-	"3273997735165952": "The Dread Masters", # Tyrans
-	"3303830578003968": "The Dread Masters", # Styrak
-	"3274019210002432": "The Dread Masters", # Brontes
-	# TFB
-	"Heirad": "The Dread Guard",
-	"Ciphas": "The Dread Guard",
-	"Kel'sara": "The Dread Guard",
-	# S&V
-	"Captain Horric": "The Cartel Warlords",
-	"Vilus Garr": "The Cartel Warlords",
-	"Tu'chuk": "The Cartel Warlords",
-	"Sunder": "The Cartel Warlords",
-	# EC
-	"Firebrand": "Firebrand and Stormcaller Tanks",
-	"Stormcaller": "Firebrand and Stormcaller Tanks",
-	"Zorn": "Zorn and Toth",
-	"Toth": "Zorn and Toth",
-	# KP
-	"Jarg": "Jarg & Sorno",
-	"Sorno": "Jarg & Sorno",
-	# EV
-	"Soa": "The Infernal One",
+    # DP
+    ("Dread Larva", "Dread Monster"): "Dread Master Bestia",
+    "3273989145231360": "The Dread Masters", # Calphayus
+    "3273984850264064": "The Dread Masters", # Bestia
+    "3273993440198656": "The Dread Masters", # Raptus
+    "3273997735165952": "The Dread Masters", # Tyrans
+    "3303830578003968": "The Dread Masters", # Styrak
+    "3274019210002432": "The Dread Masters", # Brontes
+    # TFB
+    "Heirad": "The Dread Guard",
+    "Ciphas": "The Dread Guard",
+    "Kel'sara": "The Dread Guard",
+    # S&V
+    "Captain Horric": "The Cartel Warlords",
+    "Vilus Garr": "The Cartel Warlords",
+    "Tu'chuk": "The Cartel Warlords",
+    "Sunder": "The Cartel Warlords",
+    # EC
+    "Firebrand": "Firebrand and Stormcaller Tanks",
+    "Stormcaller": "Firebrand and Stormcaller Tanks",
+    "Zorn": "Zorn and Toth",
+    "Toth": "Zorn and Toth",
+    # KP
+    "Jarg": "Jarg & Sorno",
+    "Sorno": "Jarg & Sorno",
+    # EV
+    "Soa": "The Infernal One",
 }
 MOB_BOSS_MAP_KEYS = MOB_BOSS_MAP.keys()
 

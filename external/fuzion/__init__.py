@@ -21,7 +21,7 @@ from bytestream import ByteStream
 from fuzion import *
 
 def setDebug(func):
-	if not func:
-		fuzion.debug = lambda *x: None
-	else:
-		fuzion.debug = func
+    if not func:
+       fuzion.debug = lambda *x: None
+    else:
+       fuzion.debug = func

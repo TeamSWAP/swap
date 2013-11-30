@@ -25,31 +25,31 @@ import log_analyzer
 from overlays.base import BaseOverlay
 
 class DamageDealtOverlay(BaseOverlay):
-	def __init__(self):
-		BaseOverlay.__init__(self, title="Damage Dealt")
+    def __init__(self):
+       BaseOverlay.__init__(self, title="Damage Dealt")
 
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.get()
-		analyzer.registerFrame(self)
-		self.onAnalyzerTick(analyzer)
+       analyzer = log_analyzer.get()
+       analyzer.registerFrame(self)
+       self.onAnalyzerTick(analyzer)
 
-	def createUI(self):
-		BaseOverlay.createUI(self)
-		
-		# DPS
-		self.damage = wx.StaticText(self.panel, -1, "")
-		self.damage.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.damage.SetSize(self.damage.GetBestSize())
-		self.box.Add(self.damage, 0, wx.ALL, 10)
+    def createUI(self):
+       BaseOverlay.createUI(self)
+       
+       # DPS
+       self.damage = wx.StaticText(self.panel, -1, "")
+       self.damage.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+       self.damage.SetSize(self.damage.GetBestSize())
+       self.box.Add(self.damage, 0, wx.ALL, 10)
 
-	def updateColors(self):
-		self.damage.SetForegroundColour(self.getForegroundColor())
-		BaseOverlay.updateColors(self)
+    def updateColors(self):
+       self.damage.SetForegroundColour(self.getForegroundColor())
+       BaseOverlay.updateColors(self)
 
-	def OnClose(self, event):
-		log_analyzer.get().unregisterFrame(self)
+    def OnClose(self, event):
+       log_analyzer.get().unregisterFrame(self)
 
-	def onAnalyzerTick(self, analyzer):
-		self.damage.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
+    def onAnalyzerTick(self, analyzer):
+       self.damage.SetLabel(locale.format("%d", analyzer.totalDamage, grouping=True))
 

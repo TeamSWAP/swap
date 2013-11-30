@@ -16,11 +16,11 @@
 
 ABILITY_ACTIVATE   = 0x1
 ABILITY_DEACTIVATE = 0x2
-ABILITY_CANCEL     = 0x3
-APPLY_BUFF         = 0x4
-REMOVE_BUFF        = 0x5
-ENTER_COMBAT       = 0x6
-EXIT_COMBAT        = 0x7
-DAMAGE             = 0x8
-DEATH              = 0x9
-HEAL               = 0x10
+ABILITY_CANCEL    = 0x3
+APPLY_BUFF        = 0x4
+REMOVE_BUFF       = 0x5
+ENTER_COMBAT      = 0x6
+EXIT_COMBAT       = 0x7
+DAMAGE           = 0x8
+DEATH            = 0x9
+HEAL            = 0x10

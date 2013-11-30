@@ -25,31 +25,31 @@ import log_analyzer
 from overlays.base import BaseOverlay
 
 class HealingDoneOverlay(BaseOverlay):
-	def __init__(self):
-		BaseOverlay.__init__(self, title="Healing Done")
+    def __init__(self):
+       BaseOverlay.__init__(self, title="Healing Done")
 
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.get()
-		analyzer.registerFrame(self)
-		self.onAnalyzerTick(analyzer)
+       analyzer = log_analyzer.get()
+       analyzer.registerFrame(self)
+       self.onAnalyzerTick(analyzer)
 
-	def createUI(self):
-		BaseOverlay.createUI(self)
-		
-		# Healing
-		self.healing = wx.StaticText(self.panel, -1, "")
-		self.healing.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.healing.SetSize(self.healing.GetBestSize())
-		self.box.Add(self.healing, 0, wx.ALL, 10)
+    def createUI(self):
+       BaseOverlay.createUI(self)
+       
+       # Healing
+       self.healing = wx.StaticText(self.panel, -1, "")
+       self.healing.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+       self.healing.SetSize(self.healing.GetBestSize())
+       self.box.Add(self.healing, 0, wx.ALL, 10)
 
-	def updateColors(self):
-		self.healing.SetForegroundColour(self.getForegroundColor())
-		BaseOverlay.updateColors(self)
+    def updateColors(self):
+       self.healing.SetForegroundColour(self.getForegroundColor())
+       BaseOverlay.updateColors(self)
 
-	def OnClose(self, event):
-		log_analyzer.get().unregisterFrame(self)
+    def OnClose(self, event):
+       log_analyzer.get().unregisterFrame(self)
 
-	def onAnalyzerTick(self, analyzer):
-		self.healing.SetLabel(locale.format("%d", analyzer.totalHealing, grouping=True))
+    def onAnalyzerTick(self, analyzer):
+       self.healing.SetLabel(locale.format("%d", analyzer.totalHealing, grouping=True))
 

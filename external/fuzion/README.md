@@ -12,28 +12,28 @@ Examples
 
 Binding and Listening on a port
 -------------------------------
-		import fuzion
+       import fuzion
 
-		node = fuzion.Node()
-		node.setNodeServer("1.1.1.1:45000")
+       node = fuzion.Node()
+       node.setNodeServer("1.1.1.1:45000")
 
-		# Ports in Fuzion are not integers, but text tags
-		port = node.bind("myapp:port")
+       # Ports in Fuzion are not integers, but text tags
+       port = node.bind("myapp:port")
 
-		connection = port.accept()
-		connection.send("Hiya!")
-		connection.close()
+       connection = port.accept()
+       connection.send("Hiya!")
+       connection.close()
 
 Connecting to a port
 --------------------
-		import fuzion
+       import fuzion
 
-		node = fuzion.Node()
-		node.setNodeServer("1.1.1.1:45000")
+       node = fuzion.Node()
+       node.setNodeServer("1.1.1.1:45000")
 
-		connection = node.connect("<hosting node id>", "myapp:port")
-		print connection.recv(raw=True)
-		connection.close()
+       connection = node.connect("<hosting node id>", "myapp:port")
+       print connection.recv(raw=True)
+       connection.close()
 
 License
 -------

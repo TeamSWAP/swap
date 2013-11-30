@@ -30,50 +30,50 @@ from overlays.base_list import BaseListOverlay
 from logging import prnt
 
 class RaidThreatOverlay(BaseListOverlay):
-	def __init__(self):
-		BaseListOverlay.__init__(self, title="Raid Threat", size=(300, 150))
+    def __init__(self):
+       BaseListOverlay.__init__(self, title="Raid Threat", size=(300, 150))
 
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.get()
-		analyzer.registerFrame(self)
-		self.onAnalyzerTick(analyzer)
+       analyzer = log_analyzer.get()
+       analyzer.registerFrame(self)
+       self.onAnalyzerTick(analyzer)
 
-	def createUI(self):
-		BaseListOverlay.createUI(self)
+    def createUI(self):
+       BaseListOverlay.createUI(self)
 
-		self.setColumns(["Player", "Threat", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+       self.setColumns(["Player", "Threat", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
-	def OnClose(self, event):
-		if event.GetEventObject() == self:
-			log_analyzer.get().unregisterFrame(self)
+    def OnClose(self, event):
+       if event.GetEventObject() == self:
+          log_analyzer.get().unregisterFrame(self)
 
-	def onAnalyzerTick(self, analyzer):
-		self.beginBatch()
-		self.clearList()
+    def onAnalyzerTick(self, analyzer):
+       self.beginBatch()
+       self.clearList()
 
-		index = 0
-		raidTotalThreat = 0
-		for player in raid.playerData:
-			if player['totalThreat'] < 0:
-				continue
-			raidTotalThreat += player['totalThreat']
+       index = 0
+       raidTotalThreat = 0
+       for player in raid.playerData:
+          if player['totalThreat'] < 0:
+             continue
+          raidTotalThreat += player['totalThreat']
 
-		for player in sorted(raid.playerData, key=lambda x:x['totalThreat'], reverse=True):
-			if player['totalThreat'] == 0:
-				continue
+       for player in sorted(raid.playerData, key=lambda x:x['totalThreat'], reverse=True):
+          if player['totalThreat'] == 0:
+             continue
 
-			percent = 0
-			if player['totalThreat'] >  0:
-				percent = util.div(player['totalThreat'], raidTotalThreat)
+          percent = 0
+          if player['totalThreat'] >  0:
+             percent = util.div(player['totalThreat'], raidTotalThreat)
 
-			color = self.getForegroundColor()
-			if player['name'] == analyzer.parser.me:
-				color = config.getColor("overlayListSelfColor")
+          color = self.getForegroundColor()
+          if player['name'] == analyzer.parser.me:
+             color = config.getColor("overlayListSelfColor")
 
-			self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), percent], color)
+          self.addRow([player['name'][1:], locale.format("%d", player['totalThreat'], grouping=True), percent], color)
 
-			index += 1
-		self.endBatch()
-		self.panel.Layout()
+          index += 1
+       self.endBatch()
+       self.panel.Layout()
 

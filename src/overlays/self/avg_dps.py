@@ -27,31 +27,31 @@ from overlays.base import BaseOverlay
 from logging import prnt
 
 class AverageDPSOverlay(BaseOverlay):
-	def __init__(self):
-		BaseOverlay.__init__(self, title="Avg. DPS")
+    def __init__(self):
+       BaseOverlay.__init__(self, title="Avg. DPS")
 
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-		analyzer = log_analyzer.get()
-		analyzer.registerFrame(self)
-		self.onAnalyzerTick(analyzer)
+       analyzer = log_analyzer.get()
+       analyzer.registerFrame(self)
+       self.onAnalyzerTick(analyzer)
 
-	def createUI(self):
-		BaseOverlay.createUI(self)
+    def createUI(self):
+       BaseOverlay.createUI(self)
 
-		# DPS
-		self.dps = wx.StaticText(self.panel, -1, "2100.35")
-		self.dps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-		self.dps.SetSize(self.dps.GetBestSize())
-		self.box.Add(self.dps, 0, wx.ALL, 10)
+       # DPS
+       self.dps = wx.StaticText(self.panel, -1, "2100.35")
+       self.dps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+       self.dps.SetSize(self.dps.GetBestSize())
+       self.box.Add(self.dps, 0, wx.ALL, 10)
 
-	def updateColors(self):
-		self.dps.SetForegroundColour(self.getForegroundColor())
-		BaseOverlay.updateColors(self)
+    def updateColors(self):
+       self.dps.SetForegroundColour(self.getForegroundColor())
+       BaseOverlay.updateColors(self)
 
-	def OnClose(self, event):
-		log_analyzer.get().unregisterFrame(self)
+    def OnClose(self, event):
+       log_analyzer.get().unregisterFrame(self)
 
-	def onAnalyzerTick(self, analyzer):
-		self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
+    def onAnalyzerTick(self, analyzer):
+       self.dps.SetLabel(locale.format("%.2f", analyzer.avgDps, grouping=True))
 
