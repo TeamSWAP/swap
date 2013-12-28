@@ -69,7 +69,7 @@ class ChangelogDialog(wx.Dialog):
 
 class MainFrame(wx.Frame):
     def __init__(self):
-       wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(700, 520))
+       wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(900, 520))
 
        if not util.isCombatLoggingEnabled():
           dlg = wx.MessageDialog(self, MSG_COMBAT_LOGGING_DISABLED_TEXT, MSG_COMBAT_LOGGING_DISABLED_TITLE, wx.OK | wx.CANCEL | wx.ICON_ERROR)
@@ -92,7 +92,7 @@ class MainFrame(wx.Frame):
           changelogDialog.Destroy()
           os.remove('_changelog.txt')
 
-       self.SetMinSize((700, 520))
+       self.SetMinSize((900, 520))
 
        if IS_FROZEN:
           self.SetIcon(wx.Icon('swap.exe', wx.BITMAP_TYPE_ICO))
@@ -185,7 +185,9 @@ class MainFrame(wx.Frame):
        # UI
        self.panel = wx.Panel(self)
        self.panel.SetDoubleBuffered(True)
+       self.horzBox = wx.BoxSizer(wx.HORIZONTAL)
        self.box = wx.BoxSizer(wx.VERTICAL)
+       self.horzBox.Add(self.box, 1, wx.EXPAND)
 
        # -----------------------------------
        # Header
@@ -282,13 +284,23 @@ class MainFrame(wx.Frame):
 
        self.box.Add(self.tabs, 1, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
-       self.panel.SetSizer(self.box)
+       # -----------------------------------
+       # Console
+       # -----------------------------------
+       self.console = wx.TextCtrl(self.panel, style=wx.TE_MULTILINE |
+            wx.TE_READONLY, size=(200, -1))
+       self.console.SetFont(wx.Font(7, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+       self.horzBox.Add(self.console, 0, wx.EXPAND | wx.ALL & ~wx.LEFT, 10)
+
+       self.panel.SetSizer(self.horzBox)
        self.panel.Layout()
 
        # Events
        self.Bind(wx.EVT_CLOSE, self.onClose)
 
        log_analyzer.get().registerFrame(self)
+
+       self.addToConsole("SWAP v%s started."%(VERSION))
 
     def onPreferences(self, event):
        dialog = preferences.PreferencesDialog(self)
@@ -355,6 +367,8 @@ class MainFrame(wx.Frame):
        if self.keyVanityCheck.IsChecked():
           vanityKey = self.keyBox.GetValue()
 
+       self.addToConsole("Requesting key from server...")
+
        self.keyStatus.SetLabel("Generating key...")
        self.keyBox.SetEditable(False)
        self.keyJoinButton.Disable()
@@ -364,6 +378,8 @@ class MainFrame(wx.Frame):
        raid.generateKey(vanityKey, self.onGotKey, self.onFailedToGetKey)
 
     def onGotKey(self, key):
+       self.addToConsole("Key retrieved.")
+
        self.keyBox.SetValue(key)
        self.keyBox.SetEditable(True)
        self.keyStatus.SetLabel("")
@@ -375,6 +391,9 @@ class MainFrame(wx.Frame):
        dlg = wx.MessageDialog(self, MSG_FAILED_KEY_GENERATION_TEXT, MSG_FAILED_KEY_GENERATION_TITLE, wx.OK)
        result = dlg.ShowModal()
        dlg.Destroy()
+
+       self.addToConsole("Failed to retrieve key.")
+
        self.keyBox.SetEditable(True)
        self.keyStatus.SetLabel("")
        self.keyJoinButton.Enable()
@@ -385,6 +404,8 @@ class MainFrame(wx.Frame):
        if not raid.isInRaid():
           # Encode key to ascii (for wx unicode)
           key = self.keyBox.GetValue().encode('ascii')
+
+          self.addToConsole("Joining raid with key '%s'..."%(key))
 
           self.keyStatus.SetLabel("Joining raid...")
           self.keyBox.SetEditable(False)
@@ -401,6 +422,8 @@ class MainFrame(wx.Frame):
        self.keyJoinButton.SetLabel("Leave Raid")
        self.keyJoinButton.Enable()
        self.keyStatus.SetLabel("")
+
+       self.addToConsole("Joined raid.")
 
        config.set("lastRaidKey", self.keyBox.GetValue())
 
@@ -422,6 +445,8 @@ class MainFrame(wx.Frame):
        result = dlg.ShowModal()
        dlg.Destroy()
        
+       self.addToConsole("Failed to join raid (reason is %s)."%(reason))
+
        self.keyStatus.SetLabel("")
        self.keyBox.SetEditable(True)
        self.keyJoinButton.Enable()
@@ -430,11 +455,17 @@ class MainFrame(wx.Frame):
        self.keyVanityCheck.Enable()
 
     def onLeftRaid(self):
+       self.addToConsole("Left raid.")
+
        self.keyJoinButton.SetLabel("Join Raid")
        self.keyStatus.SetLabel("")
        self.keyBox.SetEditable(True)
        self.keyGenerateButton.Enable()
        self.keyVanityCheck.Enable()
+
+    def addToConsole(self, text):
+       wx.CallAfter(self.console.AppendText, time.strftime("[%H:%M] ") +
+            text + "\n")
 
     def createReportView(self, parent, panelParent):
        self.reportView = ListBox(panelParent, ["Name", "Value"],
