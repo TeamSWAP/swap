@@ -242,13 +242,13 @@ class MainFrame(wx.Frame):
 
        self.tabs = wx.Notebook(self.panel)
 
-       # Create Grid tab
-       self.gridPanel = wx.Panel(self.tabs)
-       self.gridSizer = wx.BoxSizer(wx.VERTICAL)
-       self.gridPanel.SetSizer(self.gridSizer)
-       self.gridPanel.Layout()
-       self.createGridView(self.gridSizer, self.gridPanel)
-       self.tabs.AddPage(self.gridPanel, "Grid")
+       # Create Overview tab
+       self.overviewPanel = wx.Panel(self.tabs)
+       self.overviewSizer = wx.BoxSizer(wx.VERTICAL)
+       self.overviewPanel.SetSizer(self.overviewSizer)
+       self.overviewPanel.Layout()
+       self.createOverviewView(self.overviewSizer, self.overviewPanel)
+       self.tabs.AddPage(self.overviewPanel, "Overview")
 
        # Create Report tab
        self.reportPanel = wx.Panel(self.tabs)
@@ -516,9 +516,9 @@ class MainFrame(wx.Frame):
 
        parent.Add(self.targetsView, 1, wx.EXPAND, 0)
 
-    def createGridView(self, parent, panelParent):
-       self.detailGrid = wx.GridSizer(3, 3, 20, 20)
-       self.gridUpdaters = []
+    def createOverviewView(self, parent, panelParent):
+       self.overviewGrid = wx.GridSizer(3, 3, 20, 20)
+       self.overviewUpdaters = []
 
        def createDetailBlock(name, getter):
           detailBlock = wx.BoxSizer(wx.VERTICAL)
@@ -526,16 +526,15 @@ class MainFrame(wx.Frame):
           header = wx.StaticText(panelParent, -1, name)
           header.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
           header.SetSize(header.GetBestSize())
-          detailBlock.Add(header, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.BOTTOM), 10)
+          detailBlock.Add(header, 0, wx.ALL & ~wx.BOTTOM, 10)
 
           text = wx.StaticText(panelParent, -1, "N/A")
           text.SetFont(wx.Font(24, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
           text.SetSize(text.GetBestSize())
-          detailBlock.Add(text, 0, wx.ALIGN_CENTER | (wx.ALL & ~wx.TOP), 10)
+          detailBlock.Add(text, 0, wx.ALL & ~wx.TOP, 10)
 
-          self.detailGrid.Add(detailBlock, 0, wx.ALIGN_CENTER)
-
-          self.gridUpdaters.append((lambda t,x: lambda a: t.SetLabel(getter(a)))(text, getter))
+          self.overviewGrid.Add(detailBlock)
+          self.overviewUpdaters.append((lambda t,x: lambda a: t.SetLabel(getter(a)))(text, getter))
 
        createDetailBlock("Damage Dealt", lambda a: locale.format("%d", a.totalDamage, grouping=True))
        createDetailBlock("Damage Taken", lambda a: locale.format("%d", a.totalDamageTaken, grouping=True))
@@ -547,7 +546,14 @@ class MainFrame(wx.Frame):
        createDetailBlock("Rolling DPS", lambda a: locale.format("%.2f", a.dps, grouping=True))
        createDetailBlock("Rolling HPS", lambda a: locale.format("%.2f", a.hps, grouping=True))
 
-       parent.Add(self.detailGrid, 0, wx.EXPAND | wx.ALL, 10)
+       # Create user label
+       self.overviewUsername = wx.StaticText(panelParent, -1, "INITIALIZING...")
+       self.overviewUsername.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+       self.overviewUsername.SetSize(self.overviewUsername.GetBestSize())
+       parent.Add(self.overviewUsername, 0, wx.ALL & ~wx.BOTTOM, 10)
+       parent.Add(wx.StaticLine(panelParent), 0, wx.EXPAND | wx.ALL, 10)
+
+       parent.Add(self.overviewGrid, 0, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
 
     def updateOverlayList(self):
        for name, item in self.m_overlays.iteritems():
@@ -576,7 +582,7 @@ class MainFrame(wx.Frame):
           info = analyzer
 
        self.updateReportView(info)
-       self.updateGridView(info)
+       self.updateOverviewView(info)
        self.updateRaidView(info)
        self.updateAbilityView(info)
        self.updateTargetsView(info)
@@ -588,10 +594,11 @@ class MainFrame(wx.Frame):
           rows.append([name, getter(analyzer)])
        self.reportView.setRows(rows)
 
-    def updateGridView(self, analyzer):
-       for analyzerUpdater in self.gridUpdaters:
+    def updateOverviewView(self, analyzer):
+       self.overviewUsername.SetLabel(analyzer.parser.me.name.upper())
+       for analyzerUpdater in self.overviewUpdaters:
           analyzerUpdater(analyzer)
-       self.gridPanel.Layout()
+       self.overviewPanel.Layout()
 
     def updateRaidView(self, analyzer):
        tabTitle = "Raid"
