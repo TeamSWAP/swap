@@ -104,10 +104,10 @@ overlayList = [
        'class': RaidDamageTakenOverlay
     },
     {
-       'name': 'raid_avg_dps',
-       'title': 'Average DPS',
+       'name': 'raid_dps',
+       'title': 'DPS',
        'category': 'raid',
-       'class': RaidAvgDPSOverlay
+       'class': RaidDPSOverlay
     },
     { 'name': '-', 'category': 'raid' },
     {
@@ -123,10 +123,10 @@ overlayList = [
        'class': RaidHealingReceivedOverlay
     },
     {
-       'name': 'raid_avg_hps',
-       'title': 'Average HPS',
+       'name': 'raid_hps',
+       'title': 'HPS',
        'category': 'raid',
-       'class': RaidAvgHPSOverlay
+       'class': RaidHPSOverlay
     },
     { 'name': '-', 'category': 'raid' },
     {

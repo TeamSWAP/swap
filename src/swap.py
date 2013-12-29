@@ -492,8 +492,8 @@ class MainFrame(wx.Frame):
 
     def createRaidView(self, parent, panelParent):
        self.raidView = ListBox(panelParent,
-          ["", "Player", "Damage", "Damage Taken", "Avg. DPS", "Healing",
-             "Healing Received", "Avg. HPS", "Threat"],
+          ["", "Player", "Damage", "Damage Taken", "DPS", "Healing",
+             "Healing Received", "HPS", "Threat"],
           [0, 100, 80, 80, 70, 80, 80, 70, 80], style=wx.LC_REPORT | wx.NO_BORDER)
        self.raidView.SortListItems(1)
 
@@ -538,10 +538,10 @@ class MainFrame(wx.Frame):
 
        createDetailBlock("Damage Dealt", lambda a: locale.format("%d", a.totalDamage, grouping=True))
        createDetailBlock("Damage Taken", lambda a: locale.format("%d", a.totalDamageTaken, grouping=True))
-       createDetailBlock("Avg. DPS", lambda a: locale.format("%.2f", a.avgDps, grouping=True))
+       createDetailBlock("DPS", lambda a: locale.format("%.2f", a.avgDps, grouping=True))
        createDetailBlock("Healing Done", lambda a: locale.format("%d", a.totalHealing, grouping=True))
        createDetailBlock("Healing Received", lambda a: locale.format("%d", a.totalHealingReceived, grouping=True))
-       createDetailBlock("Avg. HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
+       createDetailBlock("HPS", lambda a: locale.format("%.2f", a.avgHps, grouping=True))
        createDetailBlock("Combat Duration", lambda a: util.formatDuration(a.combatDurationLinear))
        createDetailBlock("Rolling DPS", lambda a: locale.format("%.2f", a.dps, grouping=True))
        createDetailBlock("Rolling HPS", lambda a: locale.format("%.2f", a.hps, grouping=True))
