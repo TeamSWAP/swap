@@ -64,7 +64,7 @@ class RaidDamageTakenOverlay(BaseListOverlay):
           percent = util.div(player['totalDamageTaken'], raidTotalDamageTaken)
 
           color = self.getForegroundColor()
-          if player['name'] == analyzer.parser.me:
+          if player['name'] == analyzer.parser.me.rawName:
              color = config.getColor("overlayListSelfColor")
 
           self.addRow([player['name'][1:], locale.format("%d", player['totalDamageTaken'], grouping=True), percent], color)

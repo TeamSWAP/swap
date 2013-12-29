@@ -66,14 +66,14 @@ class RaidHPSOverlay(BaseListOverlay):
              percent = "%.2f"%0
 
           color = self.getForegroundColor()
-          if player['name'] == analyzer.parser.me:
+          if player['name'] == analyzer.parser.me.rawName:
              color = config.getColor("overlayListSelfColor")
 
           hps = player['avgHps']
           percent = util.div(player['totalHealing'], raidTotalHealing)
 
           color = self.getForegroundColor()
-          if player['name'] == analyzer.parser.me:
+          if player['name'] == analyzer.parser.me.rawName:
              color = config.getColor("overlayListSelfColor")
 
           self.addRow([player['name'][1:], locale.format("%.2f", hps, grouping=True), percent], color)
