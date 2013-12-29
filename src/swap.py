@@ -596,7 +596,7 @@ class MainFrame(wx.Frame):
        self.reportView.setRows(rows)
 
     def updateOverviewView(self, analyzer):
-       self.overviewUsername.SetLabel(analyzer.parser.me.name.upper())
+       self.overviewUsername.SetLabel(log_parser.get().me.name.upper())
        for analyzerUpdater in self.overviewUpdaters:
           analyzerUpdater(analyzer)
        self.overviewPanel.Layout()
