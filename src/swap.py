@@ -69,7 +69,7 @@ class ChangelogDialog(wx.Dialog):
 
 class MainFrame(wx.Frame):
     def __init__(self):
-       wx.Frame.__init__(self, None, title="SWAP v%s"%VERSION, size=(900, 520))
+       wx.Frame.__init__(self, None, title="SWAP %s"%VERSION, size=(900, 520))
 
        if not util.isCombatLoggingEnabled():
           dlg = wx.MessageDialog(self, MSG_COMBAT_LOGGING_DISABLED_TEXT, MSG_COMBAT_LOGGING_DISABLED_TITLE, wx.OK | wx.CANCEL | wx.ICON_ERROR)
@@ -300,7 +300,7 @@ class MainFrame(wx.Frame):
 
        log_analyzer.get().registerFrame(self)
 
-       self.addToConsole("SWAP v%s started."%(VERSION))
+       self.addToConsole("SWAP %s started."%(VERSION))
 
     def onPreferences(self, event):
        dialog = preferences.PreferencesDialog(self)
@@ -337,7 +337,7 @@ class MainFrame(wx.Frame):
     def onAbout(self, event):
        about = wx.AboutDialogInfo()
        about.SetName("SWAP")
-       about.SetVersion("v%s"%VERSION)
+       about.SetVersion(VERSION)
        about.SetDescription("""SWAP is a open-source SWTOR combat log parser and analyzer.""")
        about.SetCopyright("(C) 2013 TeamSWAP")
        about.SetWebSite("http://github.com/TeamSWAP/swap/wiki")
@@ -573,9 +573,9 @@ class MainFrame(wx.Frame):
           return
 
        if analyzer.parser.me:
-          self.SetTitle("SWAP v%s - %s"%(VERSION, analyzer.parser.me.name))
+          self.SetTitle("SWAP %s - %s"%(VERSION, analyzer.parser.me.name))
        else:
-          self.SetTitle("SWAP v%s"%VERSION)
+          self.SetTitle("SWAP %s"%VERSION)
 
        if self.dashboardFight and self.dashboardFight in analyzer.historicFights:
           info = analyzer.historicFights[self.dashboardFight]
@@ -780,7 +780,7 @@ if __name__ == '__main__':
           subprocess.Popen(["updater.exe"], close_fds=True)
           exit()
 
-    prnt("SWAP v%s booting up..."%VERSION)
+    prnt("SWAP %s booting up..."%VERSION)
 
     net.init()
     config.load()
