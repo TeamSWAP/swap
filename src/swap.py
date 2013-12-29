@@ -548,12 +548,13 @@ class MainFrame(wx.Frame):
 
        # Create user label
        self.overviewUsername = wx.StaticText(panelParent, -1, "INITIALIZING...")
-       self.overviewUsername.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+       self.overviewUsername.SetFont(wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
        self.overviewUsername.SetSize(self.overviewUsername.GetBestSize())
-       parent.Add(self.overviewUsername, 0, wx.ALL & ~wx.BOTTOM, 10)
-       parent.Add(wx.StaticLine(panelParent), 0, wx.EXPAND | wx.ALL, 10)
+       parent.AddSpacer(10)
+       parent.Add(self.overviewUsername, 0, wx.LEFT | wx.RIGHT, 20)
+       parent.Add(wx.StaticLine(panelParent), 0, wx.EXPAND | wx.ALL & ~wx.BOTTOM, 10)
 
-       parent.Add(self.overviewGrid, 0, wx.EXPAND | wx.ALL & ~wx.TOP, 10)
+       parent.Add(self.overviewGrid, 0, wx.EXPAND | wx.ALL, 10)
 
     def updateOverlayList(self):
        for name, item in self.m_overlays.iteritems():
