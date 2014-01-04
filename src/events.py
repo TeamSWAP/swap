@@ -18,19 +18,19 @@ from logging import prnt
 
 class EventSource(object):
     def __init__(self):
-       self.observers = {}
+        self.observers = {}
 
     def registerObserver(self, event, observer):
-       if not event in self.observers:
-          self.observers[event] = []
-       self.observers[event].append(observer)
+        if not event in self.observers:
+            self.observers[event] = []
+        self.observers[event].append(observer)
 
     def unregisterObserver(self, event, observer):
-       if event in self.observers and observer in self.observers[event]:
-          del self.observers[event]
+        if event in self.observers and observer in self.observers[event]:
+            del self.observers[event]
 
     def notifyEvent(self, event, *args, **kwargs):
-       if event in self.observers:
-          observers = self.observers[event]
-          for observer in observers:
-             observer(*args, **kwargs)
+        if event in self.observers:
+            observers = self.observers[event]
+            for observer in observers:
+                observer(*args, **kwargs)

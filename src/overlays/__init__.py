@@ -161,14 +161,14 @@ def spawnOverlay(name):
     global overlayList, openOverlays
     class_ = None
     for overlay in overlayList:
-       if overlay['name'] == '-':
-          continue
-       if overlay['name'] == name:
-          class_ = overlay['class']
-          break
+        if overlay['name'] == '-':
+            continue
+        if overlay['name'] == name:
+            class_ = overlay['class']
+            break
     if class_ == None:
-       prnt("ERROR: No such overlay as '%s'"%name)
-       return
+        prnt("ERROR: No such overlay as '%s'"%name)
+        return
     inst = class_()
     inst.Show()
     openOverlays[name] = inst
@@ -176,8 +176,8 @@ def spawnOverlay(name):
 def killOverlay(name):
     global openOverlays
     if not (name in openOverlays.keys()):
-       prnt("ERROR: Overlay '%s' not open."%name)
-       return
+        prnt("ERROR: Overlay '%s' not open."%name)
+        return
     overlay = openOverlays[name]
     overlay.Destroy()
     del openOverlays[name]
@@ -186,32 +186,32 @@ def killAllOverlays():
     prnt("Closing overlays...")
     global openOverlays
     for name, overlay in openOverlays.iteritems():
-       overlay.Destroy()
+        overlay.Destroy()
     openOverlays = {}
 
 def isOverlayOpen(targetName):
     for name, overlay in openOverlays.iteritems():
-       if name == targetName:
-          return True
+        if name == targetName:
+            return True
     return False
 
 def toggleOverlay(name):
     global openOverlays
     if name in openOverlays.keys():
-       killOverlay(name)
+        killOverlay(name)
     else:
-       spawnOverlay(name)
+        spawnOverlay(name)
 
 def toggleDarkTheme():
     global openOverlays
     if isDarkTheme():
-       config.set("overlayBgColor", 0xFFFFFF)
-       config.set("overlayFgColor", 0x000000)
+        config.set("overlayBgColor", 0xFFFFFF)
+        config.set("overlayFgColor", 0x000000)
     else:
-       config.set("overlayBgColor", 0x000000)
-       config.set("overlayFgColor", 0xFFFFFF)
+        config.set("overlayBgColor", 0x000000)
+        config.set("overlayFgColor", 0xFFFFFF)
     for overlay in openOverlays.values():
-       overlay.updateColors()
+        overlay.updateColors()
 
 def isDarkTheme():
     return config.get("overlayBgColor") == 0
@@ -227,7 +227,7 @@ def isOverlayBeingDragged():
 def resetOverlays():
     prnt("Resetting overlays...")
     for overlay in overlayList:
-       if overlay['name'] == '-':
-          continue
-       config.remove("overlay_%s_pos"%overlay['class'].__name__)
-       config.remove("overlay_%s_size"%overlay['class'].__name__)
+        if overlay['name'] == '-':
+            continue
+        config.remove("overlay_%s_pos"%overlay['class'].__name__)
+        config.remove("overlay_%s_size"%overlay['class'].__name__)

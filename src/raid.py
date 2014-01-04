@@ -48,31 +48,31 @@ def generateKey(vanityKey, successFunc, failureFunc):
     vanityKey = vanityKey if vanityKey else ""
 
     def thread():
-       sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-       try:
-          sock.connect(PARSER_SERVER_ADDR)
-       except:
-          prnt("Failed to connect:")
-          prnt(traceback.format_exc())
-          wx.CallAfter(failureFunc)
-          return
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.connect(PARSER_SERVER_ADDR)
+        except:
+            prnt("Failed to connect:")
+            prnt(traceback.format_exc())
+            wx.CallAfter(failureFunc)
+            return
 
-       stream = ByteStream()
-       stream.writeByte(pkt.GET_KEY)
-       stream.writeString(vanityKey)
-       sock.send(stream.toString())
+        stream = ByteStream()
+        stream.writeByte(pkt.GET_KEY)
+        stream.writeString(vanityKey)
+        sock.send(stream.toString())
 
-       data = sock.recv(1024)
-       sock.close()
+        data = sock.recv(1024)
+        sock.close()
 
-       stream = ByteStream(data)
-       
-       success = stream.readByte() == 1
-       if success:
-          key = stream.readString()
-          wx.CallAfter(successFunc, key)
-       else:
-          wx.CallAfter(failureFunc)
+        stream = ByteStream(data)
+
+        success = stream.readByte() == 1
+        if success:
+            key = stream.readString()
+            wx.CallAfter(successFunc, key)
+        else:
+            wx.CallAfter(failureFunc)
 
     t = threading.Thread(target=thread)
     t.daemon = True
@@ -80,53 +80,53 @@ def generateKey(vanityKey, successFunc, failureFunc):
 
 def joinRaid(key, successFunc, failureFunc):
     def thread():
-       global currentKey, raidServer, raidClient
+        global currentKey, raidServer, raidClient
 
-       net.node.waitForNS()
+        net.node.waitForNS()
 
-       # Connect to server...
-       sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-       sock.settimeout(5)
-       try:
-          sock.connect(PARSER_SERVER_ADDR)
-       except:
-          prnt("Failed to connect:")
-          prnt(traceback.format_exc())
-          wx.CallAfter(failureFunc, "connect_failed")
-          return
+        # Connect to server...
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
+        try:
+            sock.connect(PARSER_SERVER_ADDR)
+        except:
+            prnt("Failed to connect:")
+            prnt(traceback.format_exc())
+            wx.CallAfter(failureFunc, "connect_failed")
+            return
 
-       # Write data
-       stream = ByteStream()
-       stream.writeByte(pkt.JOIN_RAID)
-       stream.writeByte(VERSION_INT)
-       stream.writeString(key)
-       stream.writeString(net.node.getId())
-       sock.send(stream.toString())
+        # Write data
+        stream = ByteStream()
+        stream.writeByte(pkt.JOIN_RAID)
+        stream.writeByte(VERSION_INT)
+        stream.writeString(key)
+        stream.writeString(net.node.getId())
+        sock.send(stream.toString())
 
-       # Read data
-       data = sock.recv(1024)
-       stream = ByteStream(data)
-       
-       # Process data
-       success = stream.readBoolean()
-       if success:
-          currentKey = key
-          isHost = stream.readBoolean()
-          serverNode = net.node.getId()
-          if isHost:
-             prnt("Raid: Joined raid, became host")
-             raidServer = RaidServer(sock)
-             raidServer.start()
-          else:
-             prnt("Raid: Joined raid, didn't become host")
-             serverNode = stream.readString()
-             sock.close()
-          raidClient = RaidClient(serverNode, failureFunc, successFunc)
-          raidClient.start()
-       else:
-          reason = stream.readString()
-          wx.CallAfter(failureFunc, reason)
-          sock.close()
+        # Read data
+        data = sock.recv(1024)
+        stream = ByteStream(data)
+
+        # Process data
+        success = stream.readBoolean()
+        if success:
+            currentKey = key
+            isHost = stream.readBoolean()
+            serverNode = net.node.getId()
+            if isHost:
+                prnt("Raid: Joined raid, became host")
+                raidServer = RaidServer(sock)
+                raidServer.start()
+            else:
+                prnt("Raid: Joined raid, didn't become host")
+                serverNode = stream.readString()
+                sock.close()
+            raidClient = RaidClient(serverNode, failureFunc, successFunc)
+            raidClient.start()
+        else:
+            reason = stream.readString()
+            wx.CallAfter(failureFunc, reason)
+            sock.close()
 
     t = threading.Thread(target=thread)
     t.daemon = True
@@ -138,11 +138,11 @@ def getNewServerNode():
     # Connect to server...
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-       sock.connect(PARSER_SERVER_ADDR)
+        sock.connect(PARSER_SERVER_ADDR)
     except:
-       prnt("Failed to connect:")
-       prnt(traceback.format_exc())
-       return
+        prnt("Failed to connect:")
+        prnt(traceback.format_exc())
+        return
 
     # Write data
     stream = ByteStream()
@@ -155,30 +155,30 @@ def getNewServerNode():
     # Read data
     data = sock.recv(1024)
     stream = ByteStream(data)
-    
+
     # Process data
     success = stream.readBoolean()
     if success:
-       isHost = stream.readBoolean()
-       serverNode = net.node.getId()
-       if isHost:
-          prnt("Raid: Became host")
-          raidServer = RaidServer(sock)
-          raidServer.start()
-       else:
-          prnt("Raid: Didn't become host")
-          serverNode = stream.readString()
-          sock.close()
-       return serverNode
+        isHost = stream.readBoolean()
+        serverNode = net.node.getId()
+        if isHost:
+            prnt("Raid: Became host")
+            raidServer = RaidServer(sock)
+            raidServer.start()
+        else:
+            prnt("Raid: Didn't become host")
+            serverNode = stream.readString()
+            sock.close()
+        return serverNode
     return None
 
 def leaveRaid():
     global currentKey, playerData
 
     if raidClient != None:
-       raidClient.stop()
+        raidClient.stop()
     if raidServer != None:
-       raidServer.stop()
+        raidServer.stop()
 
     currentKey = None
     wasInCombat = False
@@ -188,18 +188,18 @@ def leaveRaid():
 def onNodeDisconnected():
     global currentKey
     if currentKey != None:
-       prnt("Raid: Fuzion node disconnected, dropping server and pausing client.")
-       if raidClient != None:
-          raidClient.pause()
-       if raidServer != None:
-          raidServer.stop()
+        prnt("Raid: Fuzion node disconnected, dropping server and pausing client.")
+        if raidClient != None:
+            raidClient.pause()
+        if raidServer != None:
+            raidServer.stop()
 
 def onNodeReconnected():
     global currentKey
     if currentKey != None:
-       prnt("Raid: Fuzion node reconnected, resuming client.")
-       if raidClient != None:
-          raidClient.resume()
+        prnt("Raid: Fuzion node reconnected, resuming client.")
+        if raidClient != None:
+            raidClient.resume()
 
 def isInRaid():
     return currentKey != None

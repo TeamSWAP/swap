@@ -29,197 +29,197 @@ class BaseOverlay(wx.Frame):
     dragSize = None
 
     def __init__(self, title="DPS meter", size=(300, 100)):
-       wx.Frame.__init__(self, None, title=title, size=size, style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
+        wx.Frame.__init__(self, None, title=title, size=size, style=wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR)
 
-       self.hwnd = self.GetHandle()
-       self.title = title
+        self.hwnd = self.GetHandle()
+        self.title = title
 
-       # UI
-       self.panel = wx.Panel(self)
-       self.panel.SetDoubleBuffered(True)
-       self.box = wx.BoxSizer(wx.VERTICAL)
+        # UI
+        self.panel = wx.Panel(self)
+        self.panel.SetDoubleBuffered(True)
+        self.box = wx.BoxSizer(wx.VERTICAL)
 
-       self.createUI()
-       self.updateUI()
+        self.createUI()
+        self.updateUI()
 
-       self.panel.SetSizer(self.box)
-       self.panel.Layout()
+        self.panel.SetSizer(self.box)
+        self.panel.Layout()
 
-       # For some reason, frames with no caption do not layout properly.
-       self.panel.SetSize(self.GetSize())
+        # For some reason, frames with no caption do not layout properly.
+        self.panel.SetSize(self.GetSize())
 
-       self.panel.Bind(wx.EVT_MOTION, self.onMouseMove)
+        self.panel.Bind(wx.EVT_MOTION, self.onMouseMove)
 
-       self.bindViews(self.box)
+        self.bindViews(self.box)
 
-       self.updateTimer = wx.Timer(self)
-       self.updateTimer.Start(400)
-       self.Bind(wx.EVT_TIMER, self.onUpdateTimer, self.updateTimer)
+        self.updateTimer = wx.Timer(self)
+        self.updateTimer.Start(400)
+        self.Bind(wx.EVT_TIMER, self.onUpdateTimer, self.updateTimer)
 
-       self.setFocusable(False)
-       self.updateColors()
+        self.setFocusable(False)
+        self.updateColors()
 
-       savedPosition = config.getXY("overlay_%s_pos"%self.getDerivedName())
-       if savedPosition != None:
-          self.SetPosition(savedPosition)
+        savedPosition = config.getXY("overlay_%s_pos"%self.getDerivedName())
+        if savedPosition != None:
+            self.SetPosition(savedPosition)
 
-       savedSize = config.getXY("overlay_%s_size"%self.getDerivedName())
-       if savedSize != None:
-          self.SetSize(savedSize)
+        savedSize = config.getXY("overlay_%s_size"%self.getDerivedName())
+        if savedSize != None:
+            self.SetSize(savedSize)
 
     def onUpdateTimer(self, event):
-       self.updateUI()
+        self.updateUI()
 
-       # Always on Top isn't always so, well, on top. This is a hack to fix those
-       # situations. Example: Tabbing to client, then clicking SWTOR, then tabbing
-       # back then clicking SWTOR again hides the overlays. We have the taskbar icon
-       # hidden and pop the overlay back on top at a regular interval.
-       fgHwnd = win32gui.GetForegroundWindow()
-       if win32gui.GetWindowText(fgHwnd).find(': The Old Republic') != -1:
-          topMost = win32gui.GetWindow(self.GetHandle(), GW_HWNDFIRST)
-          topMostTitle = win32gui.GetWindowText(topMost)
-          if topMostTitle == self.GetTitle() or topMostTitle == 'MSCTFIME UI':
-             return
-          if overlays.isOverlayBeingDragged():
-             return
-          self.pushToTop()
+        # Always on Top isn't always so, well, on top. This is a hack to fix those
+        # situations. Example: Tabbing to client, then clicking SWTOR, then tabbing
+        # back then clicking SWTOR again hides the overlays. We have the taskbar icon
+        # hidden and pop the overlay back on top at a regular interval.
+        fgHwnd = win32gui.GetForegroundWindow()
+        if win32gui.GetWindowText(fgHwnd).find(': The Old Republic') != -1:
+            topMost = win32gui.GetWindow(self.GetHandle(), GW_HWNDFIRST)
+            topMostTitle = win32gui.GetWindowText(topMost)
+            if topMostTitle == self.GetTitle() or topMostTitle == 'MSCTFIME UI':
+                return
+            if overlays.isOverlayBeingDragged():
+                return
+            self.pushToTop()
 
     def bindViews(self, v):
-       for child in v.GetChildren():
-          if isinstance(child, wx.Sizer):
-             self.bindViews(child.GetSizer())
-          cv = child.GetWindow()
-          if hasattr(cv, 'GetGridWindow'):
-             cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
-          elif hasattr(cv, 'Bind'):
-             cv.Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
+        for child in v.GetChildren():
+            if isinstance(child, wx.Sizer):
+                self.bindViews(child.GetSizer())
+            cv = child.GetWindow()
+            if hasattr(cv, 'GetGridWindow'):
+                cv.GetGridWindow().Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
+            elif hasattr(cv, 'Bind'):
+                cv.Bind(wx.EVT_MOTION, lambda e: self.onMouseMove(e))
 
     def pushToTop(self):
-       pos = self.GetPosition()
-       size = self.GetSize()
-       win32gui.SetWindowPos(self.GetHandle(), HWND_TOPMOST, pos[0], pos[1], size[0], size[1], SWP_NOACTIVATE)
+        pos = self.GetPosition()
+        size = self.GetSize()
+        win32gui.SetWindowPos(self.GetHandle(), HWND_TOPMOST, pos[0], pos[1], size[0], size[1], SWP_NOACTIVATE)
 
     # Because writing self.__class__.__name__ everywhere is ugly.
     def getDerivedName(self):
-       return self.__class__.__name__
+        return self.__class__.__name__
 
     def getBackgroundColor(self):
-       return config.getColor("overlayBgColor")
+        return config.getColor("overlayBgColor")
 
     def getForegroundColor(self):
-       return config.getColor("overlayFgColor")
+        return config.getColor("overlayFgColor")
 
     def updateColors(self):
-       self.SetBackgroundColour(self.getBackgroundColor())
-       self.panel.SetBackgroundColour(self.getBackgroundColor())
-       self.titleText.SetForegroundColour(self.getForegroundColor())
-       self.setAlpha(config.get("overlayOpacity"))
-       self.Refresh()
+        self.SetBackgroundColour(self.getBackgroundColor())
+        self.panel.SetBackgroundColour(self.getBackgroundColor())
+        self.titleText.SetForegroundColour(self.getForegroundColor())
+        self.setAlpha(config.get("overlayOpacity"))
+        self.Refresh()
 
     def createUI(self):
-       # Title
-       self.titleText = wx.StaticText(self.panel, -1, self.title)
-       self.titleText.SetSize(self.titleText.GetBestSize())
-       self.box.Add(self.titleText, 0, wx.ALL & ~wx.BOTTOM, 10)
+        # Title
+        self.titleText = wx.StaticText(self.panel, -1, self.title)
+        self.titleText.SetSize(self.titleText.GetBestSize())
+        self.box.Add(self.titleText, 0, wx.ALL & ~wx.BOTTOM, 10)
 
     def updateUI(self):
-       self.titleText.SetFont(wx.Font(config.get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
-       self.setClickThrough(config.get("overlayClickThrough"))
-       self.updateColors()
+        self.titleText.SetFont(wx.Font(config.get("overlayHeaderFontSize"), wx.SWISS, wx.NORMAL, wx.BOLD))
+        self.setClickThrough(config.get("overlayClickThrough"))
+        self.updateColors()
 
     def setFocusable(self, isFocusable):
-       style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
-       if isFocusable:
-          style &= ~WS_EX_NOACTIVATE
-       else:
-          style |= WS_EX_NOACTIVATE
-       win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
+        style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
+        if isFocusable:
+            style &= ~WS_EX_NOACTIVATE
+        else:
+            style |= WS_EX_NOACTIVATE
+        win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
 
     def setClickThrough(self, clickThrough):
-       style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
-       if clickThrough:
-          style |= WS_EX_TRANSPARENT
-       else:
-          style &= ~WS_EX_TRANSPARENT
-       win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
+        style = win32gui.GetWindowLong(self.hwnd, GWL_EXSTYLE)
+        if clickThrough:
+            style |= WS_EX_TRANSPARENT
+        else:
+            style &= ~WS_EX_TRANSPARENT
+        win32gui.SetWindowLong(self.hwnd, GWL_EXSTYLE, style)
 
     def setAlpha(self, alpha):
-       self.SetTransparent(alpha)
+        self.SetTransparent(alpha)
 
     # Mouse movement event
     def onMouseMove(self, event):
-       if not event.Dragging():
-          if self.dragDiff:
-             self.panel.ReleaseMouse()
-             self.dragDiff = None
-             self.dragSize = None
-             self.sizePoint = None
-             config.setXY("overlay_%s_pos"%self.getDerivedName(), self.GetPositionTuple())
-             config.setXY("overlay_%s_size"%self.getDerivedName(), self.GetSizeTuple())
-             overlays.setOverlayBeingDragged(False)
-          return
+        if not event.Dragging():
+            if self.dragDiff:
+                self.panel.ReleaseMouse()
+                self.dragDiff = None
+                self.dragSize = None
+                self.sizePoint = None
+                config.setXY("overlay_%s_pos"%self.getDerivedName(), self.GetPositionTuple())
+                config.setXY("overlay_%s_size"%self.getDerivedName(), self.GetSizeTuple())
+                overlays.setOverlayBeingDragged(False)
+            return
 
-       (sw, sh) = (win32api.GetSystemMetrics(0), win32api.GetSystemMetrics(1))
+        (sw, sh) = (win32api.GetSystemMetrics(0), win32api.GetSystemMetrics(1))
 
-       x, y = win32gui.GetCursorPos()
-       pos = wx.Point(x, y)
-       if not self.dragDiff:
-          self.panel.CaptureMouse()
-          self.dragDiff = pos - self.GetPosition()
-          overlays.setOverlayBeingDragged(True)
-          self.pushToTop()
+        x, y = win32gui.GetCursorPos()
+        pos = wx.Point(x, y)
+        if not self.dragDiff:
+            self.panel.CaptureMouse()
+            self.dragDiff = pos - self.GetPosition()
+            overlays.setOverlayBeingDragged(True)
+            self.pushToTop()
 
-       if event.ShiftDown():
-          if not self.dragSize:
-             self.dragSize = self.GetSize()
-             self.sizePoint = pos
-       else:
-          if self.dragSize:
-             sdiff = pos - self.sizePoint
-             self.dragDiff = self.dragDiff + sdiff
-             self.dragSize = None
-             self.sizePoint = None
+        if event.ShiftDown():
+            if not self.dragSize:
+                self.dragSize = self.GetSize()
+                self.sizePoint = pos
+        else:
+            if self.dragSize:
+                sdiff = pos - self.sizePoint
+                self.dragDiff = self.dragDiff + sdiff
+                self.dragSize = None
+                self.sizePoint = None
 
-       position = pos - self.dragDiff
+        position = pos - self.dragDiff
 
-       if event.ShiftDown():
-          p = self.GetPosition()
-          sdiff = pos - self.sizePoint
-          sz = self.dragSize + (sdiff[0], sdiff[1])
+        if event.ShiftDown():
+            p = self.GetPosition()
+            sdiff = pos - self.sizePoint
+            sz = self.dragSize + (sdiff[0], sdiff[1])
 
-          # Cap size
-          if config.get("overlaySnap"):
-             for monitor in win32api.EnumDisplayMonitors():
-                (sx, sy, sw, sh) = monitor[2]
-                if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
-                    xd = sx + sw - (p[0] + sz[0])
-                    yd = sy + sh - (p[1] + sz[1])
-                    sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
-                    sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
+            # Cap size
+            if config.get("overlaySnap"):
+                for monitor in win32api.EnumDisplayMonitors():
+                    (sx, sy, sw, sh) = monitor[2]
+                    if p[0] > sx and p[0] < sx + sw and p[1] > sy and p[1] < sy + sh:
+                        xd = sx + sw - (p[0] + sz[0])
+                        yd = sy + sh - (p[1] + sz[1])
+                        sz[0] = (sz[0] + xd) if xd < 0 else sz[0]
+                        sz[1] = (sz[1] + yd) if yd < 0 else sz[1]
 
-          if config.get("overlaySizeToGrid"):
-             sz[0] = int(round(sz[0] / 10.0) * 10)
-             sz[1] = int(round(sz[1] / 10.0) * 10)
+            if config.get("overlaySizeToGrid"):
+                sz[0] = int(round(sz[0] / 10.0) * 10)
+                sz[1] = int(round(sz[1] / 10.0) * 10)
 
-          self.SetSize(sz)
-          return
+            self.SetSize(sz)
+            return
 
-       snapThreshold = 20
+        snapThreshold = 20
 
-       if config.get("overlaySnap"):
-          for monitor in win32api.EnumDisplayMonitors():
-             (sx, sy, sr, sb) = monitor[2]
-             sw = sr - sx
-             sh = sb - sy
+        if config.get("overlaySnap"):
+            for monitor in win32api.EnumDisplayMonitors():
+                (sx, sy, sr, sb) = monitor[2]
+                sw = sr - sx
+                sh = sb - sy
 
-             # Cap top left, top right
-             position[0] = sx if position[0] < sx + snapThreshold and position[0] > sx - snapThreshold else position[0]
-             position[1] = sy if position[1] < sy + snapThreshold and position[1] > sy - snapThreshold else position[1]
+                # Cap top left, top right
+                position[0] = sx if position[0] < sx + snapThreshold and position[0] > sx - snapThreshold else position[0]
+                position[1] = sy if position[1] < sy + snapThreshold and position[1] > sy - snapThreshold else position[1]
 
-             # Cap bottom left, bottom right
-             size = self.GetSizeTuple()
-             extent = position + size
-             position[0] = sx + sw - size[0] if extent[0] > sx + sw - snapThreshold and extent[0] < sx + sw + snapThreshold else position[0]
-             position[1] = sy + sh - size[1] if extent[1] > sy + sh - snapThreshold and extent[1] < sy + sh + snapThreshold else position[1]
+                # Cap bottom left, bottom right
+                size = self.GetSizeTuple()
+                extent = position + size
+                position[0] = sx + sw - size[0] if extent[0] > sx + sw - snapThreshold and extent[0] < sx + sw + snapThreshold else position[0]
+                position[1] = sy + sh - size[1] if extent[1] > sy + sh - snapThreshold and extent[1] < sy + sh + snapThreshold else position[1]
 
-       self.SetPosition(position)
+        self.SetPosition(position)

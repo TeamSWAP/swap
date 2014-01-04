@@ -22,6 +22,6 @@ from fuzion import *
 
 def setDebug(func):
     if not func:
-       fuzion.debug = lambda *x: None
+        fuzion.debug = lambda *x: None
     else:
-       fuzion.debug = func
+        fuzion.debug = func

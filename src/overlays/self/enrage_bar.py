@@ -29,41 +29,40 @@ from logging import prnt
 
 class EnrageBarOverlay(BaseOverlay):
     def __init__(self):
-       BaseOverlay.__init__(self, title="Enrage")
+        BaseOverlay.__init__(self, title="Enrage")
 
-       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-       analyzer = log_analyzer.get()
-       analyzer.registerFrame(self)
-       self.onAnalyzerTick(analyzer)
+        analyzer = log_analyzer.get()
+        analyzer.registerFrame(self)
+        self.onAnalyzerTick(analyzer)
 
     def createUI(self):
-       BaseOverlay.createUI(self)
+        BaseOverlay.createUI(self)
 
-       self.bar = ShareBar(self.panel, -1)
-       self.bar.SetValue(0.0)
-       self.bar.SetLabel("")
-       self.bar.SetReversed(True)
-       self.bar.SetSize(self.bar.GetBestSize())
-       self.bar.SetForegroundColour("red")
-       self.box.Add(self.bar, 1, wx.EXPAND | wx.ALL, 10)
+        self.bar = ShareBar(self.panel, -1)
+        self.bar.SetValue(0.0)
+        self.bar.SetLabel("")
+        self.bar.SetReversed(True)
+        self.bar.SetSize(self.bar.GetBestSize())
+        self.bar.SetForegroundColour("red")
+        self.box.Add(self.bar, 1, wx.EXPAND | wx.ALL, 10)
 
     def updateColors(self):
-       self.bar.SetBackgroundColour(self.getBackgroundColor())
-       BaseOverlay.updateColors(self)
+        self.bar.SetBackgroundColour(self.getBackgroundColor())
+        BaseOverlay.updateColors(self)
 
     def OnClose(self, event):
-       log_analyzer.get().unregisterFrame(self)
+        log_analyzer.get().unregisterFrame(self)
 
     def onAnalyzerTick(self, analyzer):
-       enrageTime = config.get("customEnrageTime")
-       if not enrageTime:
-          self.bar.SetValue(0)
-          self.bar.SetLabel("")
-          return
+        enrageTime = config.get("customEnrageTime")
+        if not enrageTime:
+            self.bar.SetValue(0)
+            self.bar.SetLabel("")
+            return
 
-       enrageTime = float(enrageTime)
+        enrageTime = float(enrageTime)
 
-       self.bar.SetValue(1.0 - util.div(analyzer.combatDuration, enrageTime))
-       self.bar.SetLabel(util.formatDuration(enrageTime - analyzer.combatDuration))
-
+        self.bar.SetValue(1.0 - util.div(analyzer.combatDuration, enrageTime))
+        self.bar.SetLabel(util.formatDuration(enrageTime - analyzer.combatDuration))

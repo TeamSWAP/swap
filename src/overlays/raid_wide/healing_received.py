@@ -31,45 +31,44 @@ from logging import prnt
 
 class RaidHealingReceivedOverlay(BaseListOverlay):
     def __init__(self):
-       BaseListOverlay.__init__(self, title="Raid Healing Received", size=(300, 150))
+        BaseListOverlay.__init__(self, title="Raid Healing Received", size=(300, 150))
 
-       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-       analyzer = log_analyzer.get()
-       analyzer.registerFrame(self)
-       self.onAnalyzerTick(analyzer)
+        analyzer = log_analyzer.get()
+        analyzer.registerFrame(self)
+        self.onAnalyzerTick(analyzer)
 
     def createUI(self):
-       BaseListOverlay.createUI(self)
+        BaseListOverlay.createUI(self)
 
-       self.setColumns(["Player", "Healing Received", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
+        self.setColumns(["Player", "Healing Received", "ShareBar"], [1, 1, 1], [BaseListOverlay.LEFT, BaseListOverlay.LEFT, BaseListOverlay.RIGHT])
 
     def OnClose(self, event):
-       if event.GetEventObject() == self:
-          log_analyzer.get().unregisterFrame(self)
+        if event.GetEventObject() == self:
+            log_analyzer.get().unregisterFrame(self)
 
     def onAnalyzerTick(self, analyzer):
-       self.beginBatch()
-       self.clearList()
+        self.beginBatch()
+        self.clearList()
 
-       index = 0
-       raidTotalHealingReceived = 0
-       for player in raid.playerData:
-          raidTotalHealingReceived += player['totalHealingReceived']
+        index = 0
+        raidTotalHealingReceived = 0
+        for player in raid.playerData:
+            raidTotalHealingReceived += player['totalHealingReceived']
 
-       for player in sorted(raid.playerData, key=lambda x:x['totalHealingReceived'], reverse=True):
-          if player['totalHealingReceived'] == 0:
-             continue
+        for player in sorted(raid.playerData, key=lambda x:x['totalHealingReceived'], reverse=True):
+            if player['totalHealingReceived'] == 0:
+                continue
 
-          percent = util.div(player['totalHealingReceived'], raidTotalHealingReceived)
+            percent = util.div(player['totalHealingReceived'], raidTotalHealingReceived)
 
-          color = self.getForegroundColor()
-          if player['name'] == analyzer.parser.me.rawName:
-             color = config.getColor("overlayListSelfColor")
+            color = self.getForegroundColor()
+            if player['name'] == analyzer.parser.me.rawName:
+                color = config.getColor("overlayListSelfColor")
 
-          self.addRow([player['name'][1:], locale.format("%d", player['totalHealingReceived'], grouping=True), percent], color)
+            self.addRow([player['name'][1:], locale.format("%d", player['totalHealingReceived'], grouping=True), percent], color)
 
-          index += 1
-       self.endBatch()
-       self.panel.Layout()
-
+            index += 1
+        self.endBatch()
+        self.panel.Layout()

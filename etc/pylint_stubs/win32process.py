@@ -90,6 +90,4 @@ def beginthreadex(*x, **y): return None
 
 # Classes
 class error(object):
-   pass
-
-
+    pass

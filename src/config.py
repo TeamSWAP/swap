@@ -46,27 +46,27 @@ def load():
     atexit.register(save)
 
     if not os.path.exists('settings.json'):
-       return
+        return
 
     try:
-       f = open('settings.json', 'r')
-       data = json.loads(f.read())
-       f.close()
+        f = open('settings.json', 'r')
+        data = json.loads(f.read())
+        f.close()
     except Exception, e:
-       prnt(traceback.format_exc())
+        prnt(traceback.format_exc())
     else:
-       settings = data
+        settings = data
 
     # Convert from old format
     bg = get("overlayBgColor")
     if isinstance(bg, basestring):
-       prnt("Legacy overlay colors found, converting...")
-       bg = int(bg[1:], 16)
-       set("overlayBgColor", bg)
+        prnt("Legacy overlay colors found, converting...")
+        bg = int(bg[1:], 16)
+        set("overlayBgColor", bg)
 
-       fg = get("overlayFgColor")
-       fg = int(fg[1:], 16)
-       set("overlayFgColor", fg)
+        fg = get("overlayFgColor")
+        fg = int(fg[1:], 16)
+        set("overlayFgColor", fg)
 
 def save():
     f = open('settings.json', 'w')
@@ -76,15 +76,15 @@ def save():
 def get(name):
     global settings
     if name in settings.keys():
-       return settings[name]
+        return settings[name]
     if name in defaults.keys():
-       return defaults[name]
+        return defaults[name]
     return None
 
 def getXY(name):
     xy = get(name)
     if xy == None:
-       return None
+        return None
     x = (xy >> 16) & 0xFFFF
     y = xy & 0xFFFF
     return [x, y]
@@ -92,7 +92,7 @@ def getXY(name):
 def getColor(name):
     xy = get(name)
     if xy == None:
-       return None
+        return None
     r = (xy >> 16) & 0xFF
     g = (xy >> 8) & 0xFF
     b = xy & 0xFF
@@ -117,4 +117,4 @@ def setColor(name, value):
 def remove(name):
     global settings
     if name in settings.keys():
-       del settings[name]
+        del settings[name]

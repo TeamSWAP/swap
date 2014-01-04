@@ -255,10 +255,8 @@ def mouse_event(*x, **y): return None
 
 # Classes
 class PyDISPLAY_DEVICEType(object):
-   def Clear(*x, **y): return None
+    def Clear(*x, **y): return None
 
 
 class error(object):
-   pass
-
-
+    pass

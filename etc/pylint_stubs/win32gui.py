@@ -399,6 +399,4 @@ def set_logger(*x, **y): return None
 
 # Classes
 class error(object):
-   pass
-
-
+    pass

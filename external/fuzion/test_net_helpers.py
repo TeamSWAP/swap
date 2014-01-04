@@ -21,7 +21,7 @@ import net_helpers
 
 def assertEq(a, b):
     if a == b:
-       return
+        return
     print "ASSERTION FAILED!", a, "!=", b
     exit()
 
@@ -29,21 +29,21 @@ if __name__ == '__main__':
     packer = net_helpers.Packer()
     packets = []
     for i in range(1, 1024):
-       packets.append(hashlib.md5(str(random.random())).hexdigest())
+        packets.append(hashlib.md5(str(random.random())).hexdigest())
     stream = ""
     for p in packets:
-       stream += packer.pack(p)
+        stream += packer.pack(p)
     def testPacker(x):
-       packer = net_helpers.Packer()
-       last = 0
-       for i in range(0, len(stream), x):
-          #print stream[last:last+x]
-          packer.read(stream[last:last+x])
-          last += x
-       for i in range(0, len(packets)):
-          assertEq(packer.popPacket(), packets[i])
+        packer = net_helpers.Packer()
+        last = 0
+        for i in range(0, len(stream), x):
+            #print stream[last:last+x]
+            packer.read(stream[last:last+x])
+            last += x
+        for i in range(0, len(packets)):
+            assertEq(packer.popPacket(), packets[i])
     for i in range(1, 1024):
-       print "TESTING %d..."%i,
-       testPacker(i)
-       print "OK"
+        print "TESTING %d..."%i,
+        testPacker(i)
+        print "OK"
     print "PASSED"

@@ -27,30 +27,29 @@ from logging import prnt
 
 class FightTimerOverlay(BaseOverlay):
     def __init__(self):
-       BaseOverlay.__init__(self, title="Fight Timer")
+        BaseOverlay.__init__(self, title="Fight Timer")
 
-       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-       analyzer = log_analyzer.get()
-       analyzer.registerFrame(self)
-       self.onAnalyzerTick(analyzer)
+        analyzer = log_analyzer.get()
+        analyzer.registerFrame(self)
+        self.onAnalyzerTick(analyzer)
 
     def createUI(self):
-       BaseOverlay.createUI(self)
+        BaseOverlay.createUI(self)
 
-       # Timer
-       self.timer = wx.StaticText(self.panel, -1, "")
-       self.timer.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-       self.timer.SetSize(self.timer.GetBestSize())
-       self.box.Add(self.timer, 0, wx.ALL, 10)
+        # Timer
+        self.timer = wx.StaticText(self.panel, -1, "")
+        self.timer.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+        self.timer.SetSize(self.timer.GetBestSize())
+        self.box.Add(self.timer, 0, wx.ALL, 10)
 
     def updateColors(self):
-       self.timer.SetForegroundColour(self.getForegroundColor())
-       BaseOverlay.updateColors(self)
+        self.timer.SetForegroundColour(self.getForegroundColor())
+        BaseOverlay.updateColors(self)
 
     def OnClose(self, event):
-       log_analyzer.get().unregisterFrame(self)
+        log_analyzer.get().unregisterFrame(self)
 
     def onAnalyzerTick(self, analyzer):
-       self.timer.SetLabel(util.formatDuration(analyzer.combatDurationLinear))
-
+        self.timer.SetLabel(util.formatDuration(analyzer.combatDurationLinear))

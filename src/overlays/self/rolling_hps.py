@@ -28,30 +28,29 @@ from logging import prnt
 
 class RollingHPSOverlay(BaseOverlay):
     def __init__(self):
-       BaseOverlay.__init__(self, title="Rolling HPS")
+        BaseOverlay.__init__(self, title="Rolling HPS")
 
-       self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.OnClose)
 
-       analyzer = log_analyzer.get()
-       analyzer.registerFrame(self)
-       self.onAnalyzerTick(analyzer)
+        analyzer = log_analyzer.get()
+        analyzer.registerFrame(self)
+        self.onAnalyzerTick(analyzer)
 
     def createUI(self):
-       BaseOverlay.createUI(self)
+        BaseOverlay.createUI(self)
 
-       # HPS
-       self.hps = wx.StaticText(self.panel, -1, "2100.35")
-       self.hps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
-       self.hps.SetSize(self.hps.GetBestSize())
-       self.box.Add(self.hps, 0, wx.ALL, 10)
+        # HPS
+        self.hps = wx.StaticText(self.panel, -1, "2100.35")
+        self.hps.SetFont(wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD))
+        self.hps.SetSize(self.hps.GetBestSize())
+        self.box.Add(self.hps, 0, wx.ALL, 10)
 
     def updateColors(self):
-       self.hps.SetForegroundColour(self.getForegroundColor())
-       BaseOverlay.updateColors(self)
+        self.hps.SetForegroundColour(self.getForegroundColor())
+        BaseOverlay.updateColors(self)
 
     def OnClose(self, event):
-       log_analyzer.get().unregisterFrame(self)
+        log_analyzer.get().unregisterFrame(self)
 
     def onAnalyzerTick(self, analyzer):
-       self.hps.SetLabel(locale.format("%.2f", analyzer.hps, grouping=True))
-
+        self.hps.SetLabel(locale.format("%.2f", analyzer.hps, grouping=True))
